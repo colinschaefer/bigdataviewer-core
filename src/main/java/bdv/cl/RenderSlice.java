@@ -19,12 +19,14 @@ import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.realtransform.AffineTransform2D;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
+import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.ui.InteractiveDisplayCanvasComponent;
 import net.imglib2.ui.overlay.BufferedImageOverlayRenderer;
 import net.imglib2.ui.util.GuiUtil;
 import net.imglib2.util.IntervalIndexer;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
+import bdv.AbstractViewerImgLoader;
 import bdv.cl.BlockTexture.Block;
 import bdv.cl.BlockTexture.BlockKey;
 import bdv.cl.FindRequiredBlocks.RequiredBlocks;
@@ -53,7 +55,7 @@ import com.jogamp.opencl.CLProgram;
 
 public class RenderSlice
 {
-	private final Hdf5ImageLoader imgLoader;
+	private final AbstractViewerImgLoader< UnsignedShortType, VolatileUnsignedShortType > imgLoader;
 
 	private CLContext cl;
 
@@ -71,7 +73,7 @@ public class RenderSlice
 
 	private final int[] paddedBlockSize = new int[] { 33, 33, 9 };
 
-	public RenderSlice( final Hdf5ImageLoader imgLoader )
+	public RenderSlice( final AbstractViewerImgLoader< UnsignedShortType, VolatileUnsignedShortType > imgLoader )
 	{
 		this.imgLoader = imgLoader;
 
@@ -82,7 +84,8 @@ public class RenderSlice
 			CLDevice device = null;
 			for ( final CLDevice dev : cl.getDevices() )
 			{
-				if ( "GeForce GT 650M".equals( dev.getName() ) )
+				if ( "NVIDIA Quadro 2000D".equals( dev.getName() ) )
+//				if ( "GeForce GT 650M".equals( dev.getName() ) )
 //				if ( "HD Graphics 4000".equals( dev.getName() ) )
 				{
 					device = dev;
@@ -90,6 +93,8 @@ public class RenderSlice
 					break;
 				}
 			}
+			// using the automated device chooser
+			device = cl.getMaxFlopsDevice();
 			queue = device.createCommandQueue( Mode.PROFILING_MODE );
 
 			final CLProgram program = cl.createProgram( this.getClass().getResourceAsStream( "slice2.cl" ) ).build();

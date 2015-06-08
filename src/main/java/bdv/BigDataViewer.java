@@ -30,7 +30,9 @@ import net.imglib2.display.ScaledARGBConverter;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.volatiles.VolatileARGBType;
+import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.ui.TransformListener;
 
 import org.jdom2.Document;
@@ -491,7 +493,7 @@ public class BigDataViewer
 	private volatile boolean renderContinuously = false;
 	private void setupVolumeRendering( final AbstractSpimData< ? > spimData )
 	{
-		final Hdf5ImageLoader imgLoader = ( Hdf5ImageLoader ) spimData.getSequenceDescription().getImgLoader();
+		final AbstractViewerImgLoader< UnsignedShortType, VolatileUnsignedShortType > imgLoader = ( AbstractViewerImgLoader< UnsignedShortType, VolatileUnsignedShortType > ) spimData.getSequenceDescription().getImgLoader();
 		final RenderSlice render = new RenderSlice( imgLoader );
 		final String RENDER_SLICE = "render slice";
 		final String RENDER_CONTINUOUS = "continuous";
@@ -734,7 +736,7 @@ public class BigDataViewer
 	{
 //		final String fn = "http://tomancak-mac-17.mpi-cbg.de:8080/openspim/";
 //		final String fn = "/Users/Pietzsch/Desktop/openspim/datasetHDF.xml";
-		final String fn = "/Users/pietzsch/workspace/data/111010_weber_full.xml";
+//		final String fn = "/Users/pietzsch/workspace/data/111010_weber_full.xml";
 //		final String fn = "/Users/Pietzsch/Desktop/spimrec2/dataset.xml";
 //		final String fn = "/Users/pietzsch/Desktop/HisYFP-SPIM/dataset.xml";
 //		final String fn = "/Users/Pietzsch/Desktop/bdv example/drosophila 2.xml";
@@ -753,6 +755,7 @@ public class BigDataViewer
 //		final String fn = "/Users/pietzsch/Desktop/data/clusterValia/140219-1/valia-140219-1.xml";
 //		final String fn = "/Users/pietzsch/workspace/data/111010_weber_full.xml";
 //		final String fn = "/Volumes/projects/tomancak_lightsheet/Mette/ZeissZ1SPIM/Maritigrella/021013_McH2BsGFP_CAAX-mCherry/11-use/hdf5/021013_McH2BsGFP_CAAX-mCherry-11-use.xml";
+		final String fn = "D:/Users/Colin/MATLAB/KLBdownsampler/TM000000/blibb.xml";
 		try
 		{
 			System.setProperty( "apple.laf.useScreenMenuBar", "true" );
