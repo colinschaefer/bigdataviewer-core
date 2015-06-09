@@ -25,6 +25,7 @@ public class BigDataViewerActions
 	public static final String SET_BOOKMARK = "set bookmark";
 	public static final String GO_TO_BOOKMARK = "go to bookmark";
 	public static final String GO_TO_BOOKMARK_ROTATION = "go to bookmark rotation";
+	public static final String Z_DIM = "Z-dimension of maximum projection";
 
 	/**
 	 * Create BigDataViewer actions and install them in the specified
@@ -62,6 +63,7 @@ public class BigDataViewerActions
 		map.put( GO_TO_BOOKMARK, "B" );
 		map.put( GO_TO_BOOKMARK_ROTATION, "O" );
 		map.put( SET_BOOKMARK, "shift B" );
+		map.put(Z_DIM, "Z");
 
 		return inputMap;
 	}
@@ -76,6 +78,7 @@ public class BigDataViewerActions
 		map.put( new ToggleDialogAction( CROP, bdv.cropDialog ) );
 		map.put( new ToggleDialogAction( RECORD_MOVIE, bdv.movieDialog ) );
 		map.put( new ToggleDialogAction( SHOW_HELP, bdv.helpDialog ) );
+		map.put( new ToggleDialogAction(Z_DIM, bdv.zdimDialog));
 		map.put( new ManualTransformAction( bdv ) );
 		map.put( new SetBookmarkAction( bdv ) );
 		map.put( new GoToBookmarkAction( bdv ) );

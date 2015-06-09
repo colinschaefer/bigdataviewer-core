@@ -65,6 +65,7 @@ import bdv.tools.crop.CropDialog;
 import bdv.tools.transformation.ManualTransformation;
 import bdv.tools.transformation.ManualTransformationEditor;
 import bdv.tools.transformation.TransformedSource;
+import bdv.tools.zdim.ZdimDialog;
 import bdv.util.KeyProperties;
 import bdv.viewer.InputActionBindings;
 import bdv.viewer.NavigationActions;
@@ -94,6 +95,8 @@ public class BigDataViewer
 	protected final VisibilityAndGroupingDialog activeSourcesDialog;
 
 	protected final HelpDialog helpDialog;
+	
+	protected final ZdimDialog zdimDialog;
 
 	protected final ManualTransformationEditor manualTransformationEditor;
 
@@ -342,7 +345,9 @@ public class BigDataViewer
 			for ( final ConverterSetup setup : setupAssignments.getConverterSetups() )
 				setupAssignments.moveSetupToGroup( setup, group );
 		}
-
+		
+		zdimDialog = new ZdimDialog(viewerFrame, setupAssignments);
+		
 		brightnessDialog = new BrightnessDialog( viewerFrame, setupAssignments );
 
 		cropDialog = ( spimData == null ) ? null : new CropDialog( viewerFrame, viewer, spimData.getSequenceDescription() );
@@ -410,6 +415,10 @@ public class BigDataViewer
 		final JMenuItem miVisibility = new JMenuItem( actionMap.get( BigDataViewerActions.VISIBILITY_AND_GROUPING ) );
 		miVisibility.setText( "Visibility & Grouping" );
 		menu.add( miVisibility );
+		
+		final JMenuItem miZdim = new JMenuItem( actionMap.get( BigDataViewerActions.Z_DIM ) );
+		miZdim.setText( "max. proj z dimension" );
+		menu.add( miZdim );		
 
 		menu = new JMenu( "Tools" );
 		menubar.add( menu );
