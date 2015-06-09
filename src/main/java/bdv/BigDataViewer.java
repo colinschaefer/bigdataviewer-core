@@ -481,7 +481,7 @@ public class BigDataViewer
 		final BigDataViewer bdv = open ( spimData, windowTitle, progressWriter );
 		if ( !bdv.tryLoadSettings( xmlFilename ) )
 			InitializeViewerState.initBrightness( 0.001, 0.999, bdv.viewer, bdv.setupAssignments );
-		bdv.setupVolumeRendering( spimData );
+		bdv.setupVolumeRendering2( spimData );
 		return bdv;
 	}
 
@@ -548,6 +548,54 @@ public class BigDataViewer
 		} );
 	}
 
+	private void setupVolumeRendering2( final AbstractSpimData< ? > spimData )
+	{
+		final AbstractViewerImgLoader< UnsignedShortType, VolatileUnsignedShortType > imgLoader = ( AbstractViewerImgLoader< UnsignedShortType, VolatileUnsignedShortType > ) spimData.getSequenceDescription().getImgLoader();
+		final RenderSlice render = new RenderSlice( imgLoader );
+		final String RENDER_SLICE = "render slice";
+		final String RENDER_CONTINUOUS = "continuous";
+		final InputMap inputMap = new InputMap();
+		inputMap.put( KeyStroke.getKeyStroke( "R" ), RENDER_SLICE );
+		inputMap.put( KeyStroke.getKeyStroke( "E" ), RENDER_CONTINUOUS );
+		final ActionMap actionMap = new ActionMap();
+		actionMap.put( RENDER_SLICE, new AbstractAction()
+		{
+			@Override
+			public void actionPerformed( final ActionEvent e )
+			{
+				final ViewerState state = viewer.getState();
+				final int width = 800;//viewer.getDisplay().getWidth();
+				final int height = 600;//viewer.getDisplay().getHeight();
+				render.renderSlice( state, width, height );
+			}
+		} );
+		actionMap.put( RENDER_CONTINUOUS, new AbstractAction()
+		{
+			@Override
+			public void actionPerformed( final ActionEvent e )
+			{
+				renderContinuously = !renderContinuously;
+			}
+		} );
+		final InputActionBindings bindings = viewerFrame.getKeybindings();
+		bindings.addActionMap( "volume", actionMap );
+		bindings.addInputMap( "volume", inputMap );
+		viewer.addRenderTransformListener( new TransformListener< AffineTransform3D >()
+		{
+			@Override
+			public void transformChanged( final AffineTransform3D transform )
+			{
+				if ( renderContinuously )
+				{
+					final ViewerState state = viewer.getState();
+					final int width = 800;//viewer.getDisplay().getWidth();
+					final int height = 600;//viewer.getDisplay().getHeight();
+					render.renderSlice2( state, width, height, viewer );
+				}
+			}
+		} );
+	}
+	
 	public ViewerPanel getViewer()
 	{
 		return viewer;
