@@ -41,6 +41,7 @@ import net.imglib2.ui.TransformEventHandler;
 import net.imglib2.ui.TransformEventHandler3D;
 import net.imglib2.ui.TransformEventHandlerFactory;
 import net.imglib2.ui.TransformListener;
+import net.imglib2.ui.overlay.BufferedImageOverlayRenderer;
 import net.imglib2.util.LinAlgHelpers;
 
 import org.jdom2.Element;
@@ -363,7 +364,16 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 
 		painterThread.start();
 	}
+	
+	
 
+	public void changeOverlayRenderer( final BufferedImageOverlayRenderer inputRenderer )
+	{
+		display.removeOverlayRenderer(renderTarget);
+		display.addOverlayRenderer(inputRenderer);
+		requestRepaint();
+	}
+	
 	public void addSource( final SourceAndConverter< ? > sourceAndConverter )
 	{
 		synchronized ( visibilityAndGrouping )
