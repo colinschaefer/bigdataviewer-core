@@ -552,23 +552,23 @@ public class BigDataViewer
 	{
 		final AbstractViewerImgLoader< UnsignedShortType, VolatileUnsignedShortType > imgLoader = ( AbstractViewerImgLoader< UnsignedShortType, VolatileUnsignedShortType > ) spimData.getSequenceDescription().getImgLoader();
 		final RenderSlice render = new RenderSlice( imgLoader );
-		final String RENDER_SLICE = "render slice";
+//		final String RENDER_SLICE = "render slice";
 		final String RENDER_CONTINUOUS = "continuous";
 		final InputMap inputMap = new InputMap();
-		inputMap.put( KeyStroke.getKeyStroke( "R" ), RENDER_SLICE );
+//		inputMap.put( KeyStroke.getKeyStroke( "R" ), RENDER_SLICE );
 		inputMap.put( KeyStroke.getKeyStroke( "E" ), RENDER_CONTINUOUS );
 		final ActionMap actionMap = new ActionMap();
-		actionMap.put( RENDER_SLICE, new AbstractAction()
-		{
-			@Override
-			public void actionPerformed( final ActionEvent e )
-			{
-				final ViewerState state = viewer.getState();
-				final int width = 800;//viewer.getDisplay().getWidth();
-				final int height = 600;//viewer.getDisplay().getHeight();
-				render.renderSlice( state, width, height );
-			}
-		} );
+//		actionMap.put( RENDER_SLICE, new AbstractAction()
+//		{
+//			@Override
+//			public void actionPerformed( final ActionEvent e )
+//			{
+//				final ViewerState state = viewer.getState();
+//				final int width = viewer.getDisplay().getWidth();
+//				final int height = viewer.getDisplay().getHeight();
+//				render.renderSlice2( state, width, height, viewer );
+//			}
+//		} );
 		actionMap.put( RENDER_CONTINUOUS, new AbstractAction()
 		{
 			@Override
@@ -588,9 +588,9 @@ public class BigDataViewer
 				if ( renderContinuously )
 				{
 					final ViewerState state = viewer.getState();
-					final int width = 800;//viewer.getDisplay().getWidth();
-					final int height = 600;//viewer.getDisplay().getHeight();
-					render.renderSlice2( state, width, height, viewer );
+					final int width = viewer.getDisplay().getWidth();
+					final int height =viewer.getDisplay().getHeight();
+					render.renderSlice2( state, width, height, viewer);
 				}
 			}
 		} );

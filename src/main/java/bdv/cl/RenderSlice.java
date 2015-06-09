@@ -34,6 +34,7 @@ import bdv.cl.FindRequiredBlocks.RequiredBlocks;
 import bdv.img.cache.CachedCellImg;
 import bdv.img.hdf5.Hdf5ImageLoader;
 import bdv.viewer.Source;
+import bdv.viewer.ViewerFrame;
 import bdv.viewer.ViewerPanel;
 import bdv.viewer.state.ViewerState;
 
@@ -277,7 +278,7 @@ public class RenderSlice
 
 	public void renderSlice2( final ViewerState viewerState, final int width, final int height, ViewerPanel viewer )
 	{
-		final int dimZ = 100;
+		final int dimZ = 400;
 		System.out.println();
 		final Source< ? > source = viewerState.getSources().get( 0 ).getSpimSource(); // TODO
 		final int timepoint = 0; // TODO
@@ -405,7 +406,7 @@ public class RenderSlice
 			data = new byte[ width * height ];
 
 		renderTarget.getBuffer().get( data );
-		show2( data, width, height, viewer );
+		show2( data, width, height, viewer);
 		renderTarget.release();
 
 		///////////////////
@@ -445,9 +446,9 @@ public class RenderSlice
 	
 	private void show2( final byte[] data, final int width, final int height, ViewerPanel viewer )
 	{
-		if ( display != null )
+		if ( viewer != null )
 		{
-			display.repaint();
+			viewer.repaint();
 			return;
 		}
 
@@ -459,15 +460,8 @@ public class RenderSlice
 		display = new InteractiveDisplayCanvasComponent< AffineTransform2D >( width, height, FixedTransformEventHandler2D.factory() );
 		display.addOverlayRenderer( target );
 		target.setCanvasSize( width, height );
-
-		final GraphicsConfiguration gc = GuiUtil.getSuitableGraphicsConfiguration( GuiUtil.RGB_COLOR_MODEL );
-		final JFrame frame = new JFrame( "ImgLib2", gc );
-		frame.getRootPane().setDoubleBuffered( true );
-		final Container content = frame.getContentPane();
-		content.add( display, BorderLayout.CENTER );
-		frame.pack();
-		frame.setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
-		frame.setVisible( true );
+//		final Container content = viewer.getRootPane();
+		viewer.add( display, BorderLayout.CENTER );
 	}
 
 	private short[] getBlockData( final int[] blockPos, final RandomAccessible< UnsignedShortType > img, final short[] useThisData )
