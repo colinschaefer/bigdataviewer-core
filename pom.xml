@@ -75,7 +75,12 @@
    			<scope>system</scope>
   		  	<systemPath>C:/Users/Colin/Desktop/Fiji.app/jars/klb-0.2.6.jar</systemPath>
   		  	<version>0.2.6</version>
-		</dependency>		
+		</dependency>	
+<dependency>
+	<groupId>junit</groupId>
+	<artifactId>junit</artifactId>
+</dependency>
+
 	</dependencies>
 
 	<developers>

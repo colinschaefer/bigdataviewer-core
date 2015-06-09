@@ -43,7 +43,7 @@ __kernel void slice(
 	const float3 bdf = convert_float3(blockDimensions);
 	const uint3 lookupDimensions = sizes[ 1 ].xyz;
 
-	const float2 ms = { lookupDimensions[ 0 ], lookupDimensions[ 0 ] * lookupDimensions[ 1 ] };
+	const float2 ms = { lookupDimensions.x, lookupDimensions.x * lookupDimensions.y };
 
 	const float3 pb = affine( transform, (float4) ( x, y, 0, 1 ) );
 	const float3 db = { transform[ 0 ].z, transform[ 1 ].z, transform[ 2 ].z };
@@ -101,7 +101,7 @@ __kernel void slice_nn(
 	const float3 bdf = convert_float3(blockDimensions);
 	const uint3 lookupDimensions = sizes[ 1 ].xyz;
 
-	const float2 ms = { lookupDimensions[ 0 ], lookupDimensions[ 0 ] * lookupDimensions[ 1 ] };
+	const float2 ms = { lookupDimensions.x, lookupDimensions.x * lookupDimensions.y };
 
 	const float3 pb = affine( transform, (float4) ( x, y, 0, 1 ) );
 	const float3 db = { transform[ 0 ].z, transform[ 1 ].z, transform[ 2 ].z };

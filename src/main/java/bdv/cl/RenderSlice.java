@@ -10,6 +10,7 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 import javax.swing.JFrame;
+import javax.swing.ListModel;
 
 import mpicbg.spim.data.sequence.ViewId;
 import net.imglib2.Cursor;
@@ -51,13 +52,17 @@ import com.jogamp.opencl.CLImageFormat.ChannelType;
 import com.jogamp.opencl.CLKernel;
 import com.jogamp.opencl.CLMemory.Map;
 import com.jogamp.opencl.CLMemory.Mem;
+import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.CLProgram;
+import com.jogamp.opencl.CLProgram.CompilerOptions;
 
 public class RenderSlice
 {
 	private final AbstractViewerImgLoader< UnsignedShortType, VolatileUnsignedShortType > imgLoader;
+	
+	private CLPlatform platform = CLPlatform.getDefault();
 
-	private CLContext cl;
+	private CLContext context;
 
 	private CLCommandQueue queue;
 
@@ -79,29 +84,29 @@ public class RenderSlice
 
 		try
 		{
-			cl = CLContext.create();
+			context = CLContext.create(platform.getMaxFlopsDevice());
 
-			CLDevice device = null;
-			for ( final CLDevice dev : cl.getDevices() )
-			{
-				if ( "NVIDIA Quadro 2000D".equals( dev.getName() ) )
+//			CLDevice device = null;
+//			CLDevice device = platform.listCLDevices(CLDevice.Type.ALL)[0];
+//			for ( final CLDevice dev : cl.getDevices() )
+//			{
+//				if ( "NVIDIA Quadro 2000D".equals( dev.getName() ) )
 //				if ( "GeForce GT 650M".equals( dev.getName() ) )
 //				if ( "HD Graphics 4000".equals( dev.getName() ) )
-				{
-					device = dev;
-					System.out.println( "using " + dev.getName() );
-					break;
-				}
-			}
-			// using the automated device chooser
-			device = cl.getMaxFlopsDevice();
-			queue = device.createCommandQueue( Mode.PROFILING_MODE );
-
-			final CLProgram program = cl.createProgram( this.getClass().getResourceAsStream( "slice2.cl" ) ).build();
+//				{
+//					device = dev;
+//					System.out.println( "using " + dev.getName() );
+//					break;
+//				}
+//			}
+			queue = context.getDevices()[0].createCommandQueue( Mode.PROFILING_MODE );
+			
+			final CLProgram program = context.createProgram( this.getClass().getResourceAsStream( "slice2.cl" ) );
+			program.build();
 			slice = program.createCLKernel( "slice" );
 
-			transformMatrix = cl.createFloatBuffer( 12, Mem.READ_ONLY, Mem.ALLOCATE_BUFFER );
-			sizes = cl.createIntBuffer( 8, Mem.READ_ONLY, Mem.ALLOCATE_BUFFER );
+			transformMatrix = context.createFloatBuffer( 12, Mem.READ_ONLY, Mem.ALLOCATE_BUFFER );
+			sizes = context.createIntBuffer( 8, Mem.READ_ONLY, Mem.ALLOCATE_BUFFER );
 
 			final int[] gridSize = BlockTexture.findSuitableGridSize( paddedBlockSize, 300 );
 			blockTexture = new BlockTexture( gridSize, paddedBlockSize, queue );
@@ -127,8 +132,8 @@ public class RenderSlice
 		if ( sizes != null && ! sizes.isReleased() )
 			sizes.release();
 
-		if ( cl != null && ! cl.isReleased() )
-			cl.release();
+		if ( context != null && ! context.isReleased() )
+			context.release();
 	}
 
 	public void renderSlice( final ViewerState viewerState, final int width, final int height )
@@ -174,7 +179,7 @@ public class RenderSlice
 			lookupDims[ d ] = maxCell[ d ] - minCell[ d ] + 1;
 		System.out.println( "need " + ( 4 * ( int ) Intervals.numElements( lookupDims ) ) + " shorts for lookup table" );
 
-		final CLBuffer< ShortBuffer > blockLookup = cl.createShortBuffer( 4 * ( int ) Intervals.numElements( lookupDims ) + 16, Mem.READ_ONLY, Mem.ALLOCATE_BUFFER );
+		final CLBuffer< ShortBuffer > blockLookup = context.createShortBuffer( 4 * ( int ) Intervals.numElements( lookupDims ) + 16, Mem.READ_ONLY, Mem.ALLOCATE_BUFFER );
 		final ByteBuffer bytes = queue.putMapBuffer( blockLookup, Map.WRITE, true );
 		final ShortBuffer shorts = bytes.asShortBuffer();
 		for ( final int[] cellPos : requiredBlocks.cellPositions )
@@ -198,7 +203,7 @@ public class RenderSlice
 
 		///////////////////
 
-		final CLImage2d< ByteBuffer > renderTarget = ( CLImage2d< ByteBuffer > ) cl.createImage2d(
+		final CLImage2d< ByteBuffer > renderTarget = ( CLImage2d< ByteBuffer > ) context.createImage2d(
 				Buffers.newDirectByteBuffer( width * height ),
 				width,
 				height,
