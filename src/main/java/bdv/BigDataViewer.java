@@ -569,24 +569,25 @@ public class BigDataViewer {
 		// final String RENDER_SLICE = "render slice";
 		final String RENDER_CONTINUOUS = "continuous";
 		final InputMap inputMap = new InputMap();
-		// inputMap.put( KeyStroke.getKeyStroke( "R" ), RENDER_SLICE );
+		// inputMap.put(KeyStroke.getKeyStroke("R"), RENDER_SLICE);
 		inputMap.put(KeyStroke.getKeyStroke("E"), RENDER_CONTINUOUS);
 		final ActionMap actionMap = new ActionMap();
-		// actionMap.put( RENDER_SLICE, new AbstractAction()
-		// {
-		// @Override
-		// public void actionPerformed( final ActionEvent e )
-		// {
-		// final ViewerState state = viewer.getState();
-		// final int width = viewer.getDisplay().getWidth();
-		// final int height = viewer.getDisplay().getHeight();
-		// render.renderSlice2( state, width, height, viewer );
-		// }
-		// } );
+
+		/*
+		 * actionMap.put(RENDER_SLICE, new AbstractAction() {
+		 * 
+		 * @Override public void actionPerformed(final ActionEvent e) { final
+		 * ViewerState state = viewer.getState(); final int width =
+		 * viewer.getDisplay().getWidth(); final int height =
+		 * viewer.getDisplay().getHeight(); render.renderSlice2(state, width,
+		 * height, viewer); } });
+		 */
+
 		actionMap.put(RENDER_CONTINUOUS, new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				renderContinuously = !renderContinuously;
+				viewer.inverseMaxproj();
 			}
 		});
 		final InputActionBindings bindings = viewerFrame.getKeybindings();

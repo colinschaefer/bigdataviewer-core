@@ -33,8 +33,6 @@ import bdv.cl.FindRequiredBlocks.RequiredBlocks;
 import bdv.img.cache.CachedCellImg;
 import bdv.viewer.Source;
 import bdv.viewer.ViewerPanel;
-import bdv.viewer.render.TransformAwareBufferedImageOverlayRenderer;
-import bdv.viewer.state.SourceState;
 import bdv.viewer.state.ViewerState;
 
 import com.jogamp.common.nio.Buffers;
@@ -137,7 +135,7 @@ public class RenderSlice {
 
 	public void renderSlice(final ViewerState viewerState, final int width,
 			final int height) {
-		final int dimZ = 100;
+		final int dimZ = 10;
 		System.out.println();
 		final Source<?> source = viewerState.getSources().get(0)
 				.getSpimSource(); // TODO
@@ -405,13 +403,10 @@ public class RenderSlice {
 			data = new byte[width * height];
 
 		renderTarget.getBuffer().get(data);
-		SourceState<?> sources = viewerState.sources.get(0);
-		viewerState.sources.add(SourceState.create(sources, viewerState));
-		viewerState.setCurrentSource(1);
-		// renderTarget.getBuffer().g//TODO: load directly into viewer to update
-		// it
-		// viewer.drawOverlays(renderTarget.get Overlay whatever);
-		// show2(data, width, height, viewer);
+		// SourceState<?> sources = viewerState.sources.get(0);
+		// viewerState.sources.add(SourceState.create(sources, viewerState));
+		// viewerState.setCurrentSource(1);
+		show2(data, width, height, viewer);
 		// renderTarget.release();
 
 		// /////////////////
@@ -450,29 +445,21 @@ public class RenderSlice {
 		frame.setVisible(true);
 	}
 
-	// boolean firstTime = true;
 	private void show2(final byte[] data, final int width, final int height,
 			ViewerPanel viewer) {
-		// if ( firstTime = false )
-		// {
-		// viewer.requestRepaint();
-		// return;
-		// }
 
 		final UnsignedByteAWTScreenImage screenImage = new UnsignedByteAWTScreenImage(
 				ArrayImgs.unsignedBytes(data, width, height));
 		final BufferedImage bufferedImage = screenImage.image();
 
-		final TransformAwareBufferedImageOverlayRenderer target = new TransformAwareBufferedImageOverlayRenderer();
-		target.setBufferedImage(bufferedImage);
-		// display = new InteractiveDisplayCanvasComponent< AffineTransform2D >(
-		// width, height, FixedTransformEventHandler2D.factory() );
-		// display.addOverlayRenderer( target );
-		target.setCanvasSize(width, height);
-		// final Container content = viewer.getRootPane();
-		// viewer.get;
-		viewer.drawOverlays(bufferedImage.getGraphics());
-		;
+		// Graphics graphics = bufferedImage.getGraphics();
+		viewer.paint(bufferedImage, screenImage);
+
+		// viewer.add(display);
+		// OverlayAnimator animator = null;
+		// animator.paint((Graphics2D) bufferedImage.getGraphics(), 1);
+		// viewer.addOverlayAnimator(animator);
+		// viewer.drawOverlays(bufferedImage.getGraphics());
 		// viewer.requestRepaint();
 		// firstTime = false;
 	}

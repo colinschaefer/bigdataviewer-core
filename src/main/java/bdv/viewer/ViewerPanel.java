@@ -18,6 +18,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -33,6 +34,7 @@ import javax.swing.event.ChangeListener;
 import net.imglib2.Positionable;
 import net.imglib2.RealPoint;
 import net.imglib2.RealPositionable;
+import net.imglib2.display.screenimage.ScreenImage;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.InteractiveDisplayCanvasComponent;
 import net.imglib2.ui.OverlayRenderer;
@@ -65,7 +67,6 @@ import bdv.viewer.state.SourceState;
 import bdv.viewer.state.ViewerState;
 import bdv.viewer.state.XmlIoViewerState;
 
-
 /**
  * A JPanel for viewing multiple of {@link Source}s. The panel contains a
  * {@link InteractiveDisplayCanvasComponent canvas} and a time slider (if there
@@ -76,8 +77,9 @@ import bdv.viewer.state.XmlIoViewerState;
  *
  * @author Tobias Pietzsch &lt;tobias.pietzsch@gmail.com&gt;
  */
-public class ViewerPanel extends JPanel implements OverlayRenderer, TransformListener< AffineTransform3D >, PainterThread.Paintable, VisibilityAndGrouping.UpdateListener
-{
+public class ViewerPanel extends JPanel implements OverlayRenderer,
+		TransformListener<AffineTransform3D>, PainterThread.Paintable,
+		VisibilityAndGrouping.UpdateListener {
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -122,7 +124,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * Canvas used for displaying the rendered {@link #renderTarget image} and
 	 * overlays.
 	 */
-	protected final InteractiveDisplayCanvasComponent< AffineTransform3D > display;
+	protected final InteractiveDisplayCanvasComponent<AffineTransform3D> display;
 
 	protected final JSlider sliderTime;
 
@@ -138,7 +140,8 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 
 	/**
 	 * Keeps track of the current mouse coordinates, which are used to provide
-	 * the current global position (see {@link #getGlobalMouseCoordinates(RealPositionable)}).
+	 * the current global position (see
+	 * {@link #getGlobalMouseCoordinates(RealPositionable)}).
 	 */
 	protected final MouseCoordinateListener mouseCoordinates;
 
@@ -153,7 +156,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * {@link #viewerTransform}. This is done <em>before</em> calling
 	 * {@link #requestRepaint()} so listeners have the chance to interfere.
 	 */
-	protected final CopyOnWriteArrayList< TransformListener< AffineTransform3D > > transformListeners;
+	protected final CopyOnWriteArrayList<TransformListener<AffineTransform3D>> transformListeners;
 
 	/**
 	 * These listeners will be notified about changes to the
@@ -162,7 +165,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * match the transform of their overlaid content to the transform of the
 	 * image.
 	 */
-	protected final CopyOnWriteArrayList< TransformListener< AffineTransform3D > > lastRenderTransformListeners;
+	protected final CopyOnWriteArrayList<TransformListener<AffineTransform3D>> lastRenderTransformListeners;
 
 	/**
 	 * Current animator for viewer transform, or null. This is for example used
@@ -176,7 +179,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * animators. Initially, this contains a {@link TextOverlayAnimator} showing
 	 * the "press F1 for help" message.
 	 */
-	protected ArrayList< OverlayAnimator > overlayAnimators;
+	protected ArrayList<OverlayAnimator> overlayAnimators;
 
 	/**
 	 * Fade-out overlay of recent messages. See {@link #showMessage(String)}.
@@ -186,13 +189,13 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	/**
 	 * Optional parameters for {@link ViewerPanel}.
 	 */
-	public static class Options
-	{
+	public static class Options {
 		private int width = 800;
 
 		private int height = 600;
 
-		private double[] screenScales = new double[] { 1, 0.75, 0.5, 0.25, 0.125 };
+		private double[] screenScales = new double[] { 1, 0.75, 0.5, 0.25,
+				0.125 };
 
 		private long targetRenderNanos = 30 * 1000000l;
 
@@ -202,60 +205,54 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 
 		private boolean useVolatileIfAvailable = true;
 
-		private MessageOverlayAnimator msgOverlay = new MessageOverlayAnimator( 800 );
+		private MessageOverlayAnimator msgOverlay = new MessageOverlayAnimator(
+				800);
 
-		private TransformEventHandlerFactory< AffineTransform3D > transformEventHandlerFactory = TransformEventHandler3D.factory();
+		private TransformEventHandlerFactory<AffineTransform3D> transformEventHandlerFactory = TransformEventHandler3D
+				.factory();
 
-		public Options width( final int w )
-		{
+		public Options width(final int w) {
 			width = w;
 			return this;
 		}
 
-		public Options height( final int h )
-		{
+		public Options height(final int h) {
 			height = h;
 			return this;
 		}
 
-		public Options screenScales( final double[] s )
-		{
+		public Options screenScales(final double[] s) {
 			screenScales = s;
 			return this;
 		}
 
-		public Options targetRenderNanos( final long t )
-		{
+		public Options targetRenderNanos(final long t) {
 			targetRenderNanos = t;
 			return this;
 		}
 
-		public Options doubleBuffered( final boolean d )
-		{
+		public Options doubleBuffered(final boolean d) {
 			doubleBuffered = d;
 			return this;
 		}
 
-		public Options numRenderingThreads( final int n )
-		{
+		public Options numRenderingThreads(final int n) {
 			numRenderingThreads = n;
 			return this;
 		}
 
-		public Options useVolatileIfAvailable( final boolean v )
-		{
+		public Options useVolatileIfAvailable(final boolean v) {
 			useVolatileIfAvailable = v;
 			return this;
 		}
 
-		public Options msgOverlay( final MessageOverlayAnimator o )
-		{
+		public Options msgOverlay(final MessageOverlayAnimator o) {
 			msgOverlay = o;
 			return this;
 		}
 
-		public Options transformEventHandlerFactory( final TransformEventHandlerFactory< AffineTransform3D > f )
-		{
+		public Options transformEventHandlerFactory(
+				final TransformEventHandlerFactory<AffineTransform3D> f) {
 			transformEventHandlerFactory = f;
 			return this;
 		}
@@ -263,16 +260,16 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 
 	/**
 	 * Create default {@link Options}.
+	 * 
 	 * @return default {@link Options}.
 	 */
-	public static Options options()
-	{
+	public static Options options() {
 		return new Options();
 	}
 
-	public ViewerPanel( final List< SourceAndConverter< ? > > sources, final int numTimePoints, final Cache cache )
-	{
-		this( sources, numTimePoints, cache, options() );
+	public ViewerPanel(final List<SourceAndConverter<?>> sources,
+			final int numTimePoints, final Cache cache) {
+		this(sources, numTimePoints, cache, options());
 	}
 
 	/**
@@ -285,120 +282,115 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param optional
 	 *            optional parameters. See {@link #options()}.
 	 */
-	public ViewerPanel( final List< SourceAndConverter< ? > > sources, final int numTimePoints, final Cache cache, final Options optional )
-	{
-		super( new BorderLayout(), false );
+	public ViewerPanel(final List<SourceAndConverter<?>> sources,
+			final int numTimePoints, final Cache cache, final Options optional) {
+		super(new BorderLayout(), false);
 
 		final int numGroups = 10;
-		final ArrayList< SourceGroup > groups = new ArrayList< SourceGroup >( numGroups );
-		for ( int i = 0; i < numGroups; ++i )
-			groups.add( new SourceGroup( "group " + Integer.toString( i + 1 ), null ) );
-		state = new ViewerState( sources, groups, numTimePoints );
-		for ( int i = Math.min( numGroups, sources.size() ) - 1; i >= 0; --i )
-			state.getSourceGroups().get( i ).addSource( i );
+		final ArrayList<SourceGroup> groups = new ArrayList<SourceGroup>(
+				numGroups);
+		for (int i = 0; i < numGroups; ++i)
+			groups.add(new SourceGroup("group " + Integer.toString(i + 1), null));
+		state = new ViewerState(sources, groups, numTimePoints);
+		for (int i = Math.min(numGroups, sources.size()) - 1; i >= 0; --i)
+			state.getSourceGroups().get(i).addSource(i);
 
-		if ( !sources.isEmpty() )
-			state.setCurrentSource( 0 );
+		if (!sources.isEmpty())
+			state.setCurrentSource(0);
 		multiBoxOverlayRenderer = new MultiBoxOverlayRenderer();
 		sourceInfoOverlayRenderer = new SourceInfoOverlayRenderer();
-		scaleBarOverlayRenderer = Prefs.showScaleBar() ? new ScaleBarOverlayRenderer() : null;
+		scaleBarOverlayRenderer = Prefs.showScaleBar() ? new ScaleBarOverlayRenderer()
+				: null;
 
-		painterThread = new PainterThread( this );
+		painterThread = new PainterThread(this);
 		viewerTransform = new AffineTransform3D();
-		display = new InteractiveDisplayCanvasComponent< AffineTransform3D >(
-				optional.width, optional.height, optional.transformEventHandlerFactory );
-		display.addTransformListener( this );
+		display = new InteractiveDisplayCanvasComponent<AffineTransform3D>(
+				optional.width, optional.height,
+				optional.transformEventHandlerFactory);
+		display.addTransformListener(this);
 		renderTarget = new TransformAwareBufferedImageOverlayRenderer();
-		renderTarget.setCanvasSize( optional.width, optional.height );
-		display.addOverlayRenderer( renderTarget );
-		display.addOverlayRenderer( this );
+		renderTarget.setCanvasSize(optional.width, optional.height);
+		display.addOverlayRenderer(renderTarget);
+		display.addOverlayRenderer(this);
 
-		renderingExecutorService = Executors.newFixedThreadPool( optional.numRenderingThreads );
-		imageRenderer = new MultiResolutionRenderer(
-				renderTarget, painterThread,
-				optional.screenScales, optional.targetRenderNanos, optional.doubleBuffered,
-				optional.numRenderingThreads, renderingExecutorService, optional.useVolatileIfAvailable, cache );
+		renderingExecutorService = Executors
+				.newFixedThreadPool(optional.numRenderingThreads);
+		imageRenderer = new MultiResolutionRenderer(renderTarget,
+				painterThread, optional.screenScales,
+				optional.targetRenderNanos, optional.doubleBuffered,
+				optional.numRenderingThreads, renderingExecutorService,
+				optional.useVolatileIfAvailable, cache);
 
 		mouseCoordinates = new MouseCoordinateListener();
-		display.addHandler( mouseCoordinates );
+		display.addHandler(mouseCoordinates);
 
-		add( display, BorderLayout.CENTER );
-		if ( numTimePoints > 1 )
-		{
-			sliderTime = new JSlider( SwingConstants.HORIZONTAL, 0, numTimePoints - 1, 0 );
-			sliderTime.addChangeListener( new ChangeListener()
-			{
+		add(display, BorderLayout.CENTER);
+		if (numTimePoints > 1) {
+			sliderTime = new JSlider(SwingConstants.HORIZONTAL, 0,
+					numTimePoints - 1, 0);
+			sliderTime.addChangeListener(new ChangeListener() {
 				@Override
-				public void stateChanged( final ChangeEvent e )
-				{
-					if ( e.getSource().equals( sliderTime ) )
-						setTimepoint( sliderTime.getValue() );
+				public void stateChanged(final ChangeEvent e) {
+					if (e.getSource().equals(sliderTime))
+						setTimepoint(sliderTime.getValue());
 				}
-			} );
-			add( sliderTime, BorderLayout.SOUTH );
-		}
-		else
+			});
+			add(sliderTime, BorderLayout.SOUTH);
+		} else
 			sliderTime = null;
 
-		visibilityAndGrouping = new VisibilityAndGrouping( state );
-		visibilityAndGrouping.addUpdateListener( this );
+		visibilityAndGrouping = new VisibilityAndGrouping(state);
+		visibilityAndGrouping.addUpdateListener(this);
 
-		transformListeners = new CopyOnWriteArrayList< TransformListener< AffineTransform3D > >();
-		lastRenderTransformListeners = new CopyOnWriteArrayList< TransformListener< AffineTransform3D > >();
+		transformListeners = new CopyOnWriteArrayList<TransformListener<AffineTransform3D>>();
+		lastRenderTransformListeners = new CopyOnWriteArrayList<TransformListener<AffineTransform3D>>();
 
 		msgOverlay = optional.msgOverlay;
 
-		overlayAnimators = new ArrayList< OverlayAnimator >();
-		overlayAnimators.add( msgOverlay );
-		overlayAnimators.add( new TextOverlayAnimator( "Press <F1> for help.", 3000, TextPosition.CENTER ) );
+		overlayAnimators = new ArrayList<OverlayAnimator>();
+		overlayAnimators.add(msgOverlay);
+		overlayAnimators.add(new TextOverlayAnimator("Press <F1> for help.",
+				3000, TextPosition.CENTER));
 
-		display.addComponentListener( new ComponentAdapter()
-		{
+		display.addComponentListener(new ComponentAdapter() {
 			@Override
-			public void componentResized( final ComponentEvent e )
-			{
+			public void componentResized(final ComponentEvent e) {
 				requestRepaint();
-				display.removeComponentListener( this );
+				display.removeComponentListener(this);
 			}
-		} );
+		});
 
 		painterThread.start();
 	}
-	
-	
 
-	public void changeOverlayRenderer( final BufferedImageOverlayRenderer inputRenderer )
-	{
+	public void changeOverlayRenderer(
+			final BufferedImageOverlayRenderer inputRenderer) {
 		display.removeOverlayRenderer(renderTarget);
 		display.addOverlayRenderer(inputRenderer);
 		requestRepaint();
 	}
-	
-	public void addSource( final SourceAndConverter< ? > sourceAndConverter )
-	{
-		synchronized ( visibilityAndGrouping )
-		{
-			state.addSource( sourceAndConverter );
-			visibilityAndGrouping.update( NUM_SOURCES_CHANGED );
+
+	public void addSource(final SourceAndConverter<?> sourceAndConverter) {
+		synchronized (visibilityAndGrouping) {
+			state.addSource(sourceAndConverter);
+			visibilityAndGrouping.update(NUM_SOURCES_CHANGED);
 		}
 		requestRepaint();
 	}
 
-	public void removeSource( final Source< ? > source )
-	{
-		synchronized ( visibilityAndGrouping )
-		{
-			state.removeSource( source );
-			visibilityAndGrouping.update( NUM_SOURCES_CHANGED );
+	public void removeSource(final Source<?> source) {
+		synchronized (visibilityAndGrouping) {
+			state.removeSource(source);
+			visibilityAndGrouping.update(NUM_SOURCES_CHANGED);
 		}
 		requestRepaint();
 	}
 
 	// TODO: remove?
-//	public void addHandler( final Object handler )
-//	{
-//		display.addHandler( handler );
-//	}
+	// public void addHandler( final Object handler )
+	// {
+	// display.addHandler( handler );
+	// }
 
 	/**
 	 * Set {@code gPos} to the current mouse coordinates transformed into the
@@ -407,40 +399,65 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param gPos
 	 *            is set to the current global coordinates.
 	 */
-	public void getGlobalMouseCoordinates( final RealPositionable gPos )
-	{
+	public void getGlobalMouseCoordinates(final RealPositionable gPos) {
 		assert gPos.numDimensions() == 3;
-		final RealPoint lPos = new RealPoint( 3 );
-		mouseCoordinates.getMouseCoordinates( lPos );
-		viewerTransform.applyInverse( gPos, lPos );
+		final RealPoint lPos = new RealPoint(3);
+		mouseCoordinates.getMouseCoordinates(lPos);
+		viewerTransform.applyInverse(gPos, lPos);
 	}
 
 	/**
 	 * TODO
+	 * 
 	 * @param p
 	 */
-	public synchronized void getMouseCoordinates( final Positionable p )
-	{
+	public synchronized void getMouseCoordinates(final Positionable p) {
 		assert p.numDimensions() == 2;
-		mouseCoordinates.getMouseCoordinates( p );
+		mouseCoordinates.getMouseCoordinates(p);
 	}
 
 	@Override
-	public void paint()
-	{
-		imageRenderer.paint( state );
+	public void paint() {
+		if (state.maxproj == false) {
+			imageRenderer.paint(state);
+
+			display.repaint();
+
+			synchronized (this) {
+				if (currentAnimator != null) {
+					final TransformEventHandler<AffineTransform3D> handler = display
+							.getTransformEventHandler();
+					final AffineTransform3D transform = currentAnimator
+							.getCurrent(System.currentTimeMillis());
+					handler.setTransform(transform);
+					transformChanged(transform);
+					if (currentAnimator.isComplete())
+						currentAnimator = null;
+				}
+			}
+		}
+
+	}
+
+	// inversing the value of maxproj to ensure only the wanted rendering
+	public void inverseMaxproj() {
+		state.maxproj = !state.maxproj;
+	}
+
+	public void paint(BufferedImage bufferedImage, ScreenImage screenimage) {
+		imageRenderer.paint(state, bufferedImage, screenimage);
 
 		display.repaint();
 
-		synchronized ( this )
-		{
-			if ( currentAnimator != null )
-			{
-				final TransformEventHandler< AffineTransform3D > handler = display.getTransformEventHandler();
-				final AffineTransform3D transform = currentAnimator.getCurrent( System.currentTimeMillis() );
-				handler.setTransform( transform );
-				transformChanged( transform );
-				if ( currentAnimator.isComplete() )
+		synchronized (this) {
+			if (currentAnimator != null) {
+				final TransformEventHandler<AffineTransform3D> handler = display
+						.getTransformEventHandler();
+				final AffineTransform3D transform = currentAnimator
+						.getCurrent(System.currentTimeMillis());
+				handler.setTransform(transform);
+				transformChanged(transform);
+				if (currentAnimator.isComplete())
 					currentAnimator = null;
 			}
 		}
@@ -449,83 +466,87 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	/**
 	 * Repaint as soon as possible.
 	 */
-	public void requestRepaint()
+	public void requestRepaint() // TODO !!!!!!!!!!!!!!!
 	{
 		imageRenderer.requestRepaint();
 	}
 
 	@Override
-	public void drawOverlays( final Graphics g )
+	public void drawOverlays(final Graphics g) // TODO!!!!!!!!!!!!!!!!!!!
 	{
-		multiBoxOverlayRenderer.setViewerState( state );
-		multiBoxOverlayRenderer.updateVirtualScreenSize( display.getWidth(), display.getHeight() );
-		multiBoxOverlayRenderer.paint( ( Graphics2D ) g );
+		multiBoxOverlayRenderer.setViewerState(state);
+		multiBoxOverlayRenderer.updateVirtualScreenSize(display.getWidth(),
+				display.getHeight());
+		multiBoxOverlayRenderer.paint((Graphics2D) g);
 
-		sourceInfoOverlayRenderer.setViewerState( state );
-		sourceInfoOverlayRenderer.paint( ( Graphics2D ) g );
+		sourceInfoOverlayRenderer.setViewerState(state);
+		sourceInfoOverlayRenderer.paint((Graphics2D) g);
 
-		if ( Prefs.showScaleBar() )
-		{
-			scaleBarOverlayRenderer.setViewerState( state );
-			scaleBarOverlayRenderer.paint( ( Graphics2D ) g );
+		if (Prefs.showScaleBar()) {
+			scaleBarOverlayRenderer.setViewerState(state);
+			scaleBarOverlayRenderer.paint((Graphics2D) g);
 		}
 
-		final RealPoint gPos = new RealPoint( 3 );
-		getGlobalMouseCoordinates( gPos );
-		final String mousePosGlobalString = String.format( "(%6.1f,%6.1f,%6.1f)", gPos.getDoublePosition( 0 ), gPos.getDoublePosition( 1 ), gPos.getDoublePosition( 2 ) );
+		final RealPoint gPos = new RealPoint(3);
+		getGlobalMouseCoordinates(gPos);
+		final String mousePosGlobalString = String.format(
+				"(%6.1f,%6.1f,%6.1f)", gPos.getDoublePosition(0),
+				gPos.getDoublePosition(1), gPos.getDoublePosition(2));
 
-		g.setFont( new Font( "Monospaced", Font.PLAIN, 12 ) );
-		g.setColor( Color.white );
-		g.drawString( mousePosGlobalString, ( int ) g.getClipBounds().getWidth() - 170, 25 );
+		g.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		g.setColor(Color.white);
+		g.drawString(mousePosGlobalString,
+				(int) g.getClipBounds().getWidth() - 170, 25);
 
-		boolean requiresRepaint = multiBoxOverlayRenderer.isHighlightInProgress();
+		boolean requiresRepaint = multiBoxOverlayRenderer
+				.isHighlightInProgress();
 
 		final long currentTimeMillis = System.currentTimeMillis();
-		final ArrayList< OverlayAnimator > overlayAnimatorsToRemove = new ArrayList< OverlayAnimator >();
-		for ( final OverlayAnimator animator : overlayAnimators )
-		{
-			animator.paint( ( Graphics2D ) g, currentTimeMillis );
+		final ArrayList<OverlayAnimator> overlayAnimatorsToRemove = new ArrayList<OverlayAnimator>();
+		for (final OverlayAnimator animator : overlayAnimators) {
+			animator.paint((Graphics2D) g, currentTimeMillis);
 			requiresRepaint |= animator.requiresRepaint();
-			if ( animator.isComplete() )
-				overlayAnimatorsToRemove.add( animator );
+			if (animator.isComplete())
+				overlayAnimatorsToRemove.add(animator);
 		}
-		overlayAnimators.removeAll( overlayAnimatorsToRemove );
+		overlayAnimators.removeAll(overlayAnimatorsToRemove);
 
-		if ( requiresRepaint )
+		if (requiresRepaint)
 			display.repaint();
 	}
 
 	@Override
-	public synchronized void transformChanged( final AffineTransform3D transform )
+	public synchronized void transformChanged(final AffineTransform3D transform)// TODO!!!!!!!!!!!!!!!!
 	{
-		viewerTransform.set( transform );
-		state.setViewerTransform( transform );
-		for ( final TransformListener< AffineTransform3D > l : transformListeners )
-			l.transformChanged( viewerTransform );
+		viewerTransform.set(transform);
+		state.setViewerTransform(transform);
+		for (final TransformListener<AffineTransform3D> l : transformListeners)
+			l.transformChanged(viewerTransform);
 		requestRepaint();
 	}
 
 	@Override
-	public void visibilityChanged( final VisibilityAndGrouping.Event e )
-	{
-		switch ( e.id )
-		{
+	public void visibilityChanged(final VisibilityAndGrouping.Event e) {
+		switch (e.id) {
 		case CURRENT_SOURCE_CHANGED:
-			multiBoxOverlayRenderer.highlight( visibilityAndGrouping.getCurrentSource() );
+			multiBoxOverlayRenderer.highlight(visibilityAndGrouping
+					.getCurrentSource());
 			display.repaint();
 			break;
 		case DISPLAY_MODE_CHANGED:
-			showMessage( visibilityAndGrouping.getDisplayMode().getName() );
+			showMessage(visibilityAndGrouping.getDisplayMode().getName());
 			display.repaint();
 			break;
 		case GROUP_NAME_CHANGED:
 			display.repaint();
 			break;
 		case SOURCE_ACTVITY_CHANGED:
-			// TODO multiBoxOverlayRenderer.highlight() all sources that became visible
+			// TODO multiBoxOverlayRenderer.highlight() all sources that became
+			// visible
 			break;
 		case GROUP_ACTIVITY_CHANGED:
-			// TODO multiBoxOverlayRenderer.highlight() all sources that became visible
+			// TODO multiBoxOverlayRenderer.highlight() all sources that became
+			// visible
 			break;
 		case VISIBILITY_CHANGED:
 			requestRepaint();
@@ -533,22 +554,19 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 		}
 	}
 
-	private final static double c = Math.cos( Math.PI / 4 );
+	private final static double c = Math.cos(Math.PI / 4);
 
 	/**
 	 * The planes which can be aligned with the viewer coordinate system: XY,
 	 * ZY, and XZ plane.
 	 */
-	public static enum AlignPlane
-	{
-		XY( "XY", 2, new double[] { 1, 0, 0, 0 } ),
-		ZY( "ZY", 0, new double[] { c, 0, -c, 0 } ),
-		XZ( "XZ", 1, new double[] { c, c, 0, 0 } );
+	public static enum AlignPlane {
+		XY("XY", 2, new double[] { 1, 0, 0, 0 }), ZY("ZY", 0, new double[] { c,
+				0, -c, 0 }), XZ("XZ", 1, new double[] { c, c, 0, 0 });
 
 		private final String name;
 
-		public String getName()
-		{
+		public String getName() {
 			return name;
 		}
 
@@ -561,12 +579,14 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 		 * Axis index. The plane spanned by the remaining two axes will be
 		 * transformed to the same plane by the computed rotation and the
 		 * "rotation part" of the affine source transform.
-		 * @see Affine3DHelpers#extractApproximateRotationAffine(AffineTransform3D, double[], int)
+		 * 
+		 * @see Affine3DHelpers#extractApproximateRotationAffine(AffineTransform3D,
+		 *      double[], int)
 		 */
 		private final int coerceAffineDimension;
 
-		private AlignPlane( final String name, final int coerceAffineDimension, final double[] qAlign )
-		{
+		private AlignPlane(final String name, final int coerceAffineDimension,
+				final double[] qAlign) {
 			this.name = name;
 			this.coerceAffineDimension = coerceAffineDimension;
 			this.qAlign = qAlign;
@@ -580,44 +600,45 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param plane
 	 *            to which plane to align.
 	 */
-	protected synchronized void align( final AlignPlane plane )
-	{
-		final SourceState< ? > source = state.getSources().get( state.getCurrentSource() );
+	protected synchronized void align(final AlignPlane plane) {
+		final SourceState<?> source = state.getSources().get(
+				state.getCurrentSource());
 		final AffineTransform3D sourceTransform = new AffineTransform3D();
-		source.getSpimSource().getSourceTransform( state.getCurrentTimepoint(), 0, sourceTransform );
+		source.getSpimSource().getSourceTransform(state.getCurrentTimepoint(),
+				0, sourceTransform);
 
-		final double[] qSource = new double[ 4 ];
-		Affine3DHelpers.extractRotationAnisotropic( sourceTransform, qSource );
+		final double[] qSource = new double[4];
+		Affine3DHelpers.extractRotationAnisotropic(sourceTransform, qSource);
 
-		final double[] qTmpSource = new double[ 4 ];
-		Affine3DHelpers.extractApproximateRotationAffine( sourceTransform, qSource, plane.coerceAffineDimension );
-		LinAlgHelpers.quaternionMultiply( qSource, plane.qAlign, qTmpSource );
+		final double[] qTmpSource = new double[4];
+		Affine3DHelpers.extractApproximateRotationAffine(sourceTransform,
+				qSource, plane.coerceAffineDimension);
+		LinAlgHelpers.quaternionMultiply(qSource, plane.qAlign, qTmpSource);
 
-		final double[] qTarget = new double[ 4 ];
-		LinAlgHelpers.quaternionInvert( qTmpSource, qTarget );
+		final double[] qTarget = new double[4];
+		LinAlgHelpers.quaternionInvert(qTmpSource, qTarget);
 
-		final AffineTransform3D transform = display.getTransformEventHandler().getTransform();
+		final AffineTransform3D transform = display.getTransformEventHandler()
+				.getTransform();
 		double centerX;
 		double centerY;
-		if ( mouseCoordinates.isMouseInsidePanel() )
-		{
+		if (mouseCoordinates.isMouseInsidePanel()) {
 			centerX = mouseCoordinates.getX();
 			centerY = mouseCoordinates.getY();
-		}
-		else
-		{
+		} else {
 			centerY = getHeight() / 2.0;
 			centerX = getWidth() / 2.0;
 		}
-		currentAnimator = new RotationAnimator( transform, centerX, centerY, qTarget, 300 );
-		currentAnimator.setTime( System.currentTimeMillis() );
-		transformChanged( transform );
+		currentAnimator = new RotationAnimator(transform, centerX, centerY,
+				qTarget, 300);
+		currentAnimator.setTime(System.currentTimeMillis());
+		transformChanged(transform);
 	}
 
-	public synchronized void setTransformAnimator( final AbstractTransformAnimator animator )
-	{
+	public synchronized void setTransformAnimator(
+			final AbstractTransformAnimator animator) {
 		currentAnimator = animator;
-		currentAnimator.setTime( System.currentTimeMillis() );
+		currentAnimator.setTime(System.currentTimeMillis());
 		requestRepaint();
 	}
 
@@ -625,18 +646,14 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * Switch to next interpolation mode. (Currently, there are two
 	 * interpolation modes: nearest-neighbor and N-linear.
 	 */
-	public synchronized void toggleInterpolation()
-	{
+	public synchronized void toggleInterpolation() {
 		final Interpolation interpolation = state.getInterpolation();
-		if ( interpolation == Interpolation.NEARESTNEIGHBOR )
-		{
-			state.setInterpolation( Interpolation.NLINEAR );
-			showMessage( "tri-linear interpolation" );
-		}
-		else
-		{
-			state.setInterpolation( Interpolation.NEARESTNEIGHBOR );
-			showMessage( "nearest-neighbor interpolation" );
+		if (interpolation == Interpolation.NEARESTNEIGHBOR) {
+			state.setInterpolation(Interpolation.NLINEAR);
+			showMessage("tri-linear interpolation");
+		} else {
+			state.setInterpolation(Interpolation.NEARESTNEIGHBOR);
+			showMessage("nearest-neighbor interpolation");
 		}
 		requestRepaint();
 	}
@@ -644,18 +661,17 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	/**
 	 * Set the {@link DisplayMode}.
 	 */
-	public synchronized void setDisplayMode( final DisplayMode displayMode )
-	{
-		visibilityAndGrouping.setDisplayMode( displayMode );
+	public synchronized void setDisplayMode(final DisplayMode displayMode) {
+		visibilityAndGrouping.setDisplayMode(displayMode);
 	}
 
 	/**
 	 * Set the viewer transform.
 	 */
-	public synchronized void setCurrentViewerTransform( final AffineTransform3D viewerTransform )
-	{
-		display.getTransformEventHandler().setTransform( viewerTransform );
-		transformChanged( viewerTransform );
+	public synchronized void setCurrentViewerTransform(
+			final AffineTransform3D viewerTransform) {
+		display.getTransformEventHandler().setTransform(viewerTransform);
+		transformChanged(viewerTransform);
 	}
 
 	/**
@@ -664,12 +680,10 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param timepoint
 	 *            time-point index.
 	 */
-	public synchronized void setTimepoint( final int timepoint )
-	{
-		if ( state.getCurrentTimepoint() != timepoint )
-		{
-			state.setCurrentTimepoint( timepoint );
-			sliderTime.setValue( timepoint );
+	public synchronized void setTimepoint(final int timepoint) {
+		if (state.getCurrentTimepoint() != timepoint) {
+			state.setCurrentTimepoint(timepoint);
+			sliderTime.setValue(timepoint);
 			requestRepaint();
 		}
 	}
@@ -677,19 +691,17 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	/**
 	 * Show the next time-point.
 	 */
-	public synchronized void nextTimePoint()
-	{
-		if ( sliderTime != null )
-			sliderTime.setValue( sliderTime.getValue() + 1 );
+	public synchronized void nextTimePoint() {
+		if (sliderTime != null)
+			sliderTime.setValue(sliderTime.getValue() + 1);
 	}
 
 	/**
 	 * Show the previous time-point.
 	 */
-	public synchronized void previousTimePoint()
-	{
-		if ( sliderTime != null )
-			sliderTime.setValue( sliderTime.getValue() - 1 );
+	public synchronized void previousTimePoint() {
+		if (sliderTime != null)
+			sliderTime.setValue(sliderTime.getValue() - 1);
 	}
 
 	/**
@@ -697,8 +709,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 *
 	 * @return a copy of the current {@link ViewerState}.
 	 */
-	public synchronized ViewerState getState()
-	{
+	public synchronized ViewerState getState() {
 		return state.copy();
 	}
 
@@ -707,8 +718,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 *
 	 * @return the viewer canvas.
 	 */
-	public InteractiveDisplayCanvasComponent< AffineTransform3D > getDisplay()
-	{
+	public InteractiveDisplayCanvasComponent<AffineTransform3D> getDisplay() {
 		return display;
 	}
 
@@ -718,9 +728,8 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param msg
 	 *            String to display. Should be just one line of text.
 	 */
-	public void showMessage( final String msg )
-	{
-		msgOverlay.add( msg );
+	public void showMessage(final String msg) {
+		msgOverlay.add(msg);
 		display.repaint();
 	}
 
@@ -732,9 +741,8 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param animator
 	 *            animator to add.
 	 */
-	public void addOverlayAnimator( final OverlayAnimator animator )
-	{
-		overlayAnimators.add( animator );
+	public void addOverlayAnimator(final OverlayAnimator animator) {
+		overlayAnimators.add(animator);
 		display.repaint();
 	}
 
@@ -749,14 +757,13 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param listener
 	 *            the transform listener to add.
 	 */
-	public synchronized void addRenderTransformListener( final TransformListener< AffineTransform3D > listener )
-	{
-		renderTarget.addTransformListener( listener );
+	public synchronized void addRenderTransformListener(
+			final TransformListener<AffineTransform3D> listener) {
+		renderTarget.addTransformListener(listener);
 	}
 
 	/**
-	/**
-	 * Add a {@link TransformListener} to notify about viewer transformation
+	 * /** Add a {@link TransformListener} to notify about viewer transformation
 	 * changes. Listeners will be notified when a new image has been painted
 	 * with the viewer transform used to render that image.
 	 *
@@ -768,9 +775,9 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param index
 	 *            position in the list of listeners at which to insert this one.
 	 */
-	public void addRenderTransformListener( final TransformListener< AffineTransform3D > listener, final int index )
-	{
-		renderTarget.addTransformListener( listener, index );
+	public void addRenderTransformListener(
+			final TransformListener<AffineTransform3D> listener, final int index) {
+		renderTarget.addTransformListener(listener, index);
 	}
 
 	/**
@@ -781,9 +788,9 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param listener
 	 *            the transform listener to add.
 	 */
-	public synchronized void addTransformListener( final TransformListener< AffineTransform3D > listener )
-	{
-		addTransformListener( listener, Integer.MAX_VALUE );
+	public synchronized void addTransformListener(
+			final TransformListener<AffineTransform3D> listener) {
+		addTransformListener(listener, Integer.MAX_VALUE);
 	}
 
 	/**
@@ -796,13 +803,13 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param index
 	 *            position in the list of listeners at which to insert this one.
 	 */
-	public void addTransformListener( final TransformListener< AffineTransform3D > listener, final int index )
-	{
-		synchronized ( transformListeners )
-		{
+	public void addTransformListener(
+			final TransformListener<AffineTransform3D> listener, final int index) {
+		synchronized (transformListeners) {
 			final int s = transformListeners.size();
-			transformListeners.add( index < 0 ? 0 : index > s ? s : index, listener );
-			listener.transformChanged( viewerTransform );
+			transformListeners.add(index < 0 ? 0 : index > s ? s : index,
+					listener);
+			listener.transformChanged(viewerTransform);
 		}
 	}
 
@@ -812,117 +819,104 @@ public class ViewerPanel extends JPanel implements OverlayRenderer, TransformLis
 	 * @param listener
 	 *            the transform listener to remove.
 	 */
-	public synchronized void removeTransformListener( final TransformListener< AffineTransform3D > listener )
-	{
-		synchronized ( transformListeners )
-		{
-			transformListeners.remove( listener );
+	public synchronized void removeTransformListener(
+			final TransformListener<AffineTransform3D> listener) {
+		synchronized (transformListeners) {
+			transformListeners.remove(listener);
 		}
-		renderTarget.removeTransformListener( listener );
+		renderTarget.removeTransformListener(listener);
 	}
 
-	protected class MouseCoordinateListener implements MouseMotionListener, MouseListener
-	{
+	protected class MouseCoordinateListener implements MouseMotionListener,
+			MouseListener {
 		private int x;
 
 		private int y;
 
 		private boolean isInside;
 
-		public synchronized void getMouseCoordinates( final Positionable p )
-		{
-			p.setPosition( x, 0 );
-			p.setPosition( y, 1 );
+		public synchronized void getMouseCoordinates(final Positionable p) {
+			p.setPosition(x, 0);
+			p.setPosition(y, 1);
 		}
 
 		@Override
-		public synchronized void mouseDragged( final MouseEvent e )
-		{
+		public synchronized void mouseDragged(final MouseEvent e) {
 			x = e.getX();
 			y = e.getY();
 		}
 
 		@Override
-		public synchronized void mouseMoved( final MouseEvent e )
-		{
+		public synchronized void mouseMoved(final MouseEvent e) {
 			x = e.getX();
 			y = e.getY();
 			display.repaint(); // TODO: only when overlays are visible
 		}
 
-		public synchronized int getX()
-		{
+		public synchronized int getX() {
 			return x;
 		}
 
-		public synchronized int getY()
-		{
+		public synchronized int getY() {
 			return y;
 		}
 
-		public synchronized boolean isMouseInsidePanel()
-		{
+		public synchronized boolean isMouseInsidePanel() {
 			return isInside;
 		}
 
 		@Override
-		public synchronized void mouseEntered( final MouseEvent e )
-		{
+		public synchronized void mouseEntered(final MouseEvent e) {
 			isInside = true;
 		}
 
 		@Override
-		public synchronized void mouseExited( final MouseEvent e )
-		{
+		public synchronized void mouseExited(final MouseEvent e) {
 			isInside = false;
 		}
 
 		@Override
-		public void mouseClicked( final MouseEvent e )
-		{}
+		public void mouseClicked(final MouseEvent e) {
+		}
 
 		@Override
-		public void mousePressed( final MouseEvent e )
-		{}
+		public void mousePressed(final MouseEvent e) {
+		}
 
 		@Override
-		public void mouseReleased( final MouseEvent e )
-		{}
+		public void mouseReleased(final MouseEvent e) {
+		}
 	}
 
-	public synchronized Element stateToXml()
-	{
-		return new XmlIoViewerState().toXml( state );
+	public synchronized Element stateToXml() {
+		return new XmlIoViewerState().toXml(state);
 	}
 
-	public synchronized void stateFromXml( final Element parent )
-	{
+	public synchronized void stateFromXml(final Element parent) {
 		final XmlIoViewerState io = new XmlIoViewerState();
-		io.restoreFromXml( parent.getChild( io.getTagName() ), state );
+		io.restoreFromXml(parent.getChild(io.getTagName()), state);
 	}
 
 	/**
 	 * does nothing.
 	 */
 	@Override
-	public void setCanvasSize( final int width, final int height )
-	{}
+	public void setCanvasSize(final int width, final int height) {
+	}
 
 	/**
 	 * Returns the {@link VisibilityAndGrouping} that can be used to modify
 	 * visibility and currentness of sources and groups, as well as grouping of
 	 * sources, and display mode.
 	 */
-	public VisibilityAndGrouping getVisibilityAndGrouping()
-	{
+	public VisibilityAndGrouping getVisibilityAndGrouping() {
 		return visibilityAndGrouping;
 	}
 
 	/**
 	 * Stop the {@link #painterThread} and unsubscribe as a cache consumer.
 	 */
-	public void stop()
-	{
+	public void stop() {
 		painterThread.interrupt();
 		renderingExecutorService.shutdown();
 	}
