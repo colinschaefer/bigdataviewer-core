@@ -31,9 +31,10 @@ __kernel void slice(
 		__constant uint4* sizes,
 		__global __read_only short3* blockLookup,
 		__read_only image3d_t blocks,
-		__write_only image2d_t target )
+		__write_only image2d_t target
+		)
 {
-	const float dimZ = 100;
+	const float dimZ = 20;
 	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
 
 	const uint x = get_global_id( 0 );
@@ -76,8 +77,8 @@ __kernel void slice(
 
 
 
-	const float min = 700;
-	const float max = 3991;
+	const float min = 8000;
+	const float max = 30000;
 	const float scale = 255.0 / (max - min + 1);
 	const float offset = - min * scale;
 	uint v = (uint) mad(f, scale, offset);

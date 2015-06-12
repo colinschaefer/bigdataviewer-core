@@ -502,7 +502,7 @@ public class BigDataViewer {
 		if (!bdv.tryLoadSettings(xmlFilename))
 			InitializeViewerState.initBrightness(0.001, 0.999, bdv.viewer,
 					bdv.setupAssignments);
-		bdv.setupVolumeRendering2(spimData);
+		bdv.setupVolumeRendering(spimData);
 		return bdv;
 	}
 
@@ -596,7 +596,8 @@ public class BigDataViewer {
 		viewer.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 			@Override
 			public void transformChanged(final AffineTransform3D transform) {
-				if (renderContinuously) {
+				if (true) {
+					// if (viewer.getState().getMaxproj() == true) {
 					final ViewerState state = viewer.getState();
 					final int width = viewer.getDisplay().getWidth();
 					final int height = viewer.getDisplay().getHeight();
@@ -815,6 +816,8 @@ public class BigDataViewer {
 		// final String fn =
 		// "/Volumes/projects/tomancak_lightsheet/Mette/ZeissZ1SPIM/Maritigrella/021013_McH2BsGFP_CAAX-mCherry/11-use/hdf5/021013_McH2BsGFP_CAAX-mCherry-11-use.xml";
 		final String fn = "D:/Users/Colin/MATLAB/KLBdownsampler/TM000000/blibb.xml";
+		// final String fn = "Z:/Exchange/Colin/h5/dataset.xml";
+		// final String fn = "D:/Users/Colin/h5/dataset.xml";
 		try {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			open(fn, new File(fn).getName(), new ProgressWriterConsole());

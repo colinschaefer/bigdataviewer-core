@@ -14,7 +14,9 @@ import javax.swing.JFrame;
 import mpicbg.spim.data.sequence.ViewId;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessible;
+import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.display.screenimage.awt.UnsignedByteAWTScreenImage;
+import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.realtransform.AffineTransform2D;
 import net.imglib2.realtransform.AffineTransform3D;
@@ -251,7 +253,8 @@ public class RenderSlice {
 			queue.put2DRangeKernel(slice, globalWorkOffsetX, globalWorkOffsetY,
 					globalWorkSizeX, globalWorkSizeY, localWorkSizeX,
 					localWorkSizeY, eventList);
-			queue.putReadImage(renderTarget, true).finish();
+			queue.finish();
+			queue.putReadImage(renderTarget, true);
 
 			final CLEvent event = eventList.getEvent(0);
 			final long start = event.getProfilingInfo(ProfilingCommand.START);
@@ -274,7 +277,7 @@ public class RenderSlice {
 
 	public void renderSlice2(final ViewerState viewerState, final int width,
 			final int height, ViewerPanel viewer) {
-		final int dimZ = 400;
+		final int dimZ = 1;
 		System.out.println();
 		final Source<?> source = viewerState.getSources().get(0)
 				.getSpimSource(); // TODO
@@ -401,8 +404,6 @@ public class RenderSlice {
 
 		if (data == null)
 			data = new byte[width * height];
-
-		renderTarget.getBuffer().get(data);
 		// SourceState<?> sources = viewerState.sources.get(0);
 		// viewerState.sources.add(SourceState.create(sources, viewerState));
 		// viewerState.setCurrentSource(1);
@@ -453,7 +454,9 @@ public class RenderSlice {
 		final BufferedImage bufferedImage = screenImage.image();
 
 		// Graphics graphics = bufferedImage.getGraphics();
-		viewer.paint(bufferedImage, screenImage);
+		ArrayImg<?, ?> array = (ArrayImg<?, ?>) screenImage;
+		ARGBScreenImage argb = (ARGBScreenImage) array;
+		viewer.paint(bufferedImage, argb);
 
 		// viewer.add(display);
 		// OverlayAnimator animator = null;

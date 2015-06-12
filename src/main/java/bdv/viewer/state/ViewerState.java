@@ -28,7 +28,7 @@ public class ViewerState {
 	public final ArrayList<SourceState<?>> sources;
 
 	// This value is set for maxproj to suppress normal rendering
-	public boolean maxproj = false;
+	private boolean maxproj = false;
 
 	/**
 	 * read-only view of {@link #sources}.
@@ -436,5 +436,13 @@ public class ViewerState {
 
 	public int getNumTimePoints() {
 		return numTimePoints;
+	}
+
+	public boolean getMaxproj() {
+		return maxproj;
+	}
+
+	public void setMaxproj(boolean maxproj) {
+		this.maxproj = maxproj;
 	}
 }

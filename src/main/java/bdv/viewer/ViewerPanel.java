@@ -34,7 +34,7 @@ import javax.swing.event.ChangeListener;
 import net.imglib2.Positionable;
 import net.imglib2.RealPoint;
 import net.imglib2.RealPositionable;
-import net.imglib2.display.screenimage.ScreenImage;
+import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.InteractiveDisplayCanvasComponent;
 import net.imglib2.ui.OverlayRenderer;
@@ -418,7 +418,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	@Override
 	public void paint() {
-		if (state.maxproj == false) {
+		if (state.getMaxproj() == false) {
 			imageRenderer.paint(state);
 
 			display.repaint();
@@ -441,10 +441,11 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	// inversing the value of maxproj to ensure only the wanted rendering
 	public void inverseMaxproj() {
-		state.maxproj = !state.maxproj;
+		state.setMaxproj(!state.getMaxproj());
 	}
 
-	public void paint(BufferedImage bufferedImage, ScreenImage screenimage) {
+	// adding a method to directly paint the calculated picture
+	public void paint(BufferedImage bufferedImage, ARGBScreenImage screenimage) {
 		imageRenderer.paint(state, bufferedImage, screenimage);
 
 		display.repaint();
