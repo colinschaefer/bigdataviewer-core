@@ -29,12 +29,13 @@ float2 intersectBox( float3 r_o, float3 r_d, float3 boxmax )
 __kernel void slice(
 		__constant float4* transform,
 		__constant uint4* sizes,
+		__constant float* dimZz,
 		__global __read_only short3* blockLookup,
 		__read_only image3d_t blocks,
 		__write_only image2d_t target
 		)
 {
-	const float dimZ = 20;
+	const float dimZ = (float) dimZz[0];
 	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
 
 	const uint x = get_global_id( 0 );

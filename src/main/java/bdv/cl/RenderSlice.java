@@ -72,6 +72,8 @@ public class RenderSlice {
 
 	private CLBuffer<IntBuffer> sizes;
 
+	private CLBuffer<IntBuffer> dimZBuffer;
+
 	private final int[] blockSize = new int[] { 32, 32, 8 };
 
 	private final int[] paddedBlockSize = new int[] { 33, 33, 9 };
@@ -100,13 +102,15 @@ public class RenderSlice {
 					.createCommandQueue(Mode.PROFILING_MODE);
 
 			final CLProgram program = context.createProgram(this.getClass()
-					.getResourceAsStream("slice2.cl"));
+					.getResourceAsStream("slice3.cl"));
 			program.build();
 			slice = program.createCLKernel("slice");
 
 			transformMatrix = context.createFloatBuffer(12, Mem.READ_ONLY,
 					Mem.ALLOCATE_BUFFER);
 			sizes = context.createIntBuffer(8, Mem.READ_ONLY,
+					Mem.ALLOCATE_BUFFER);
+			dimZBuffer = context.createIntBuffer(1, Mem.READ_ONLY,
 					Mem.ALLOCATE_BUFFER);
 
 			final int[] gridSize = BlockTexture.findSuitableGridSize(
@@ -239,6 +243,8 @@ public class RenderSlice {
 		sizes.getBuffer().rewind();
 		queue.putWriteBuffer(sizes, true);
 
+		dimZBuffer.getBuffer().put(dimZ);
+
 		final long globalWorkOffsetX = 0;
 		final long globalWorkOffsetY = 0;
 		final long globalWorkSizeX = width;
@@ -248,8 +254,8 @@ public class RenderSlice {
 		for (int i = 0; i < 1; ++i) {
 			final CLEventList eventList = new CLEventList(1);
 			slice.rewind().putArg(transformMatrix).putArg(sizes)
-					.putArg(blockLookup).putArg(blockTexture.get())
-					.putArg(renderTarget);
+					.putArg(dimZBuffer).putArg(blockLookup)
+					.putArg(blockTexture.get()).putArg(renderTarget);
 			queue.put2DRangeKernel(slice, globalWorkOffsetX, globalWorkOffsetY,
 					globalWorkSizeX, globalWorkSizeY, localWorkSizeX,
 					localWorkSizeY, eventList);
