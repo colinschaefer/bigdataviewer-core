@@ -535,8 +535,8 @@ public class BigDataViewer {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				final ViewerState state = viewer.getState();
-				final int width = 800;// viewer.getDisplay().getWidth();
-				final int height = 600;// viewer.getDisplay().getHeight();
+				final int width = viewer.getDisplay().getWidth();
+				final int height = viewer.getDisplay().getHeight();
 				render.renderSlice(state, width, height);
 			}
 		});
@@ -554,8 +554,8 @@ public class BigDataViewer {
 			public void transformChanged(final AffineTransform3D transform) {
 				if (renderContinuously) {
 					final ViewerState state = viewer.getState();
-					final int width = 800;// viewer.getDisplay().getWidth();
-					final int height = 600;// viewer.getDisplay().getHeight();
+					final int width = viewer.getDisplay().getWidth();
+					final int height = viewer.getDisplay().getHeight();
 					render.renderSlice(state, width, height);
 				}
 			}
@@ -569,25 +569,14 @@ public class BigDataViewer {
 		// final String RENDER_SLICE = "render slice";
 		final String RENDER_CONTINUOUS = "continuous";
 		final InputMap inputMap = new InputMap();
-		// inputMap.put(KeyStroke.getKeyStroke("R"), RENDER_SLICE);
 		inputMap.put(KeyStroke.getKeyStroke("E"), RENDER_CONTINUOUS);
 		final ActionMap actionMap = new ActionMap();
-
-		/*
-		 * actionMap.put(RENDER_SLICE, new AbstractAction() {
-		 * 
-		 * @Override public void actionPerformed(final ActionEvent e) { final
-		 * ViewerState state = viewer.getState(); final int width =
-		 * viewer.getDisplay().getWidth(); final int height =
-		 * viewer.getDisplay().getHeight(); render.renderSlice2(state, width,
-		 * height, viewer); } });
-		 */
 
 		actionMap.put(RENDER_CONTINUOUS, new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				renderContinuously = !renderContinuously;
-				viewer.inverseMaxproj();
+				viewer.setMaxproj(!viewer.getMaxproj());
+				System.out.println(String.valueOf(viewer.getMaxproj()));
 			}
 		});
 		final InputActionBindings bindings = viewerFrame.getKeybindings();
@@ -596,8 +585,8 @@ public class BigDataViewer {
 		viewer.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 			@Override
 			public void transformChanged(final AffineTransform3D transform) {
-				if (true) {
-					// if (viewer.getState().getMaxproj() == true) {
+				if (viewer.getMaxproj() == true) {
+					System.out.println("drin");
 					final ViewerState state = viewer.getState();
 					final int width = viewer.getDisplay().getWidth();
 					final int height = viewer.getDisplay().getHeight();
@@ -815,9 +804,9 @@ public class BigDataViewer {
 		// "/Users/pietzsch/workspace/data/111010_weber_full.xml";
 		// final String fn =
 		// "/Volumes/projects/tomancak_lightsheet/Mette/ZeissZ1SPIM/Maritigrella/021013_McH2BsGFP_CAAX-mCherry/11-use/hdf5/021013_McH2BsGFP_CAAX-mCherry-11-use.xml";
-		final String fn = "D:/Users/Colin/MATLAB/KLBdownsampler/TM000000/blibb.xml";
-		// final String fn = "Z:/Exchange/Colin/h5/dataset.xml";
-		// final String fn = "D:/Users/Colin/h5/dataset.xml";
+		// final String fn =
+		// "D:/Users/Colin/MATLAB/KLBdownsampler/TM000000/blibb.xml";
+		final String fn = "D:/Users/Colin/h5/mamut.xml";
 		try {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			open(fn, new File(fn).getName(), new ProgressWriterConsole());

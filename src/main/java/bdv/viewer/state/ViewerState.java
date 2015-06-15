@@ -28,7 +28,7 @@ public class ViewerState {
 	public final ArrayList<SourceState<?>> sources;
 
 	// This value is set for maxproj to suppress normal rendering
-	private boolean maxproj = false;
+	public boolean maxproj = false;
 
 	/**
 	 * read-only view of {@link #sources}.
@@ -442,7 +442,7 @@ public class ViewerState {
 		return maxproj;
 	}
 
-	public void setMaxproj(boolean maxproj) {
-		this.maxproj = maxproj;
+	public void setMaxproj(boolean inmaxproj) {
+		maxproj = inmaxproj;
 	}
 }

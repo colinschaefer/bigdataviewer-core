@@ -444,6 +444,14 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 		state.setMaxproj(!state.getMaxproj());
 	}
 
+	public boolean getMaxproj() {
+		return state.getMaxproj();
+	}
+
+	public void setMaxproj(boolean input) {
+		state.setMaxproj(input);
+	}
+
 	// adding a method to directly paint the calculated picture
 	public void paint(BufferedImage bufferedImage, ARGBScreenImage screenimage) {
 		imageRenderer.paint(state, bufferedImage, screenimage);

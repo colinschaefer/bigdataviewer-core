@@ -16,7 +16,6 @@ import net.imglib2.Cursor;
 import net.imglib2.RandomAccessible;
 import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.display.screenimage.awt.UnsignedByteAWTScreenImage;
-import net.imglib2.img.array.ArrayImg;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.realtransform.AffineTransform2D;
 import net.imglib2.realtransform.AffineTransform3D;
@@ -72,8 +71,6 @@ public class RenderSlice {
 
 	private CLBuffer<IntBuffer> sizes;
 
-	private CLBuffer<IntBuffer> dimZBuffer;
-
 	private final int[] blockSize = new int[] { 32, 32, 8 };
 
 	private final int[] paddedBlockSize = new int[] { 33, 33, 9 };
@@ -110,8 +107,6 @@ public class RenderSlice {
 					Mem.ALLOCATE_BUFFER);
 			sizes = context.createIntBuffer(8, Mem.READ_ONLY,
 					Mem.ALLOCATE_BUFFER);
-			dimZBuffer = context.createIntBuffer(1, Mem.READ_ONLY,
-					Mem.ALLOCATE_BUFFER);
 
 			final int[] gridSize = BlockTexture.findSuitableGridSize(
 					paddedBlockSize, 300);
@@ -141,7 +136,7 @@ public class RenderSlice {
 
 	public void renderSlice(final ViewerState viewerState, final int width,
 			final int height) {
-		final int dimZ = 10;
+		final float dimZ = 20;
 		System.out.println();
 		final Source<?> source = viewerState.getSources().get(0)
 				.getSpimSource(); // TODO
@@ -158,7 +153,7 @@ public class RenderSlice {
 
 		long t = System.currentTimeMillis();
 		final RequiredBlocks requiredBlocks = getRequiredBlocks(sourceToScreen,
-				width, height, dimZ, new ViewId(timepointId, setupId));
+				width, height, (int) dimZ, new ViewId(timepointId, setupId));
 		t = System.currentTimeMillis() - t;
 		System.out.println("getRequiredBlocks: " + t + " ms");
 		t = System.currentTimeMillis();
@@ -243,8 +238,6 @@ public class RenderSlice {
 		sizes.getBuffer().rewind();
 		queue.putWriteBuffer(sizes, true);
 
-		dimZBuffer.getBuffer().put(dimZ);
-
 		final long globalWorkOffsetX = 0;
 		final long globalWorkOffsetY = 0;
 		final long globalWorkSizeX = width;
@@ -253,9 +246,9 @@ public class RenderSlice {
 		final long localWorkSizeY = 0;
 		for (int i = 0; i < 1; ++i) {
 			final CLEventList eventList = new CLEventList(1);
-			slice.rewind().putArg(transformMatrix).putArg(sizes)
-					.putArg(dimZBuffer).putArg(blockLookup)
-					.putArg(blockTexture.get()).putArg(renderTarget);
+			slice.rewind().putArg(transformMatrix).putArg(sizes).putArg(dimZ)
+					.putArg(blockLookup).putArg(blockTexture.get())
+					.putArg(renderTarget);
 			queue.put2DRangeKernel(slice, globalWorkOffsetX, globalWorkOffsetY,
 					globalWorkSizeX, globalWorkSizeY, localWorkSizeX,
 					localWorkSizeY, eventList);
@@ -283,7 +276,7 @@ public class RenderSlice {
 
 	public void renderSlice2(final ViewerState viewerState, final int width,
 			final int height, ViewerPanel viewer) {
-		final int dimZ = 1;
+		final float dimZ = 20;
 		System.out.println();
 		final Source<?> source = viewerState.getSources().get(0)
 				.getSpimSource(); // TODO
@@ -393,7 +386,7 @@ public class RenderSlice {
 		final long localWorkSizeY = 0;
 		for (int i = 0; i < 1; ++i) {
 			final CLEventList eventList = new CLEventList(1);
-			slice.rewind().putArg(transformMatrix).putArg(sizes)
+			slice.rewind().putArg(transformMatrix).putArg(sizes).putArg(dimZ)
 					.putArg(blockLookup).putArg(blockTexture.get())
 					.putArg(renderTarget);
 			queue.put2DRangeKernel(slice, globalWorkOffsetX, globalWorkOffsetY,
@@ -413,14 +406,25 @@ public class RenderSlice {
 		// SourceState<?> sources = viewerState.sources.get(0);
 		// viewerState.sources.add(SourceState.create(sources, viewerState));
 		// viewerState.setCurrentSource(1);
-		show2(data, width, height, viewer);
-		// renderTarget.release();
+		renderTarget.getBuffer().get(data);
+
+		if (intdata == null)
+			intdata = new int[width * height];
+
+		ByteBuffer wrapped = ByteBuffer.wrap(data); // big-endian by default
+		for (int i = 0; i < intdata.length / 2; i++) {
+			intdata[i] = wrapped.getShort();
+		}
+
+		show2(data, intdata, width, height, viewer);
+		renderTarget.release();
 
 		// /////////////////
 
 		blockLookup.release();
 	}
 
+	private int[] intdata;
 	private byte[] data;
 	private InteractiveDisplayCanvasComponent<AffineTransform2D> display;
 
@@ -449,19 +453,18 @@ public class RenderSlice {
 		content.add(display, BorderLayout.CENTER);
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setLocation(width + 20, 23);
 		frame.setVisible(true);
 	}
 
-	private void show2(final byte[] data, final int width, final int height,
-			ViewerPanel viewer) {
+	private void show2(final byte[] data, final int[] intdata, final int width,
+			final int height, ViewerPanel viewer) {
 
 		final UnsignedByteAWTScreenImage screenImage = new UnsignedByteAWTScreenImage(
 				ArrayImgs.unsignedBytes(data, width, height));
 		final BufferedImage bufferedImage = screenImage.image();
+		ARGBScreenImage argb = new ARGBScreenImage(width, height, intdata);
 
-		// Graphics graphics = bufferedImage.getGraphics();
-		ArrayImg<?, ?> array = (ArrayImg<?, ?>) screenImage;
-		ARGBScreenImage argb = (ARGBScreenImage) array;
 		viewer.paint(bufferedImage, argb);
 
 		// viewer.add(display);
