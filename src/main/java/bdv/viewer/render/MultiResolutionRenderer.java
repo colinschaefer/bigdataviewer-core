@@ -515,101 +515,12 @@ public class MultiResolutionRenderer {
 		if (display.getWidth() <= 0 || display.getHeight() <= 0)
 			return false;
 
-		final boolean resized = checkResize();
-
-		// the projector that paints to the screenImage.
-		final VolatileProjector p;
-
-		final boolean clearQueue;
-
-		final boolean createProjector;
-
 		synchronized (this) {
-			// Rendering may be cancelled unless we are rendering at coarsest
-			// screen scale and coarsest mipmap level.
-			renderingMayBeCancelled = (requestedScreenScaleIndex < maxScreenScaleIndex);
-
-			clearQueue = newFrameRequest;
-			if (clearQueue)
-				cache.prepareNextFrame();
-			createProjector = newFrameRequest || resized
-					|| (requestedScreenScaleIndex != currentScreenScaleIndex);
-			newFrameRequest = false;
-
-			if (createProjector) {
-				final int renderId = renderIdQueue.peek();
-				currentScreenScaleIndex = requestedScreenScaleIndex;
-				// final ARGBScreenImage screenImage =
-				// screenImages[currentScreenScaleIndex][renderId];
-				synchronized (state) {
-					final int numVisibleSources = state
-							.getVisibleSourceIndices().size();
-					checkRenewRenderImages(numVisibleSources);
-					checkRenewMaskArrays(numVisibleSources);
-					p = createProjector(state, currentScreenScaleIndex,
-							screenImage);
-				}
-				projector = p;
-			} else {
-				bufferedImage = null;
-				p = projector;
-			}
-
-			requestedScreenScaleIndex = 0;
+			display.setBufferedImageAndTransform(bufferedImage,
+					currentProjectorTransform);
 		}
 
-		// try rendering
-		final boolean success = p.map(createProjector);
-		// final long rendertime = p.getLastFrameRenderNanoTime();
-
-		synchronized (this) {
-			// if rendering was not cancelled...
-			if (success) {
-				if (createProjector) {
-					final BufferedImage bi = display
-							.setBufferedImageAndTransform(bufferedImage,
-									currentProjectorTransform);
-					if (doubleBuffered) {
-						renderIdQueue.pop();
-						final Integer id = bufferedImageToRenderId.get(bi);
-						if (id != null)
-							renderIdQueue.add(id);
-					}
-
-					/*
-					 * if (currentScreenScaleIndex == maxScreenScaleIndex) { if
-					 * (rendertime > targetRenderNanos && maxScreenScaleIndex <
-					 * screenScales.length - 1) maxScreenScaleIndex++; else if
-					 * (rendertime < targetRenderNanos / 3 &&
-					 * maxScreenScaleIndex > 0) maxScreenScaleIndex--; } else if
-					 * (currentScreenScaleIndex == maxScreenScaleIndex - 1) { if
-					 * (rendertime < targetRenderNanos && maxScreenScaleIndex >
-					 * 0) maxScreenScaleIndex--; }
-					 */
-					// System.out.println( String.format( "rendering:%4d ms",
-					// rendertime / 1000000 ) );
-					// System.out.println( "scale = " + currentScreenScaleIndex
-					// );
-					// System.out.println( "maxScreenScaleIndex = " +
-					// maxScreenScaleIndex + "  (" + screenImages[
-					// maxScreenScaleIndex ][ 0 ].dimension( 0 ) + " x " +
-					// screenImages[ maxScreenScaleIndex ][ 0 ].dimension( 1 ) +
-					// ")" );
-				}
-
-				if (currentScreenScaleIndex > 0)
-					requestRepaint(currentScreenScaleIndex - 1);
-				else if (!p.isValid()) {
-					try {
-						Thread.sleep(1);
-					} catch (final InterruptedException e) {
-					}
-					requestRepaint(currentScreenScaleIndex);
-				}
-			}
-		}
-
-		return success;
+		return true;
 	}
 
 	/**

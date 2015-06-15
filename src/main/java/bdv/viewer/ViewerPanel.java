@@ -454,21 +454,11 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	// adding a method to directly paint the calculated picture
 	public void paint(BufferedImage bufferedImage, ARGBScreenImage screenimage) {
-		imageRenderer.paint(state, bufferedImage, screenimage);
+		if (state.getMaxproj() == true) {
+			imageRenderer.paint(state, bufferedImage, screenimage);
 
-		display.repaint();
+			display.repaint();
 
-		synchronized (this) {
-			if (currentAnimator != null) {
-				final TransformEventHandler<AffineTransform3D> handler = display
-						.getTransformEventHandler();
-				final AffineTransform3D transform = currentAnimator
-						.getCurrent(System.currentTimeMillis());
-				handler.setTransform(transform);
-				transformChanged(transform);
-				if (currentAnimator.isComplete())
-					currentAnimator = null;
-			}
 		}
 	}
 

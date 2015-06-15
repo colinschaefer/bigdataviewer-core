@@ -293,7 +293,7 @@ public class RenderSlice {
 
 		long t = System.currentTimeMillis();
 		final RequiredBlocks requiredBlocks = getRequiredBlocks(sourceToScreen,
-				width, height, dimZ, new ViewId(timepointId, setupId));
+				width, height, (int) dimZ, new ViewId(timepointId, setupId));
 		t = System.currentTimeMillis() - t;
 		System.out.println("getRequiredBlocks: " + t + " ms");
 		t = System.currentTimeMillis();

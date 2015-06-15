@@ -502,7 +502,7 @@ public class BigDataViewer {
 		if (!bdv.tryLoadSettings(xmlFilename))
 			InitializeViewerState.initBrightness(0.001, 0.999, bdv.viewer,
 					bdv.setupAssignments);
-		bdv.setupVolumeRendering(spimData);
+		bdv.setupVolumeRendering2(spimData);
 		return bdv;
 	}
 
@@ -571,29 +571,42 @@ public class BigDataViewer {
 		final InputMap inputMap = new InputMap();
 		inputMap.put(KeyStroke.getKeyStroke("E"), RENDER_CONTINUOUS);
 		final ActionMap actionMap = new ActionMap();
+		viewer.setMaxproj(false);
 
 		actionMap.put(RENDER_CONTINUOUS, new AbstractAction() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				viewer.setMaxproj(!viewer.getMaxproj());
+				viewer.inverseMaxproj();
 				System.out.println(String.valueOf(viewer.getMaxproj()));
+				viewer.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
+					@Override
+					public void transformChanged(
+							final AffineTransform3D transform) {
+						if (viewer.getMaxproj() == true) {
+							System.out.println("drin");
+							final ViewerState state = viewer.getState();
+							final int width = viewer.getDisplay().getWidth();
+							final int height = viewer.getDisplay().getHeight();
+							render.renderSlice2(state, width, height, viewer);
+						}
+					}
+				});
 			}
 		});
 		final InputActionBindings bindings = viewerFrame.getKeybindings();
 		bindings.addActionMap("volume", actionMap);
 		bindings.addInputMap("volume", inputMap);
-		viewer.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
-			@Override
-			public void transformChanged(final AffineTransform3D transform) {
-				if (viewer.getMaxproj() == true) {
-					System.out.println("drin");
-					final ViewerState state = viewer.getState();
-					final int width = viewer.getDisplay().getWidth();
-					final int height = viewer.getDisplay().getHeight();
-					render.renderSlice2(state, width, height, viewer);
-				}
-			}
-		});
+		/*
+		 * viewer.addRenderTransformListener(new
+		 * TransformListener<AffineTransform3D>() {
+		 * 
+		 * @Override public void transformChanged(final AffineTransform3D
+		 * transform) { if (viewer.getMaxproj() == true) {
+		 * System.out.println("drin"); final ViewerState state =
+		 * viewer.getState(); final int width = viewer.getDisplay().getWidth();
+		 * final int height = viewer.getDisplay().getHeight();
+		 * render.renderSlice2(state, width, height, viewer); } } });
+		 */
 	}
 
 	public ViewerPanel getViewer() {
