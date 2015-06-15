@@ -578,8 +578,6 @@ public class BigDataViewer {
 			public void actionPerformed(final ActionEvent e) {
 				viewer.inverseMaxproj();
 				System.out.println(String.valueOf(viewer.getMaxproj()));
-				if (viewer.getMaxproj() == false) {
-				}
 				viewer.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 					@Override
 					public void transformChanged(
