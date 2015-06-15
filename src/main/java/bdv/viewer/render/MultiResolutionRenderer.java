@@ -316,7 +316,7 @@ public class MultiResolutionRenderer {
 	 *
 	 * @return whether the size was changed.
 	 */
-	protected synchronized boolean checkResize() {
+	public synchronized boolean checkResize() {
 		final int componentW = display.getWidth();
 		final int componentH = display.getHeight();
 		if (screenImages[0][0] == null
