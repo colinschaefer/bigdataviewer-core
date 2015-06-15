@@ -417,8 +417,6 @@ public class RenderSlice {
 		show2(data, width, height, viewer);
 		renderTarget.release();
 
-		// /////////////////
-
 		blockLookup.release();
 	}
 
@@ -463,13 +461,6 @@ public class RenderSlice {
 
 		viewer.paint(bufferedImage);
 
-		// viewer.add(display);
-		// OverlayAnimator animator = null;
-		// animator.paint((Graphics2D) bufferedImage.getGraphics(), 1);
-		// viewer.addOverlayAnimator(animator);
-		// viewer.drawOverlays(bufferedImage.getGraphics());
-		// viewer.requestRepaint();
-		// firstTime = false;
 	}
 
 	private short[] getBlockData(final int[] blockPos,

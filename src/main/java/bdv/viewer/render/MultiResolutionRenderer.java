@@ -518,7 +518,8 @@ public class MultiResolutionRenderer {
 			display.setBufferedImageAndTransform(bufferedImage,
 					currentProjectorTransform);
 		}
-
+		screenImages[0][0] = null;
+		checkResize();
 		return true;
 	}
 
