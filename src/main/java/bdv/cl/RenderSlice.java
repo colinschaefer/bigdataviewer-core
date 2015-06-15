@@ -14,7 +14,6 @@ import javax.swing.JFrame;
 import mpicbg.spim.data.sequence.ViewId;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessible;
-import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.display.screenimage.awt.UnsignedByteAWTScreenImage;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.realtransform.AffineTransform2D;
@@ -403,20 +402,19 @@ public class RenderSlice {
 
 		if (data == null)
 			data = new byte[width * height];
-		// SourceState<?> sources = viewerState.sources.get(0);
-		// viewerState.sources.add(SourceState.create(sources, viewerState));
-		// viewerState.setCurrentSource(1);
 		renderTarget.getBuffer().get(data);
 
-		if (intdata == null)
-			intdata = new int[width * height];
+		/*
+		 * if (intdata == null) intdata = new int[width * height];
+		 */
 
-		ByteBuffer wrapped = ByteBuffer.wrap(data); // big-endian by default
-		for (int i = 0; i < intdata.length / 2; i++) {
-			intdata[i] = wrapped.getShort();
-		}
+		/*
+		 * ByteBuffer wrapped = ByteBuffer.wrap(data); // big-endian by default
+		 * for (int i = 0; i < intdata.length / 2; i++) { intdata[i] =
+		 * wrapped.getShort(); }
+		 */
 
-		show2(data, intdata, width, height, viewer);
+		show2(data, width, height, viewer);
 		renderTarget.release();
 
 		// /////////////////
@@ -424,7 +422,6 @@ public class RenderSlice {
 		blockLookup.release();
 	}
 
-	private int[] intdata;
 	private byte[] data;
 	private InteractiveDisplayCanvasComponent<AffineTransform2D> display;
 
@@ -457,15 +454,14 @@ public class RenderSlice {
 		frame.setVisible(true);
 	}
 
-	private void show2(final byte[] data, final int[] intdata, final int width,
-			final int height, ViewerPanel viewer) {
+	private void show2(final byte[] data, final int width, final int height,
+			ViewerPanel viewer) {
 
 		final UnsignedByteAWTScreenImage screenImage = new UnsignedByteAWTScreenImage(
 				ArrayImgs.unsignedBytes(data, width, height));
 		final BufferedImage bufferedImage = screenImage.image();
-		ARGBScreenImage argb = new ARGBScreenImage(width, height, intdata);
 
-		viewer.paint(bufferedImage, argb);
+		viewer.paint(bufferedImage);
 
 		// viewer.add(display);
 		// OverlayAnimator animator = null;

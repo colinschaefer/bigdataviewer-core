@@ -510,8 +510,7 @@ public class MultiResolutionRenderer {
 	 * Render given buffered image image at the
 	 * {@link #requestedScreenScaleIndex requested screen scale}.
 	 */
-	public boolean paint(final ViewerState state, BufferedImage bufferedImage,
-			ARGBScreenImage screenImage) {
+	public boolean paint(final ViewerState state, BufferedImage bufferedImage) {
 		if (display.getWidth() <= 0 || display.getHeight() <= 0)
 			return false;
 

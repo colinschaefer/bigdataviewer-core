@@ -34,7 +34,6 @@ import javax.swing.event.ChangeListener;
 import net.imglib2.Positionable;
 import net.imglib2.RealPoint;
 import net.imglib2.RealPositionable;
-import net.imglib2.display.screenimage.awt.ARGBScreenImage;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.ui.InteractiveDisplayCanvasComponent;
 import net.imglib2.ui.OverlayRenderer;
@@ -453,9 +452,9 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 	}
 
 	// adding a method to directly paint the calculated picture
-	public void paint(BufferedImage bufferedImage, ARGBScreenImage screenimage) {
+	public void paint(BufferedImage bufferedImage) {
 		if (state.getMaxproj() == true) {
-			imageRenderer.paint(state, bufferedImage, screenimage);
+			imageRenderer.paint(state, bufferedImage);
 
 			display.repaint();
 
