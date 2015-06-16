@@ -528,9 +528,9 @@ public class BigDataViewer {
 		return bdv;
 	}
 
-	private volatile boolean renderContinuously = false;
-
+	@SuppressWarnings("serial")
 	private void setupVolumeRendering(final AbstractSpimData<?> spimData) {
+		@SuppressWarnings("unchecked")
 		final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader = (AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType>) spimData
 				.getSequenceDescription().getImgLoader();
 		final RenderSlice render = new RenderSlice(imgLoader);
@@ -611,17 +611,6 @@ public class BigDataViewer {
 		final InputActionBindings bindings = viewerFrame.getKeybindings();
 		bindings.addActionMap("volume", actionMap);
 		bindings.addInputMap("volume", inputMap);
-		/*
-		 * viewer.addRenderTransformListener(new
-		 * TransformListener<AffineTransform3D>() {
-		 * 
-		 * @Override public void transformChanged(final AffineTransform3D
-		 * transform) { if (viewer.getMaxproj() == true) {
-		 * System.out.println("drin"); final ViewerState state =
-		 * viewer.getState(); final int width = viewer.getDisplay().getWidth();
-		 * final int height = viewer.getDisplay().getHeight();
-		 * render.renderSlice2(state, width, height, viewer); } } });
-		 */
 	}
 
 	public ViewerPanel getViewer() {

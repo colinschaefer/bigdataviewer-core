@@ -11,11 +11,9 @@ import net.imglib2.Cursor;
 import net.imglib2.RandomAccessible;
 import net.imglib2.display.screenimage.awt.UnsignedByteAWTScreenImage;
 import net.imglib2.img.array.ArrayImgs;
-import net.imglib2.realtransform.AffineTransform2D;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.volatiles.VolatileUnsignedShortType;
-import net.imglib2.ui.InteractiveDisplayCanvasComponent;
 import net.imglib2.util.IntervalIndexer;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
@@ -257,7 +255,6 @@ public class RenderSlice {
 	}
 
 	private byte[] data;
-	private InteractiveDisplayCanvasComponent<AffineTransform2D> display;
 
 	private void show(final byte[] data, final int width, final int height,
 			ViewerPanel viewer) {
