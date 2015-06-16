@@ -2,6 +2,7 @@ package bdv.tools.zdim;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -11,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -31,7 +33,7 @@ public class ZdimDialog extends JDialog {
 
 	public ZdimDialog(final Frame owner, final SetupAssignments setupAssignments) {
 		super(owner, "Z - dimension of max-projection", false);
-		setSize(500, 150);
+		setSize(500, 120);
 		final int max = 100;
 		final int min = 0;
 		final JSlider microns = new JSlider(min, max, 20);
@@ -47,8 +49,15 @@ public class ZdimDialog extends JDialog {
 		JPanel input = new JPanel();
 		final JTextField inputField = new JTextField(5);
 		JLabel inputLabel = new JLabel("\u00B5" + "m");
-		input.add(inputField, BorderLayout.CENTER);
-		input.add(inputLabel, BorderLayout.LINE_END);
+		// input.setLayout(new BorderLayout());
+		input.setLayout(new GridLayout(3, 2));
+		inputField.setHorizontalAlignment(SwingConstants.RIGHT);
+		input.add(new JLabel());
+		input.add(new JLabel());
+		input.add(inputField);
+		input.add(inputLabel);
+		input.add(new JLabel());
+		input.add(new JLabel());
 
 		microns.addChangeListener(new ChangeListener() {
 			@Override
@@ -74,7 +83,7 @@ public class ZdimDialog extends JDialog {
 		});
 
 		add(microns, BorderLayout.CENTER);
-		add(input, BorderLayout.NORTH);
+		add(input, BorderLayout.EAST);
 		inputField.setText(String.valueOf(microns.getValue()));
 		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 	}
