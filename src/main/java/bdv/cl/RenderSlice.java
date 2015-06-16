@@ -410,16 +410,6 @@ public class RenderSlice {
 			}
 		}
 
-		/*
-		 * if (intdata == null) intdata = new int[width * height];
-		 */
-
-		/*
-		 * ByteBuffer wrapped = ByteBuffer.wrap(data); // big-endian by default
-		 * for (int i = 0; i < intdata.length / 2; i++) { intdata[i] =
-		 * wrapped.getShort(); }
-		 */
-
 		show2(data, width, height, viewer);
 		renderTarget.release();
 
