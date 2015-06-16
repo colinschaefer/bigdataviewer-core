@@ -471,6 +471,7 @@ public class BrightnessDialog extends JDialog {
 		}
 
 		private static final long serialVersionUID = -5209143847804383789L;
+
 	}
 
 	private static final long serialVersionUID = 7963632306732311403L;

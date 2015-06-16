@@ -597,8 +597,13 @@ public class BigDataViewer {
 							final int width = viewer.getDisplay().getWidth();
 							final int height = viewer.getDisplay().getHeight();
 							currentdimZ = zdimDialog.getDimZ();
-							minBright = 100;
-							maxBright = 150;
+
+							minBright = setupAssignments.getMinMaxGroups()
+									.get(0).getMinBoundedValue()
+									.getCurrentValue();
+							maxBright = setupAssignments.getMinMaxGroups()
+									.get(0).getMaxBoundedValue()
+									.getCurrentValue();
 							render.renderSlice2(state, width, height, viewer,
 									currentdimZ, minBright, maxBright);
 						}
