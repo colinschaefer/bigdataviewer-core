@@ -1,3 +1,5 @@
+// renderslice renders a maximum projection of the current slice on the GPU
+
 package bdv.cl;
 
 import java.awt.image.BufferedImage;
@@ -65,35 +67,44 @@ public class RenderSlice {
 
 	private final int[] paddedBlockSize = new int[] { 33, 33, 9 };
 
+	private byte[] data;
+
+	// the constructor initializes the OpenCL Kernel and Context
 	public RenderSlice(
 			final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader) {
 		this.imgLoader = imgLoader;
 
+		// try to set the OpenCL Kernel and Context
 		try {
+			// select the Device with the maximum flops, ideally this should
+			// select the GPU
 			context = CLContext.create(platform.getMaxFlopsDevice());
 
+			// create the command queue
 			queue = context.getDevices()[0]
 					.createCommandQueue(Mode.PROFILING_MODE);
 
+			// create the program and build the kernel
 			final CLProgram program = context.createProgram(this.getClass()
 					.getResourceAsStream("slice3.cl"));
 			program.build();
 			slice = program.createCLKernel("slice");
 
+			// initialize the buffers
 			transformMatrix = context.createFloatBuffer(12, Mem.READ_ONLY,
 					Mem.ALLOCATE_BUFFER);
 			sizes = context.createIntBuffer(8, Mem.READ_ONLY,
 					Mem.ALLOCATE_BUFFER);
-
 			final int[] gridSize = BlockTexture.findSuitableGridSize(
 					paddedBlockSize, 300);
 			blockTexture = new BlockTexture(gridSize, paddedBlockSize, queue);
 		} catch (final Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+	// after switching off the rendering the GPU can be cleaned up and memory
+	// can be released
 	public void cleanUp() {
 		if (queue != null && !queue.isReleased())
 			queue.release();
@@ -111,10 +122,14 @@ public class RenderSlice {
 			context.release();
 	}
 
+	// this method actually renders the maximum projection slice
 	public void renderSlice(final ViewerState viewerState, final int width,
 			final int height, ViewerPanel viewer, float dimZ, float minBright,
 			float maxBright) {
+
 		System.out.println();
+
+		// variable declaration and initialization
 		final Source<?> source = viewerState.getSources().get(0)
 				.getSpimSource(); // TODO
 		final int timepoint = 0; // TODO
@@ -122,17 +137,21 @@ public class RenderSlice {
 		final int setupId = 0; // TODO
 		final int mipmapIndex = 0; // TODO
 
+		// getting the current 3D transformation
 		final AffineTransform3D sourceToScreen = new AffineTransform3D();
 		viewerState.getViewerTransform(sourceToScreen);
 		final AffineTransform3D sourceTransform = new AffineTransform3D();
 		source.getSourceTransform(timepoint, mipmapIndex, sourceTransform);
 		sourceToScreen.concatenate(sourceTransform);
 
+		// loading the required blocks from disk
 		long t = System.currentTimeMillis();
 		final RequiredBlocks requiredBlocks = getRequiredBlocks(sourceToScreen,
 				width, height, (int) dimZ, new ViewId(timepointId, setupId));
 		t = System.currentTimeMillis() - t;
 		System.out.println("getRequiredBlocks: " + t + " ms");
+
+		// initialization of the image with the loaded blocks
 		t = System.currentTimeMillis();
 		final RandomAccessible<UnsignedShortType> img = Views
 				.extendZero(imgLoader.getImage(
@@ -150,6 +169,7 @@ public class RenderSlice {
 		t = System.currentTimeMillis() - t;
 		System.out.println("upload " + nnn + " blocks: " + t + " ms");
 
+		// initializing buffers for writing to the GPU
 		final int[] lookupDims = new int[3];
 		final int[] maxCell = requiredBlocks.maxCell;
 		final int[] minCell = requiredBlocks.minCell;
@@ -185,8 +205,6 @@ public class RenderSlice {
 		queue.putUnmapMemory(blockLookup, bytes);
 		queue.finish();
 
-		// /////////////////
-
 		final CLImage2d<ByteBuffer> renderTarget = (CLImage2d<ByteBuffer>) context
 				.createImage2d(Buffers.newDirectByteBuffer(width * height),
 						width, height, new CLImageFormat(ChannelOrder.R,
@@ -215,12 +233,14 @@ public class RenderSlice {
 		sizes.getBuffer().rewind();
 		queue.putWriteBuffer(sizes, true);
 
+		// variable declaration for the kernel
 		final long globalWorkOffsetX = 0;
 		final long globalWorkOffsetY = 0;
 		final long globalWorkSizeX = width;
 		final long globalWorkSizeY = height;
 		final long localWorkSizeX = 0;
 		final long localWorkSizeY = 0;
+		// kernel execution
 		for (int i = 0; i < 1; ++i) {
 			final CLEventList eventList = new CLEventList(1);
 			slice.rewind().putArg(transformMatrix).putArg(sizes).putArg(dimZ)
@@ -238,6 +258,7 @@ public class RenderSlice {
 					+ " ms");
 		}
 
+		// writing the data from the kernel output buffer into a byte array
 		if (data == null || data.length != width * height)
 			data = new byte[width * height];
 		renderTarget.getBuffer().get(data);
@@ -247,22 +268,27 @@ public class RenderSlice {
 				data[i] = 0;
 			}
 		}
-
+		// start the representation in the viewerpanel
 		show(data, width, height, viewer);
-		renderTarget.release();
 
+		// releasing Memory
+		renderTarget.release();
 		blockLookup.release();
 	}
 
-	private byte[] data;
-
+	// the show method paints the maximum projection, which was rendered on the
+	// GPU to the Interactive Canvas
 	private void show(final byte[] data, final int width, final int height,
 			ViewerPanel viewer) {
 
+		// Converting the byte buffer back in image data
 		final UnsignedByteAWTScreenImage screenImage = new UnsignedByteAWTScreenImage(
 				ArrayImgs.unsignedBytes(data, width, height));
+
+		// Converting the Image to a buffered image
 		final BufferedImage bufferedImage = screenImage.image();
 
+		// painting the canvas with the buffered image
 		viewer.paint(bufferedImage);
 
 	}

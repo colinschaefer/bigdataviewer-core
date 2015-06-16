@@ -528,13 +528,13 @@ public class BigDataViewer {
 		return bdv;
 	}
 
+	// setups the Volume rendering for continuous maximum projection in z
 	@SuppressWarnings("serial")
 	private void setupVolumeRendering(final AbstractSpimData<?> spimData) {
 		@SuppressWarnings("unchecked")
 		final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader = (AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType>) spimData
 				.getSequenceDescription().getImgLoader();
 		final RenderSlice render = new RenderSlice(imgLoader);
-		// final String RENDER_SLICE = "render slice";
 		final String RENDER_CONTINUOUS = "continuous";
 		final InputMap inputMap = new InputMap();
 		inputMap.put(KeyStroke.getKeyStroke("E"), RENDER_CONTINUOUS);
@@ -542,6 +542,7 @@ public class BigDataViewer {
 		viewer.setMaxproj(false);
 
 		actionMap.put(RENDER_CONTINUOUS, new AbstractAction() {
+			// rendering of the maximum projection after pressing the hotkey
 			@Override
 			public void actionPerformed(final ActionEvent e) {
 				viewer.inverseMaxproj();
@@ -549,6 +550,7 @@ public class BigDataViewer {
 					viewer.requestRepaint();
 				}
 				System.out.println(String.valueOf(viewer.getMaxproj()));
+				// rendering new after resizing of the viewerframe
 				viewerFrame.addComponentListener(new ComponentListener() {
 
 					@Override
@@ -561,19 +563,20 @@ public class BigDataViewer {
 
 					@Override
 					public void componentResized(ComponentEvent arg0) {
+						// check, if maximum projection option is switched on
 						if (viewer.getMaxproj() == true) {
-							System.out.println("drin");
+							// initialize variables
 							final ViewerState state = viewer.getState();
 							final int width = viewer.getDisplay().getWidth();
 							final int height = viewer.getDisplay().getHeight();
 							currentdimZ = zdimDialog.getDimZ();
-
 							minBright = setupAssignments.getMinMaxGroups()
 									.get(0).getMinBoundedValue()
 									.getCurrentValue();
 							maxBright = setupAssignments.getMinMaxGroups()
 									.get(0).getMaxBoundedValue()
 									.getCurrentValue();
+							// actual rendering step
 							render.renderSlice(state, width, height, viewer,
 									currentdimZ, minBright, maxBright);
 						}
@@ -584,23 +587,25 @@ public class BigDataViewer {
 					}
 
 				});
+				// rendering new after manual transformation
 				viewer.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 					@Override
 					public void transformChanged(
 							final AffineTransform3D transform) {
+						// check, if maximum projection option is switched on
 						if (viewer.getMaxproj() == true) {
-							System.out.println("drin");
+							// initialize variables
 							final ViewerState state = viewer.getState();
 							final int width = viewer.getDisplay().getWidth();
 							final int height = viewer.getDisplay().getHeight();
 							currentdimZ = zdimDialog.getDimZ();
-
 							minBright = setupAssignments.getMinMaxGroups()
 									.get(0).getMinBoundedValue()
 									.getCurrentValue();
 							maxBright = setupAssignments.getMinMaxGroups()
 									.get(0).getMaxBoundedValue()
 									.getCurrentValue();
+							// actual rendering step
 							render.renderSlice(state, width, height, viewer,
 									currentdimZ, minBright, maxBright);
 						}
