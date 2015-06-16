@@ -358,9 +358,10 @@ public class BigDataViewer {
 				setupAssignments.moveSetupToGroup(setup, group);
 		}
 
-		zdimDialog = new ZdimDialog(viewerFrame, setupAssignments);
+		zdimDialog = new ZdimDialog(viewerFrame, setupAssignments, windowWidth);
 
-		brightnessDialog = new BrightnessDialog(viewerFrame, setupAssignments);
+		brightnessDialog = new BrightnessDialog(viewerFrame, setupAssignments,
+				windowWidth);
 
 		cropDialog = (spimData == null) ? null : new CropDialog(viewerFrame,
 				viewer, spimData.getSequenceDescription());

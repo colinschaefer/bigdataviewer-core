@@ -31,7 +31,8 @@ public class ZdimDialog extends JDialog {
 
 	private int value = 1;
 
-	public ZdimDialog(final Frame owner, final SetupAssignments setupAssignments) {
+	public ZdimDialog(final Frame owner,
+			final SetupAssignments setupAssignments, final int width) {
 		super(owner, "Z - dimension of max-projection", false);
 		setSize(500, 120);
 		final int max = 100;
@@ -86,6 +87,7 @@ public class ZdimDialog extends JDialog {
 		add(input, BorderLayout.EAST);
 		inputField.setText(String.valueOf(microns.getValue()));
 		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+		setLocation(width + 20, 25);
 	}
 
 	private static final long serialVersionUID = 6538962298579455010L;
