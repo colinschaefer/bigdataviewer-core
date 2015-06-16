@@ -106,6 +106,10 @@ public class BigDataViewer {
 
 	protected float currentdimZ = 1;
 
+	protected float minBright;
+
+	protected float maxBright;
+
 	public void toggleManualTransformation() {
 		manualTransformationEditor.toggle();
 	}
@@ -593,8 +597,10 @@ public class BigDataViewer {
 							final int width = viewer.getDisplay().getWidth();
 							final int height = viewer.getDisplay().getHeight();
 							currentdimZ = zdimDialog.getDimZ();
+							minBright = 100;
+							maxBright = 150;
 							render.renderSlice2(state, width, height, viewer,
-									currentdimZ);
+									currentdimZ, minBright, maxBright);
 						}
 					}
 				});

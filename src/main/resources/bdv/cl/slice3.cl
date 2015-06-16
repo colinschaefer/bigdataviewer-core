@@ -31,6 +31,8 @@ __kernel void slice(
 		__constant float4* transform,
 		__constant uint4* sizes,
 		const float dimZ,
+		const float min,
+		const float max,
 		__global __read_only short3* blockLookup,
 		__read_only image3d_t blocks,
 		__write_only image2d_t target
@@ -78,8 +80,8 @@ __kernel void slice(
 
 
 
-	const float min = 100;
-	const float max = 200;
+//	const float min = 100;
+//	const float max = 200;
 	const float scale = 255.0 / (max - min + 1);
 	const float offset = - min * scale;
 	uint v = (uint) mad(f, scale, offset);

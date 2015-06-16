@@ -274,7 +274,8 @@ public class RenderSlice {
 	}
 
 	public void renderSlice2(final ViewerState viewerState, final int width,
-			final int height, ViewerPanel viewer, float dimZ) {
+			final int height, ViewerPanel viewer, float dimZ, float minBright,
+			float maxBright) {
 		System.out.println();
 		final Source<?> source = viewerState.getSources().get(0)
 				.getSpimSource(); // TODO
@@ -385,8 +386,8 @@ public class RenderSlice {
 		for (int i = 0; i < 1; ++i) {
 			final CLEventList eventList = new CLEventList(1);
 			slice.rewind().putArg(transformMatrix).putArg(sizes).putArg(dimZ)
-					.putArg(blockLookup).putArg(blockTexture.get())
-					.putArg(renderTarget);
+					.putArg(minBright).putArg(maxBright).putArg(blockLookup)
+					.putArg(blockTexture.get()).putArg(renderTarget);
 			queue.put2DRangeKernel(slice, globalWorkOffsetX, globalWorkOffsetY,
 					globalWorkSizeX, globalWorkSizeY, localWorkSizeX,
 					localWorkSizeY, eventList);
