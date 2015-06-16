@@ -104,6 +104,8 @@ public class BigDataViewer {
 
 	protected File proposedSettingsFile;
 
+	protected float currentdimZ = 1;
+
 	public void toggleManualTransformation() {
 		manualTransformationEditor.toggle();
 	}
@@ -590,7 +592,9 @@ public class BigDataViewer {
 							final ViewerState state = viewer.getState();
 							final int width = viewer.getDisplay().getWidth();
 							final int height = viewer.getDisplay().getHeight();
-							render.renderSlice2(state, width, height, viewer);
+							currentdimZ = zdimDialog.getDimZ();
+							render.renderSlice2(state, width, height, viewer,
+									currentdimZ);
 						}
 					}
 				});

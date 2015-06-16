@@ -274,8 +274,7 @@ public class RenderSlice {
 	}
 
 	public void renderSlice2(final ViewerState viewerState, final int width,
-			final int height, ViewerPanel viewer) {
-		final float dimZ = 20;
+			final int height, ViewerPanel viewer, float dimZ) {
 		System.out.println();
 		final Source<?> source = viewerState.getSources().get(0)
 				.getSpimSource(); // TODO
@@ -403,6 +402,12 @@ public class RenderSlice {
 		if (data == null)
 			data = new byte[width * height];
 		renderTarget.getBuffer().get(data);
+
+		for (int i = 0; i < data.length; i++) {
+			if (data[i] == -1) {
+				data[i] = 0;
+			}
+		}
 
 		/*
 		 * if (intdata == null) intdata = new int[width * height];

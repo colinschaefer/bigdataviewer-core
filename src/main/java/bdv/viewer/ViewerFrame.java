@@ -21,21 +21,18 @@ import bdv.viewer.ViewerPanel.Options;
  *
  * @author Tobias Pietzsch &lt;tobias.pietzsch@gmail.com&gt;
  */
-public class ViewerFrame extends JFrame
-{
+public class ViewerFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	protected final ViewerPanel viewer;
 
 	private final InputActionBindings keybindings;
 
-	public ViewerFrame(
-			final int width, final int height,
-			final List< SourceAndConverter< ? > > sources,
-			final int numTimePoints,
-			final Cache cache )
-	{
-		this( width, height, sources, numTimePoints, cache, ViewerPanel.options() );
+	public ViewerFrame(final int width, final int height,
+			final List<SourceAndConverter<?>> sources, final int numTimePoints,
+			final Cache cache) {
+		this(width, height, sources, numTimePoints, cache, ViewerPanel
+				.options());
 	}
 
 	/**
@@ -53,51 +50,49 @@ public class ViewerFrame extends JFrame
 	 * @param optional
 	 *            optional parameters. See {@link ViewerPanel#options()}.
 	 */
-	public ViewerFrame(
-			final int width, final int height,
-			final List< SourceAndConverter< ? > > sources,
-			final int numTimePoints,
-			final Cache cache,
-			final Options optional )
-	{
-//		super( "BigDataViewer", GuiUtil.getSuitableGraphicsConfiguration( GuiUtil.ARGB_COLOR_MODEL ) );
-		super( "BigDataViewer", GuiUtil.getSuitableGraphicsConfiguration( GuiUtil.RGB_COLOR_MODEL ) );
-		viewer = new ViewerPanel( sources, numTimePoints, cache, optional.width( width ).height( height ) );
+	public ViewerFrame(final int width, final int height,
+			final List<SourceAndConverter<?>> sources, final int numTimePoints,
+			final Cache cache, final Options optional) {
+		// super( "BigDataViewer", GuiUtil.getSuitableGraphicsConfiguration(
+		// GuiUtil.ARGB_COLOR_MODEL ) );
+		super("BigDataViewer", GuiUtil
+				.getSuitableGraphicsConfiguration(GuiUtil.RGB_COLOR_MODEL));
+		viewer = new ViewerPanel(sources, numTimePoints, cache, optional.width(
+				width).height(height));
 		keybindings = new InputActionBindings();
 
-		getRootPane().setDoubleBuffered( true );
-		setPreferredSize( new Dimension( width, height ) );
-		add( viewer, BorderLayout.CENTER );
+		getRootPane().setDoubleBuffered(true);
+		setPreferredSize(new Dimension(width, height));
+		add(viewer, BorderLayout.CENTER);
 		pack();
-		setDefaultCloseOperation( WindowConstants.DISPOSE_ON_CLOSE );
-		addWindowListener( new WindowAdapter()
-		{
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing( final WindowEvent e )
-			{
+			public void windowClosing(final WindowEvent e) {
 				viewer.stop();
 			}
-		} );
+		});
 
-		SwingUtilities.replaceUIActionMap( getRootPane(), keybindings.getConcatenatedActionMap() );
-		SwingUtilities.replaceUIInputMap( getRootPane(), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, keybindings.getConcatenatedInputMap() );
+		SwingUtilities.replaceUIActionMap(getRootPane(),
+				keybindings.getConcatenatedActionMap());
+		SwingUtilities.replaceUIInputMap(getRootPane(),
+				JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT,
+				keybindings.getConcatenatedInputMap());
 	}
 
 	// TODO: remove!?
-//	public void addHandler( final Object handler )
-//	{
-//		viewer.addHandler( handler );
-//		if ( KeyListener.class.isInstance( handler ) )
-//			addKeyListener( ( KeyListener ) handler );
-//	}
+	// public void addHandler( final Object handler )
+	// {
+	// viewer.addHandler( handler );
+	// if ( KeyListener.class.isInstance( handler ) )
+	// addKeyListener( ( KeyListener ) handler );
+	// }
 
-	public ViewerPanel getViewerPanel()
-	{
+	public ViewerPanel getViewerPanel() {
 		return viewer;
 	}
 
-	public InputActionBindings getKeybindings()
-	{
+	public InputActionBindings getKeybindings() {
 		return keybindings;
 	}
 }

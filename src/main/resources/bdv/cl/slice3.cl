@@ -79,7 +79,7 @@ __kernel void slice(
 
 
 	const float min = 100;
-	const float max = 150;
+	const float max = 200;
 	const float scale = 255.0 / (max - min + 1);
 	const float offset = - min * scale;
 	uint v = (uint) mad(f, scale, offset);
