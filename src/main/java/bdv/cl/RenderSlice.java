@@ -400,7 +400,7 @@ public class RenderSlice {
 					+ " ms");
 		}
 
-		if (data == null)
+		if (data == null || data.length != width * height)
 			data = new byte[width * height];
 		renderTarget.getBuffer().get(data);
 

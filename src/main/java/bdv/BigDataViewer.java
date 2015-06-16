@@ -1,6 +1,8 @@
 package bdv;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -588,6 +590,41 @@ public class BigDataViewer {
 					viewer.requestRepaint();
 				}
 				System.out.println(String.valueOf(viewer.getMaxproj()));
+				viewerFrame.addComponentListener(new ComponentListener() {
+
+					@Override
+					public void componentHidden(ComponentEvent arg0) {
+					}
+
+					@Override
+					public void componentMoved(ComponentEvent arg0) {
+					}
+
+					@Override
+					public void componentResized(ComponentEvent arg0) {
+						if (viewer.getMaxproj() == true) {
+							System.out.println("drin");
+							final ViewerState state = viewer.getState();
+							final int width = viewer.getDisplay().getWidth();
+							final int height = viewer.getDisplay().getHeight();
+							currentdimZ = zdimDialog.getDimZ();
+
+							minBright = setupAssignments.getMinMaxGroups()
+									.get(0).getMinBoundedValue()
+									.getCurrentValue();
+							maxBright = setupAssignments.getMinMaxGroups()
+									.get(0).getMaxBoundedValue()
+									.getCurrentValue();
+							render.renderSlice2(state, width, height, viewer,
+									currentdimZ, minBright, maxBright);
+						}
+					}
+
+					@Override
+					public void componentShown(ComponentEvent arg0) {
+					}
+
+				});
 				viewer.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 					@Override
 					public void transformChanged(
