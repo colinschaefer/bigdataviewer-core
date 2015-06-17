@@ -552,6 +552,7 @@ public class BigDataViewer {
 					@Override
 					public void transformChanged(
 							final AffineTransform3D transform) {
+
 						// check, if maximum projection option is switched
 						// on
 						if (viewer.getMaxproj() == true) {
@@ -569,6 +570,7 @@ public class BigDataViewer {
 							// actual rendering step
 							render.renderSlice(state, width, height, viewer,
 									currentdimZ, minBright, maxBright);
+
 						}
 					}
 				});
