@@ -1,8 +1,6 @@
 package bdv;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -549,50 +547,13 @@ public class BigDataViewer {
 				if (viewer.getMaxproj() == false) {
 					viewer.requestRepaint();
 				}
-				System.out.println(String.valueOf(viewer.getMaxproj()));
-				// rendering new after resizing of the viewerframe
-				viewerFrame.addComponentListener(new ComponentListener() {
-
-					@Override
-					public void componentHidden(ComponentEvent arg0) {
-					}
-
-					@Override
-					public void componentMoved(ComponentEvent arg0) {
-					}
-
-					@Override
-					public void componentResized(ComponentEvent arg0) {
-						// check, if maximum projection option is switched on
-						if (viewer.getMaxproj() == true) {
-							// initialize variables
-							final ViewerState state = viewer.getState();
-							final int width = viewer.getDisplay().getWidth();
-							final int height = viewer.getDisplay().getHeight();
-							currentdimZ = zdimDialog.getDimZ();
-							minBright = setupAssignments.getMinMaxGroups()
-									.get(0).getMinBoundedValue()
-									.getCurrentValue();
-							maxBright = setupAssignments.getMinMaxGroups()
-									.get(0).getMaxBoundedValue()
-									.getCurrentValue();
-							// actual rendering step
-							render.renderSlice(state, width, height, viewer,
-									currentdimZ, minBright, maxBright);
-						}
-					}
-
-					@Override
-					public void componentShown(ComponentEvent arg0) {
-					}
-
-				});
 				// rendering new after manual transformation
 				viewer.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 					@Override
 					public void transformChanged(
 							final AffineTransform3D transform) {
-						// check, if maximum projection option is switched on
+						// check, if maximum projection option is switched
+						// on
 						if (viewer.getMaxproj() == true) {
 							// initialize variables
 							final ViewerState state = viewer.getState();
@@ -609,7 +570,6 @@ public class BigDataViewer {
 							render.renderSlice(state, width, height, viewer,
 									currentdimZ, minBright, maxBright);
 						}
-
 					}
 				});
 			}
