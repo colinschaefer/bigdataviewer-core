@@ -219,6 +219,7 @@ public class RenderSlice {
 		shiftedSourceToBlock.set(1.0 / blockSize[0], 0, 0, 0, 0,
 				1.0 / blockSize[1], 0, 0, 0, 0, 1.0 / blockSize[2], 0);
 		screenToShiftedSource.preConcatenate(shiftedSourceToBlock);
+
 		for (int r = 0; r < 3; ++r)
 			for (int c = 0; c < 4; ++c)
 				transformMatrix.getBuffer().put(
@@ -240,6 +241,7 @@ public class RenderSlice {
 		final long globalWorkSizeY = height;
 		final long localWorkSizeX = 0;
 		final long localWorkSizeY = 0;
+
 		// kernel execution
 		for (int i = 0; i < 1; ++i) {
 			final CLEventList eventList = new CLEventList(1);
@@ -274,9 +276,10 @@ public class RenderSlice {
 		// releasing Memory
 		renderTarget.release();
 		blockLookup.release();
+
 	}
 
-	// the show method paints the maximum projection, which was rendered on the
+	// the show method paints the maximum projection which was rendered on the
 	// GPU to the Interactive Canvas
 	private void show(final byte[] data, final int width, final int height,
 			ViewerPanel viewer) {

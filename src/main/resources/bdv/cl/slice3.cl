@@ -81,6 +81,12 @@ __kernel void slice(
 	const float scale = 255.0 / (max - min + 1);
 	const float offset = - min * scale;
 	uint v = (uint) mad(f, scale, offset);
+	
+	if ( v>254 )
+	{
+		v=254;
+	}
+	
 	write_imageui( target, (int2) ( x, y ), v );
 }
 

@@ -609,6 +609,7 @@ public class BigDataViewer {
 							render.renderSlice(state, width, height, viewer,
 									currentdimZ, minBright, maxBright);
 						}
+
 					}
 				});
 			}
