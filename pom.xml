@@ -73,7 +73,7 @@
   		  <artifactId>..</artifactId>
     		<groupId>..</groupId>
    			<scope>system</scope>
-  		  	<systemPath>C:/Users/Colin/Desktop/Fiji.app/jars/klb-0.2.6.jar</systemPath>
+  		  	<systemPath>D:/Users/Colin/Fiji.app/jars/klb-0.2.6.jar</systemPath>
   		  	<version>0.2.6</version>
 		</dependency>	
 <dependency>
