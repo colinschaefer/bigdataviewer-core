@@ -77,6 +77,16 @@ public class RenderSlice {
 	private double[] oldTransformMatrix = new double[] { 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0 };
 
+	private boolean resized = false;
+
+	private int oldwidth = 0;
+
+	private int oldheight = 0;
+
+	private boolean rezet = false;
+
+	private float oldZ = 0;
+
 	// the constructor initializes the OpenCL Kernel and Context
 	public RenderSlice(
 			final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader) {
@@ -139,9 +149,15 @@ public class RenderSlice {
 		viewer.getState().getViewerTransform(newAffineTransform);
 		newAffineTransform.toArray(newTransformMatrix);
 
-		// if the current transformation is different to the old one, start
-		// rendering
-		if (!Arrays.equals(oldTransformMatrix, newTransformMatrix)) {
+		// compare the old window size to the current one
+		resized = ((oldwidth * oldheight) != (width * height));
+
+		rezet = (oldZ != dimZ);
+
+		// if the current transformation, window size or z dimensional rendering
+		// is different to the old one, start rendering
+		if (!Arrays.equals(oldTransformMatrix, newTransformMatrix) || resized
+				|| rezet) {
 
 			System.out.println();
 
@@ -304,14 +320,17 @@ public class RenderSlice {
 			renderTarget.release();
 			blockLookup.release();
 
-			// if the current transformation stayed the same just show the same
-			// as before
+			// if the current transformation, window size and z dimensional
+			// rendering stayed the same just show the same as before
 		} else {
 			show(data, width, height, viewer);
 		}
-		// copy the current transformation settings into the array for the old
-		// ones
+		// copy the current transformation, width, height and z dimension
+		// settings for comparison in the next loop
 		oldTransformMatrix = Arrays.copyOf(newTransformMatrix, 12);
+		oldwidth = width;
+		oldheight = height;
+		oldZ = dimZ;
 	}
 
 	// the show method paints the maximum projection which was rendered on the
