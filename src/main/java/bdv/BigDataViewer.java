@@ -556,6 +556,7 @@ public class BigDataViewer {
 						// check, if maximum projection option is switched
 						// on
 						if (viewer.getMaxproj() == true) {
+
 							// initialize variables
 							final ViewerState state = viewer.getState();
 							final int width = viewer.getDisplay().getWidth();
@@ -570,7 +571,6 @@ public class BigDataViewer {
 							// actual rendering step
 							render.renderSlice(state, width, height, viewer,
 									currentdimZ, minBright, maxBright);
-
 						}
 					}
 				});
