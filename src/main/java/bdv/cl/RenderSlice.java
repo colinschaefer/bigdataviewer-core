@@ -152,6 +152,7 @@ public class RenderSlice {
 		// compare the old window size to the current one
 		resized = ((oldwidth * oldheight) != (width * height));
 
+		// compare the old projected z dimension to the current one
 		rezet = (oldZ != dimZ);
 
 		// if the current transformation, window size or z dimensional rendering

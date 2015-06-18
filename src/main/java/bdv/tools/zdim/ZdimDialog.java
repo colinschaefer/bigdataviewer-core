@@ -101,8 +101,7 @@ public class ZdimDialog extends JDialog {
 				value = Integer.valueOf(inputField.getText());
 				int tmpValue = value;
 				if (value < 0) {
-					throw new IllegalArgumentException(
-							"Please enter an Integer value over 0");
+					tmpValue = 20;
 				}
 
 				if (tmpValue < min && tmpValue >= 20) {
@@ -132,6 +131,11 @@ public class ZdimDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				min = Integer.valueOf(minField.getText());
+				if (min < 0) {
+					min = 0;
+					minField.setText(String.valueOf(min));
+				}
+
 				if (min >= max) {
 					max = min + 50;
 					maxField.setText(String.valueOf(max));
@@ -150,6 +154,14 @@ public class ZdimDialog extends JDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				max = Integer.valueOf(maxField.getText());
+				if (max < 0) {
+					max = 100;
+					min = 0;
+					minField.setText(String.valueOf(min));
+					maxField.setText(String.valueOf(max));
+					microns.setValue(20);
+				}
+
 				if (max < min && max > 50) {
 					min = max - 50;
 					minField.setText(String.valueOf(min));
