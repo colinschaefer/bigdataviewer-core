@@ -3,6 +3,9 @@ package bdv.tools.zdim;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.MouseInfo;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
@@ -85,6 +88,31 @@ public class ZdimDialog extends JDialog {
 			public void stateChanged(final ChangeEvent e) {
 				value = microns.getValue();
 				inputField.setValue(value);
+			}
+		});
+
+		microns.addMouseMotionListener(new MouseMotionListener() {
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				boolean max = false;
+				if (Integer.valueOf(microns.getValue()) == microns.getMaximum()) {
+					int posX = MouseInfo.getPointerInfo().getLocation().x;
+					int posY = MouseInfo.getPointerInfo().getLocation().y;
+					int startPosX = microns.getX();
+					int startPosY = microns.getY();
+					int diffX = posX - startPosX;
+					int diffY = posY - startPosY;
+					if ((diffX * diffY) / 2 > 150 || !max) {
+						maxField.setValue(2000);
+						inputField.setValue(2000);
+						max = true;
+					}
+				}
 			}
 		});
 

@@ -110,6 +110,8 @@ public class BigDataViewer {
 
 	protected float maxBright;
 
+	protected int alignPlane;
+
 	public void toggleManualTransformation() {
 		manualTransformationEditor.toggle();
 	}

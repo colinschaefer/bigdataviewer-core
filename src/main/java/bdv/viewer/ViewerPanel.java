@@ -522,7 +522,11 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 		state.setViewerTransform(transform);
 		for (final TransformListener<AffineTransform3D> l : transformListeners)
 			l.transformChanged(viewerTransform);
-		requestRepaint();
+		if (!getMaxproj()) {
+			requestRepaint();
+		} else {
+
+		}
 	}
 
 	@Override
