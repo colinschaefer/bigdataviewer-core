@@ -148,7 +148,6 @@ public class RenderSlice {
 		// get the current transformation of the dataset
 		viewer.getState().getViewerTransform(newAffineTransform);
 		newAffineTransform.toArray(newTransformMatrix);
-		viewer.setRenderSourceTransform(newTransformMatrix);
 
 		// compare the old window size to the current one
 		resized = ((oldwidth * oldheight) != (width * height));

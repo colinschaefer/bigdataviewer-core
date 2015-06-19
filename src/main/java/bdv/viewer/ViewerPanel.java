@@ -921,8 +921,4 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 		painterThread.interrupt();
 		renderingExecutorService.shutdown();
 	}
-
-	public void setRenderSourceTransform(double[] source) {
-		renderSourceTransform = source;
-	}
 }
