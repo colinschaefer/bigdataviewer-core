@@ -14,29 +14,36 @@
 	<name>BigDataViewer Core</name>
 	<description>BigDataViewer core classes with minimal dependencies</description>
 
-	<properties><enforcer.skip>true</enforcer.skip></properties>
+	<properties>
+	<enforcer.skip>true</enforcer.skip>
+	<additionalparam>-Xdoclint:none</additionalparam>
+	</properties>
 	
 	<dependencies>
 		<dependency>
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2</artifactId>
-			<version>2.2.2-SNAPSHOT</version>
+			<version>2.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2-realtransform</artifactId>
+			<version>2.0.0-beta-29</version>
 		</dependency>
 		<dependency>
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2-ui</artifactId>
+			<version>2.0.0-beta-29</version>
 		</dependency>
 		<dependency>
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2-ij</artifactId>
+			<version>2.0.0-beta-30</version>
 		</dependency>
 		<dependency>
 			<groupId>net.imglib2</groupId>
 			<artifactId>imglib2-algorithm</artifactId>
+			<version>0.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>sc.fiji</groupId>
@@ -73,8 +80,8 @@
   		  <artifactId>..</artifactId>
     		<groupId>..</groupId>
    			<scope>system</scope>
-  		  	<systemPath>D:/Users/Colin/Fiji.app/jars/klb-0.2.6.jar</systemPath>
-  		  	<version>0.2.6</version>
+  		  	<systemPath>D:/Users/Colin/Fiji.app/jars/klb-0.2.7.jar</systemPath>
+  		  	<version>0.2.7</version>
 		</dependency>	
 <dependency>
 	<groupId>junit</groupId>

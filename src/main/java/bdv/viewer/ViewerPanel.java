@@ -185,6 +185,8 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 	 */
 	protected final MessageOverlayAnimator msgOverlay;
 
+	protected double[] renderSourceTransform = new double[12];
+
 	/**
 	 * Optional parameters for {@link ViewerPanel}.
 	 */
@@ -601,6 +603,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 	protected synchronized void align(final AlignPlane plane) {
 		final SourceState<?> source = state.getSources().get(
 				state.getCurrentSource());
+
 		final AffineTransform3D sourceTransform = new AffineTransform3D();
 		source.getSpimSource().getSourceTransform(state.getCurrentTimepoint(),
 				0, sourceTransform);
@@ -917,5 +920,9 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 	public void stop() {
 		painterThread.interrupt();
 		renderingExecutorService.shutdown();
+	}
+
+	public void setRenderSourceTransform(double[] source) {
+		renderSourceTransform = source;
 	}
 }

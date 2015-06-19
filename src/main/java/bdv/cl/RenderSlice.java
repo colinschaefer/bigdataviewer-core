@@ -142,12 +142,13 @@ public class RenderSlice {
 
 	// this method actually renders the maximum projection slice
 	public void renderSlice(final ViewerState viewerState, final int width,
-			final int height, ViewerPanel viewer, float dimZ, float minBright,
-			float maxBright) {
+			final int height, final ViewerPanel viewer, float dimZ,
+			float minBright, float maxBright) {
 
 		// get the current transformation of the dataset
 		viewer.getState().getViewerTransform(newAffineTransform);
 		newAffineTransform.toArray(newTransformMatrix);
+		viewer.setRenderSourceTransform(newTransformMatrix);
 
 		// compare the old window size to the current one
 		resized = ((oldwidth * oldheight) != (width * height));
@@ -263,11 +264,6 @@ public class RenderSlice {
 							(float) screenToShiftedSource.get(r, c));
 			transformMatrix.getBuffer().rewind();
 			queue.putWriteBuffer(transformMatrix, true);
-
-			/*
-			 * for (int i = 0; i < newTransformMatrix.length; i++) {
-			 * newTransformMatrix[i] = transformMatrix.getBuffer().get(i); }
-			 */
 
 			sizes.getBuffer().put(blockSize);
 			sizes.getBuffer().put(1);

@@ -546,6 +546,9 @@ public class BigDataViewer {
 				viewer.inverseMaxproj();
 				if (viewer.getMaxproj() == false) {
 					viewer.requestRepaint();
+					viewer.showMessage("maximum projection OFF");
+				} else {
+					viewer.showMessage("maximum projection ON");
 				}
 				// rendering new after manual transformation
 				viewer.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
@@ -789,9 +792,8 @@ public class BigDataViewer {
 		// "/Users/pietzsch/workspace/data/111010_weber_full.xml";
 		// final String fn =
 		// "/Volumes/projects/tomancak_lightsheet/Mette/ZeissZ1SPIM/Maritigrella/021013_McH2BsGFP_CAAX-mCherry/11-use/hdf5/021013_McH2BsGFP_CAAX-mCherry-11-use.xml";
-		// final String fn =
-		// "D:/Users/Colin/MATLAB/KLBdownsampler/TM000000/blibb.xml";
-		final String fn = "D:/Users/Colin/h5/mamut.xml";
+		final String fn = "D:/Users/Colin/MATLAB/KLBdownsampler/TM000000/blibb.xml";
+		// final String fn = "D:/Users/Colin/h5/mamut.xml";
 		try {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			open(fn, new File(fn).getName(), new ProgressWriterConsole());
