@@ -87,6 +87,10 @@ public class RenderSlice {
 
 	private float oldZ = 0;
 
+	private boolean retimed = false;
+
+	private float oldT = 0;
+
 	// the constructor initializes the OpenCL Kernel and Context
 	public RenderSlice(
 			final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader) {
@@ -155,18 +159,21 @@ public class RenderSlice {
 		// compare the old projected z dimension to the current one
 		rezet = (oldZ != dimZ);
 
+		// compare the last timepoint to the current one
+		final int timepoint = viewerState.getCurrentTimepoint();
+		retimed = (oldT != timepoint);
+
 		// if the current transformation, window size or z dimensional rendering
 		// is different to the old one, start rendering
 		if (!Arrays.equals(oldTransformMatrix, newTransformMatrix) || resized
-				|| rezet) {
+				|| rezet || retimed) {
 
 			System.out.println();
 
 			// variable declaration and initialization
 			final Source<?> source = viewerState.getSources().get(0)
 					.getSpimSource(); // TODO
-			final int timepoint = 0; // TODO
-			final int timepointId = 0; // TODO
+			final int timepointId = timepoint; // TODO
 			final int setupId = 0; // TODO
 			final int mipmapIndex = 0; // TODO
 
@@ -327,6 +334,7 @@ public class RenderSlice {
 		oldwidth = width;
 		oldheight = height;
 		oldZ = dimZ;
+		oldT = timepoint;
 	}
 
 	// the show method paints the maximum projection which was rendered on the
