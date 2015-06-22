@@ -16,10 +16,8 @@ import com.jogamp.opencl.CLImageFormat.ChannelOrder;
 import com.jogamp.opencl.CLImageFormat.ChannelType;
 import com.jogamp.opencl.CLMemory.Mem;
 
-public class BlockTexture
-{
-	public static class BlockKey
-	{
+public class BlockTexture {
+	public static class BlockKey {
 		/**
 		 * The cell grid coordinates of the source data.
 		 */
@@ -27,34 +25,30 @@ public class BlockTexture
 
 		private final int hashcode;
 
-		public BlockKey( final int[] cellGridPos )
-		{
+		public BlockKey(final int[] cellGridPos) {
 			this.cellPos = cellGridPos.clone();
 
-			final long value = ( ( long ) cellPos[ 2 ] << 42 ) ^ cellPos[ 2 ] << 21 ^ ( long ) cellPos[ 2 ];
-			hashcode = ( int ) ( value ^ ( value >>> 32 ) );
+			final long value = ((long) cellPos[2] << 42) ^ cellPos[2] << 21
+					^ (long) cellPos[2];
+			hashcode = (int) (value ^ (value >>> 32));
 		}
 
 		@Override
-		public boolean equals( final Object obj )
-		{
-			if ( obj instanceof BlockKey )
-			{
-				final BlockKey b = ( BlockKey ) obj;
-				return Arrays.equals ( cellPos, b.cellPos );
+		public boolean equals(final Object obj) {
+			if (obj instanceof BlockKey) {
+				final BlockKey b = (BlockKey) obj;
+				return Arrays.equals(cellPos, b.cellPos);
 			}
 			return false;
 		}
 
 		@Override
-		public int hashCode()
-		{
+		public int hashCode() {
 			return hashcode;
 		}
 	}
 
-	public static class Block
-	{
+	public static class Block {
 		/**
 		 * The block grid coordinates of the data, i.e., where is the data
 		 * stored in the blocks texture? This is to re-use that part of the
@@ -62,27 +56,23 @@ public class BlockTexture
 		 */
 		private final int[] blockPos;
 
-		public Block()
-		{
-			blockPos = new int[ 3 ];
+		public Block() {
+			blockPos = new int[3];
 		}
 
 		/**
 		 * Get the grid coordinates of this block in the texture.
 		 */
-		public int[] getBlockPos()
-		{
+		public int[] getBlockPos() {
 			return blockPos;
 		}
 	}
 
-	private class LRUCache extends LinkedHashMap< BlockKey, Block >
-	{
+	private class LRUCache extends LinkedHashMap<BlockKey, Block> {
 		private final int cacheSize;
 
-		public LRUCache( final int numBlocks )
-		{
-			super( ( int ) ( numBlocks * 1.75f ), 0.75f, true );
+		public LRUCache(final int numBlocks) {
+			super((int) (numBlocks * 1.75f), 0.75f, true);
 			this.cacheSize = numBlocks;
 		}
 
@@ -93,18 +83,15 @@ public class BlockTexture
 		 * (it's grid coordinates will be re-used for the inserted block).
 		 */
 		@Override
-		public Block put( final BlockKey key, final Block block )
-		{
-			if ( size() >= cacheSize )
-			{
-				final Block b = remove( this.keySet().iterator().next() );
-				System.arraycopy( b.getBlockPos(), 0, block.getBlockPos(), 0, 3 );
+		public Block put(final BlockKey key, final Block block) {
+			if (size() >= cacheSize) {
+				final Block b = remove(this.keySet().iterator().next());
+				System.arraycopy(b.getBlockPos(), 0, block.getBlockPos(), 0, 3);
+			} else {
+				IntervalIndexer.indexToPosition(size(), gridSize,
+						block.getBlockPos());
 			}
-			else
-			{
-				IntervalIndexer.indexToPosition( size(), gridSize, block.getBlockPos() );
-			}
-			return super.put( key, block );
+			return super.put(key, block);
 		}
 	}
 
@@ -114,94 +101,93 @@ public class BlockTexture
 
 	private final LRUCache blocksCache;
 
-	private final CLImage3d< ShortBuffer > blocksTexture;
+	private final CLImage3d<ShortBuffer> blocksTexture;
 
 	private final CLCommandQueue queue;
 
-	private void writeBlock( final int[] blockPos, final short[] data )
-	{
-		blocksTexture.use( Buffers.newDirectShortBuffer( data ) );
-		final int w = blockSize[ 0 ];
-		final int h = blockSize[ 1 ];
-		final int d = blockSize[ 2 ];
-        final int x = blockPos[ 0 ] * w;
-        final int y = blockPos[ 1 ] * h;
-        final int z = blockPos[ 2 ] * d;
-		queue.putWriteImage( blocksTexture, 0, 0, x, y, z, w, h, d, false );
+	private void writeBlock(final int[] blockPos, final short[] data) {
+		blocksTexture.use(Buffers.newDirectShortBuffer(data));
+		final int w = blockSize[0];
+		final int h = blockSize[1];
+		final int d = blockSize[2];
+		final int x = blockPos[0] * w;
+		final int y = blockPos[1] * h;
+		final int z = blockPos[2] * d;
+		queue.putWriteImage(blocksTexture, 0, 0, x, y, z, w, h, d, false);
 	}
 
-	public static int[] findSuitableGridSize( final int[] blockSize, final int maxMemoryInMB )
-	{
+	public static int[] findSuitableGridSize(final int[] blockSize,
+			final int maxMemoryInMB) {
 		final int bytesPerVoxel = 2;
 		final double numVoxels = maxMemoryInMB * 1024 * 1024 / bytesPerVoxel;
-		final double sideLength = Math.pow( numVoxels, 1.0/3.0 );
-		final int[] gridSize = new int[ 3 ];
-		for ( int d = 0; d < 3; ++d )
-			gridSize[ d ] = ( int ) ( sideLength / blockSize[ d ] );
+		final double sideLength = Math.pow(numVoxels, 1.0 / 3.0);
+		final int[] gridSize = new int[3];
+		for (int d = 0; d < 3; ++d)
+			gridSize[d] = (int) (sideLength / blockSize[d]);
 		return gridSize;
 	}
 
-	@SuppressWarnings( "unchecked" )
-	public BlockTexture( final int[] gridSize, final int[] blockSize, final CLCommandQueue queue )
-	{
+	@SuppressWarnings("unchecked")
+	public BlockTexture(final int[] gridSize, final int[] blockSize,
+			final CLCommandQueue queue) {
 		this.gridSize = gridSize.clone();
 		this.blockSize = blockSize.clone();
 		this.queue = queue;
-		final int numSlots = ( int ) Intervals.numElements( gridSize );
-		blocksCache = new LRUCache( numSlots );
-		blocksTexture = ( CLImage3d< ShortBuffer > ) queue.getContext().createImage3d(
-				gridSize[ 0 ] * blockSize[ 0 ],
-				gridSize[ 1 ] * blockSize[ 1 ],
-				gridSize[ 2 ] * blockSize[ 2 ],
-				new CLImageFormat( ChannelOrder.R, ChannelType.UNSIGNED_INT16 ),
-				Mem.READ_ONLY );
+		final int numSlots = (int) Intervals.numElements(gridSize);
+		blocksCache = new LRUCache(numSlots);
+		blocksTexture = (CLImage3d<ShortBuffer>) queue.getContext()
+				.createImage3d(
+						gridSize[0] * blockSize[0],
+						gridSize[1] * blockSize[1],
+						gridSize[2] * blockSize[2],
+						new CLImageFormat(ChannelOrder.R,
+								ChannelType.UNSIGNED_INT16), Mem.READ_ONLY);
 		printSizes();
 	}
 
-	public boolean contains( final BlockKey key )
-	{
-		return blocksCache.containsKey( key );
+	public boolean contains(final BlockKey key) {
+		return blocksCache.containsKey(key);
 	}
 
-	public Block get( final BlockKey key )
-	{
-		return blocksCache.get( key );
+	public Block get(final BlockKey key) {
+		return blocksCache.get(key);
 	}
 
-	public void put( final BlockKey key, final short[] data )
-	{
+	public void put(final BlockKey key, final short[] data) {
 		final Block block = new Block();
-		blocksCache.put( key, block );
-		writeBlock( block.getBlockPos(), data );
+		blocksCache.put(key, block);
+		writeBlock(block.getBlockPos(), data);
 	}
 
-	public CLImage3d< ShortBuffer > get()
-	{
+	public void overwrite(final BlockKey key, final short[] data) {
+		final Block block = new Block();
+		blocksCache.clear();
+		blocksCache.put(key, block);
+		writeBlock(block.getBlockPos(), data);
+	}
+
+	public CLImage3d<ShortBuffer> get() {
 		return blocksTexture;
 	}
 
-	public void release()
-	{
+	public void release() {
 		blocksTexture.release();
 	}
 
-	public boolean isReleased()
-	{
+	public boolean isReleased() {
 		return blocksTexture.isReleased();
 	}
 
-	private void printSizes()
-	{
-		System.out.println( "gridSize = " + Util.printCoordinates( gridSize ) );
-		System.out.println( "blockSize = " + Util.printCoordinates( blockSize ) );
-		final int[] textureSize = new int[] {
-				gridSize[ 0 ] * blockSize[ 0 ],
-				gridSize[ 1 ] * blockSize[ 1 ],
-				gridSize[ 2 ] * blockSize[ 2 ] };
-		System.out.println( "textureSize = " + Util.printCoordinates( textureSize ) );
+	private void printSizes() {
+		System.out.println("gridSize = " + Util.printCoordinates(gridSize));
+		System.out.println("blockSize = " + Util.printCoordinates(blockSize));
+		final int[] textureSize = new int[] { gridSize[0] * blockSize[0],
+				gridSize[1] * blockSize[1], gridSize[2] * blockSize[2] };
+		System.out.println("textureSize = "
+				+ Util.printCoordinates(textureSize));
 		long numBytes = 2;
-		for ( int d = 0; d < 3; ++d )
-			numBytes *= textureSize[ d ];
-		System.out.println( "requires " + numBytes / 1024 / 1024 + " MB");
+		for (int d = 0; d < 3; ++d)
+			numBytes *= textureSize[d];
+		System.out.println("requires " + numBytes / 1024 / 1024 + " MB");
 	}
 }

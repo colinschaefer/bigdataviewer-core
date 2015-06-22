@@ -163,10 +163,12 @@ public class RenderSlice {
 		final int timepoint = viewerState.getCurrentTimepoint();
 		retimed = (oldT != timepoint);
 
-		// if the current transformation, window size or z dimensional rendering
-		// is different to the old one, start rendering
+		// if the current transformation, window size, timepoint or z
+		// dimensional rendering is different to the old one, start rendering
 		if (!Arrays.equals(oldTransformMatrix, newTransformMatrix) || resized
 				|| rezet || retimed) {
+
+			data = null;
 
 			System.out.println();
 
@@ -194,18 +196,32 @@ public class RenderSlice {
 
 			// initialization of the image with the loaded blocks
 			t = System.currentTimeMillis();
+			System.out.println("timepoint " + String.valueOf(timepointId));
 			final RandomAccessible<UnsignedShortType> img = Views
 					.extendZero(imgLoader.getImage(new ViewId(timepointId,
 							setupId), 0)); // TODO
+
 			final short[] blockData = new short[paddedBlockSize[0]
 					* paddedBlockSize[1] * paddedBlockSize[2]];
 			int nnn = 0;
 			for (final int[] cellPos : requiredBlocks.cellPositions) {
 				final BlockKey key = new BlockKey(cellPos);
-				if (!blockTexture.contains(key)) {
-					blockTexture
-							.put(key, getBlockData(cellPos, img, blockData));
-					nnn++;
+				if (!retimed) {
+					if (!blockTexture.contains(key)) {
+						blockTexture.put(key,
+								getBlockData(cellPos, img, blockData));
+						nnn++;
+					}
+				} else {
+					if (!blockTexture.contains(key)) {
+						blockTexture.put(key,
+								getBlockData(cellPos, img, blockData));
+						nnn++;
+					} else {
+						blockTexture.overwrite(key,
+								getBlockData(cellPos, img, blockData));
+						nnn++;
+					}
 				}
 			}
 			t = System.currentTimeMillis() - t;
@@ -328,8 +344,8 @@ public class RenderSlice {
 		} else {
 			show(data, width, height, viewer);
 		}
-		// copy the current transformation, width, height and z dimension
-		// settings for comparison in the next loop
+		// copy the current transformation, width, height, timepoint and z
+		// dimension settings for comparison in the next loop
 		oldTransformMatrix = Arrays.copyOf(newTransformMatrix, 12);
 		oldwidth = width;
 		oldheight = height;
@@ -381,6 +397,7 @@ public class RenderSlice {
 		final CachedCellImg<?, ?> cellImg = (bdv.img.cache.CachedCellImg<?, ?>) imgLoader
 				.getImage(view, 0);
 		final long[] imgDimensions = new long[3];
+
 		cellImg.dimensions(imgDimensions);
 		return FindRequiredBlocks.getRequiredBlocks(sourceToScreen, w, h, dd,
 				blockSize, imgDimensions);
