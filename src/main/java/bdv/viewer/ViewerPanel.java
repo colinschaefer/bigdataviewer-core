@@ -524,8 +524,6 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 			l.transformChanged(viewerTransform);
 		if (!getMaxproj()) {
 			requestRepaint();
-		} else {
-
 		}
 	}
 
@@ -637,7 +635,9 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 		currentAnimator = new RotationAnimator(transform, centerX, centerY,
 				qTarget, 300);
 		currentAnimator.setTime(System.currentTimeMillis());
+
 		transformChanged(transform);
+
 	}
 
 	public synchronized void setTransformAnimator(
