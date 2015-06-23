@@ -524,7 +524,10 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 			l.transformChanged(viewerTransform);
 		if (!getMaxproj()) {
 			requestRepaint();
+		} else {
+
 		}
+
 	}
 
 	@Override

@@ -558,7 +558,8 @@ public class BigDataViewer {
 					public void transformChanged(
 							final AffineTransform3D transform) {
 
-						// check, if maximum projection option is switched
+						// check, if maximum projection option is
+						// switched
 						// on
 						if (viewer.getMaxproj() == true) {
 
