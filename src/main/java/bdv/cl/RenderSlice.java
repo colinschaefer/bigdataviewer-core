@@ -402,4 +402,5 @@ public class RenderSlice {
 		return FindRequiredBlocks.getRequiredBlocks(sourceToScreen, w, h, dd,
 				blockSize, imgDimensions);
 	}
+
 }

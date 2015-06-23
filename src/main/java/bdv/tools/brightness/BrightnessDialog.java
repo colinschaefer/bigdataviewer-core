@@ -51,7 +51,7 @@ import net.imglib2.type.numeric.ARGBType;
 public class BrightnessDialog extends JDialog {
 
 	public BrightnessDialog(final Frame owner,
-			final SetupAssignments setupAssignments, final int width) {
+			final SetupAssignments setupAssignments) {
 		super(owner, "brightness and color", false);
 		final MinMaxPanels minMaxPanels = new MinMaxPanels(setupAssignments,
 				this, true);
@@ -87,7 +87,7 @@ public class BrightnessDialog extends JDialog {
 
 		pack();
 		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-		setLocation(width + 20, 200);
+		setLocation(owner.getWidth(), 200);
 	}
 
 	/**

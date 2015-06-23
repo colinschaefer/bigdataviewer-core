@@ -362,8 +362,7 @@ public class BigDataViewer {
 
 		zdimDialog = new ZdimDialog(viewerFrame, setupAssignments, windowWidth);
 
-		brightnessDialog = new BrightnessDialog(viewerFrame, setupAssignments,
-				windowWidth);
+		brightnessDialog = new BrightnessDialog(viewerFrame, setupAssignments);
 
 		cropDialog = (spimData == null) ? null : new CropDialog(viewerFrame,
 				viewer, spimData.getSequenceDescription());
@@ -574,7 +573,6 @@ public class BigDataViewer {
 							maxBright = setupAssignments.getMinMaxGroups()
 									.get(0).getMaxBoundedValue()
 									.getCurrentValue();
-							// actual rendering step
 							render.renderSlice(state, width, height, viewer,
 									currentdimZ, minBright, maxBright);
 						}

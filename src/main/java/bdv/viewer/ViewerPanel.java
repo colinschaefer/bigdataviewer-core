@@ -525,7 +525,9 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 		if (!getMaxproj()) {
 			requestRepaint();
 		} else {
-
+			final TransformEventHandler<AffineTransform3D> handler = display
+					.getTransformEventHandler();
+			handler.setTransform(transform);
 		}
 
 	}
