@@ -87,7 +87,6 @@ public class BrightnessDialog extends JDialog {
 
 		pack();
 		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-		setLocation(owner.getWidth(), 200);
 	}
 
 	/**
