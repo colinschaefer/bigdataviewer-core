@@ -50,7 +50,7 @@ __kernel void slice(
 	const float2 ms = { lookupDimensions.x, lookupDimensions.x * lookupDimensions.y };
 
 	const float3 pb = affine( transform, (float4) ( x, y, 0, 1 ) );
-	const float3 db = { transform[ 0 ].z, transform[ 1 ].z, transform[ 2 ].z };
+	const float3 db = { transform[ 0 ].z, transform[ 1 ].z, transform[ 2 ].z};
 
 	float2 nearfar = intersectBox( pb, db, convert_float3( lookupDimensions ) );
 	nearfar.x = fmax( nearfar.x, 0 );
@@ -110,7 +110,7 @@ __kernel void slice_nn(
 	const float2 ms = { lookupDimensions.x, lookupDimensions.x * lookupDimensions.y };
 
 	const float3 pb = affine( transform, (float4) ( x, y, 0, 1 ) );
-	const float3 db = { transform[ 0 ].z, transform[ 1 ].z, transform[ 2 ].z };
+	const float3 db = { transform[ 0 ].x, transform[ 1 ].y, transform[ 2 ].z };
 
 	float2 nearfar = intersectBox( pb, db, convert_float3( lookupDimensions ) );
 	nearfar.x = fmax( nearfar.x, 0 );

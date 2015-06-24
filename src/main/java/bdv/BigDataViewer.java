@@ -1,6 +1,5 @@
 package bdv;
 
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -8,14 +7,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
-import javax.swing.InputMap;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import mpicbg.spim.data.SpimDataException;
@@ -27,13 +23,9 @@ import mpicbg.spim.data.sequence.Channel;
 import net.imglib2.Volatile;
 import net.imglib2.display.RealARGBColorConverter;
 import net.imglib2.display.ScaledARGBConverter;
-import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.volatiles.VolatileARGBType;
-import net.imglib2.type.volatiles.VolatileUnsignedShortType;
-import net.imglib2.ui.TransformListener;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -42,7 +34,7 @@ import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 
-import bdv.cl.RenderSlice;
+import bdv.cl.VolumeRenderer;
 import bdv.export.ProgressWriter;
 import bdv.export.ProgressWriterConsole;
 import bdv.img.cache.Cache;
@@ -66,12 +58,10 @@ import bdv.tools.transformation.ManualTransformationEditor;
 import bdv.tools.transformation.TransformedSource;
 import bdv.tools.zdim.ZdimDialog;
 import bdv.util.KeyProperties;
-import bdv.viewer.InputActionBindings;
 import bdv.viewer.NavigationActions;
 import bdv.viewer.SourceAndConverter;
 import bdv.viewer.ViewerFrame;
 import bdv.viewer.ViewerPanel;
-import bdv.viewer.state.ViewerState;
 
 public class BigDataViewer {
 	protected final ViewerFrame viewerFrame;
@@ -510,7 +500,8 @@ public class BigDataViewer {
 		if (!bdv.tryLoadSettings(xmlFilename))
 			InitializeViewerState.initBrightness(0.001, 0.999, bdv.viewer,
 					bdv.setupAssignments);
-		bdv.setupVolumeRendering(spimData);
+		VolumeRenderer renderer = new VolumeRenderer(spimData, bdv.viewer,
+				bdv.zdimDialog, bdv.setupAssignments, bdv.viewerFrame);
 		return bdv;
 	}
 
@@ -525,64 +516,6 @@ public class BigDataViewer {
 		bdv.viewerFrame.setVisible(true);
 		InitializeViewerState.initTransform(bdv.viewer);
 		return bdv;
-	}
-
-	// setups the Volume rendering for continuous maximum projection in z
-	@SuppressWarnings("serial")
-	private void setupVolumeRendering(final AbstractSpimData<?> spimData) {
-		@SuppressWarnings("unchecked")
-		final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader = (AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType>) spimData
-				.getSequenceDescription().getImgLoader();
-		final RenderSlice render = new RenderSlice(imgLoader);
-		final String RENDER_CONTINUOUS = "continuous";
-		final InputMap inputMap = new InputMap();
-		inputMap.put(KeyStroke.getKeyStroke("E"), RENDER_CONTINUOUS);
-		final ActionMap actionMap = new ActionMap();
-		viewer.setMaxproj(false);
-
-		actionMap.put(RENDER_CONTINUOUS, new AbstractAction() {
-			// rendering of the maximum projection after pressing the hotkey
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				viewer.inverseMaxproj();
-				if (viewer.getMaxproj() == false) {
-					viewer.requestRepaint();
-					viewer.showMessage("maximum projection OFF");
-				} else {
-					viewer.showMessage("maximum projection ON");
-				}
-				// rendering new after manual transformation
-				viewer.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
-					@Override
-					public void transformChanged(
-							final AffineTransform3D transform) {
-
-						// check, if maximum projection option is
-						// switched
-						// on
-						if (viewer.getMaxproj() == true) {
-
-							// initialize variables
-							final ViewerState state = viewer.getState();
-							final int width = viewer.getDisplay().getWidth();
-							final int height = viewer.getDisplay().getHeight();
-							currentdimZ = zdimDialog.getDimZ();
-							minBright = setupAssignments.getMinMaxGroups()
-									.get(0).getMinBoundedValue()
-									.getCurrentValue();
-							maxBright = setupAssignments.getMinMaxGroups()
-									.get(0).getMaxBoundedValue()
-									.getCurrentValue();
-							render.renderSlice(state, width, height, viewer,
-									currentdimZ, minBright, maxBright);
-						}
-					}
-				});
-			}
-		});
-		final InputActionBindings bindings = viewerFrame.getKeybindings();
-		bindings.addActionMap("volume", actionMap);
-		bindings.addInputMap("volume", inputMap);
 	}
 
 	public ViewerPanel getViewer() {
