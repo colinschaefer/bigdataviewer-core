@@ -38,8 +38,7 @@ public class ZdimDialog extends JDialog {
 
 	JSlider microns;
 
-	public ZdimDialog(final Frame owner,
-			final SetupAssignments setupAssignments, final int width) {
+	public ZdimDialog(final Frame owner, final SetupAssignments setupAssignments) {
 		super(owner, "Z - dimension of max-projection", false);
 
 		SpinnerModel modelin = new SpinnerNumberModel(value, 0, 2000, 1);
@@ -49,7 +48,6 @@ public class ZdimDialog extends JDialog {
 		// setup the dialog
 		setSize(500, 120);
 		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-		setLocation(width + 20, 25);
 		setLayout(new BorderLayout(10, 10));
 
 		// setup the new slider and its appearance

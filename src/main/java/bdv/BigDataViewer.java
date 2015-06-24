@@ -350,7 +350,7 @@ public class BigDataViewer {
 				setupAssignments.moveSetupToGroup(setup, group);
 		}
 
-		zdimDialog = new ZdimDialog(viewerFrame, setupAssignments, windowWidth);
+		zdimDialog = new ZdimDialog(viewerFrame, setupAssignments);
 
 		brightnessDialog = new BrightnessDialog(viewerFrame, setupAssignments);
 
