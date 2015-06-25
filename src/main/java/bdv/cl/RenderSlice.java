@@ -15,6 +15,7 @@ import net.imglib2.RandomAccessible;
 import net.imglib2.display.screenimage.awt.UnsignedByteAWTScreenImage;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.realtransform.AffineTransform3D;
+import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.util.IntervalIndexer;
@@ -147,7 +148,7 @@ public class RenderSlice {
 	// this method actually renders the maximum projection slice
 	public void renderSlice(final ViewerState viewerState, final int width,
 			final int height, final ViewerPanel viewer, float dimZ,
-			float minBright, float maxBright) {
+			float minBright, float maxBright, final ARGBType color) {
 
 		// get the current transformation of the dataset
 		viewer.getState().getViewerTransform(newAffineTransform);
@@ -333,7 +334,7 @@ public class RenderSlice {
 				}
 			}
 			// start the representation in the viewerpanel
-			show(data, width, height, viewer);
+			show(data, width, height, viewer, color);
 
 			// releasing Memory
 			renderTarget.release();
@@ -342,7 +343,7 @@ public class RenderSlice {
 			// if the current transformation, window size and z dimensional
 			// rendering stayed the same just show the same as before
 		} else {
-			show(data, width, height, viewer);
+			show(data, width, height, viewer, color);
 		}
 		// copy the current transformation, width, height, timepoint and z
 		// dimension settings for comparison in the next loop
@@ -356,7 +357,7 @@ public class RenderSlice {
 	// the show method paints the maximum projection which was rendered on the
 	// GPU to the Interactive Canvas
 	private void show(final byte[] data, final int width, final int height,
-			ViewerPanel viewer) {
+			ViewerPanel viewer, ARGBType color) {
 
 		// Converting the byte buffer back in image data
 		final UnsignedByteAWTScreenImage screenImage = new UnsignedByteAWTScreenImage(
@@ -364,6 +365,10 @@ public class RenderSlice {
 
 		// Converting the Image to a buffered image
 		final BufferedImage bufferedImage = screenImage.image();
+		// Raster raster = bufferedImage.getRaster();
+		// final BufferedImage colorBufferedImage = new BufferedImage(width,
+		// height, BufferedImage.TYPE_INT_ARGB);
+		// colorBufferedImage.setData(raster);
 
 		// painting the canvas with the buffered image
 		viewer.paint(bufferedImage);

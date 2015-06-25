@@ -9,6 +9,7 @@ import javax.swing.KeyStroke;
 
 import mpicbg.spim.data.generic.AbstractSpimData;
 import net.imglib2.realtransform.AffineTransform3D;
+import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.ui.TransformListener;
@@ -77,8 +78,10 @@ public class VolumeRenderer {
 							maxBright = setupAssignments.getMinMaxGroups()
 									.get(0).getMaxBoundedValue()
 									.getCurrentValue();
+							ARGBType color = setupAssignments
+									.getConverterSetups().get(0).getColor();
 							render.renderSlice(state, width, height, viewer,
-									currentdimZ, minBright, maxBright);
+									currentdimZ, minBright, maxBright, color);
 						}
 					}
 				});

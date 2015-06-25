@@ -426,7 +426,7 @@ public class BigDataViewer {
 
 		final JMenuItem miZdim = new JMenuItem(
 				actionMap.get(BigDataViewerActions.Z_DIM));
-		miZdim.setText("max. proj z dimension");
+		miZdim.setText("Maximum Projection z-dimension");
 		menu.add(miZdim);
 
 		menu = new JMenu("Tools");
@@ -500,6 +500,7 @@ public class BigDataViewer {
 		if (!bdv.tryLoadSettings(xmlFilename))
 			InitializeViewerState.initBrightness(0.001, 0.999, bdv.viewer,
 					bdv.setupAssignments);
+		@SuppressWarnings("unused")
 		VolumeRenderer renderer = new VolumeRenderer(spimData, bdv.viewer,
 				bdv.zdimDialog, bdv.setupAssignments, bdv.viewerFrame);
 		return bdv;
@@ -728,8 +729,8 @@ public class BigDataViewer {
 		// "/Volumes/projects/tomancak_lightsheet/Mette/ZeissZ1SPIM/Maritigrella/021013_McH2BsGFP_CAAX-mCherry/11-use/hdf5/021013_McH2BsGFP_CAAX-mCherry-11-use.xml";
 		// final String fn =
 		// "D:/Users/Colin/MATLAB/KLBdownsampler/TM000000/blibb.xml";
-		final String fn = "D:/Users/Colin/h5/mamut.xml";
-		// final String fn = "D:/Users/Colin/deleteme/deleteme.xml";
+		// final String fn = "D:/Users/Colin/h5/mamut.xml";
+		final String fn = "D:/Users/Colin/deleteme/deleteme.xml";
 		try {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			open(fn, new File(fn).getName(), new ProgressWriterConsole());
