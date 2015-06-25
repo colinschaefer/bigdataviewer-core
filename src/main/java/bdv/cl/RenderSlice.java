@@ -148,7 +148,8 @@ public class RenderSlice {
 	// this method actually renders the maximum projection slice
 	public void renderSlice(final ViewerState viewerState, final int width,
 			final int height, final ViewerPanel viewer, float dimZ,
-			float minBright, float maxBright, final ARGBType color) {
+			float minBright, float maxBright, final ARGBType color,
+			boolean keepColor) {
 
 		// get the current transformation of the dataset
 		viewer.getState().getViewerTransform(newAffineTransform);
@@ -334,7 +335,7 @@ public class RenderSlice {
 				}
 			}
 			// start the representation in the viewerpanel
-			show(data, width, height, viewer, color);
+			show(data, width, height, viewer, color, keepColor);
 
 			// releasing Memory
 			renderTarget.release();
@@ -343,7 +344,7 @@ public class RenderSlice {
 			// if the current transformation, window size and z dimensional
 			// rendering stayed the same just show the same as before
 		} else {
-			show(data, width, height, viewer, color);
+			show(data, width, height, viewer, color, keepColor);
 		}
 		// copy the current transformation, width, height, timepoint and z
 		// dimension settings for comparison in the next loop
@@ -357,7 +358,7 @@ public class RenderSlice {
 	// the show method paints the maximum projection which was rendered on the
 	// GPU to the Interactive Canvas
 	private void show(final byte[] data, final int width, final int height,
-			ViewerPanel viewer, ARGBType color) {
+			ViewerPanel viewer, ARGBType color, boolean keepColor) {
 
 		// Converting the byte buffer back in image data
 		final UnsignedByteAWTScreenImage screenImage = new UnsignedByteAWTScreenImage(
@@ -365,39 +366,58 @@ public class RenderSlice {
 
 		// Converting the Image to a buffered image
 		final BufferedImage bufferedImage = screenImage.image();
-		final BufferedImage colorBufferedImage = new BufferedImage(width,
-				height, BufferedImage.TYPE_INT_ARGB);
 
-		for (int i = 0; i < bufferedImage.getWidth(); i++) {
-			for (int j = 0; j < bufferedImage.getHeight(); j++) {
-				final int oldrgb = bufferedImage.getRGB(i, j);
-				int oldred = ARGBType.red(oldrgb);
-				int oldgreen = ARGBType.green(oldrgb);
-				int oldblue = ARGBType.blue(oldrgb);
-				// int oldalpha = ARGBType.alpha(oldrgb);
-				int red = ARGBType.red(color.get());
-				int green = ARGBType.green(color.get());
-				int blue = ARGBType.blue(color.get());
-				// int alpha = ARGBType.alpha(color.get());
+		// if the color is not to be kept between normal rendering and maximum
+		// projection paint right away
+		if (!keepColor) {
+			// painting the canvas with the buffered image
+			viewer.paint(bufferedImage);
 
-				red = (red * oldred) / 255;
-				green = (green * oldgreen) / 255;
-				blue = (blue * oldblue) / 255;
-				// alpha = (alpha * oldalpha) / 255;
+			// else render the color image and paint it
+		} else {
 
-				int rgb = ARGBType.rgba(red, green, blue, 255);
+			// initialization of the color image
+			final BufferedImage colorBufferedImage = new BufferedImage(width,
+					height, BufferedImage.TYPE_INT_ARGB);
 
-				colorBufferedImage.setRGB(i, j, rgb);
+			// iterating over the image to replace the current pixel with the
+			// color one.
+			for (int i = 0; i < bufferedImage.getWidth(); i++) {
+				for (int j = 0; j < bufferedImage.getHeight(); j++) {
+
+					// get the rgb value of the current pixel
+					final int oldrgb = bufferedImage.getRGB(i, j);
+
+					// get the single values of the pixel
+					int oldred = ARGBType.red(oldrgb);
+					int oldgreen = ARGBType.green(oldrgb);
+					int oldblue = ARGBType.blue(oldrgb);
+					// int oldalpha = ARGBType.alpha(oldrgb);
+
+					// get the values for the set color
+					int red = ARGBType.red(color.get());
+					int green = ARGBType.green(color.get());
+					int blue = ARGBType.blue(color.get());
+					// int alpha = ARGBType.alpha(color.get());
+
+					// calculate the new pixel values with the given color
+					red = (int) Math.floor((red * oldred) / 255);
+					green = (int) Math.floor((green * oldgreen) / 255);
+					blue = (int) Math.floor((blue * oldblue) / 255);
+					// alpha = (alpha * oldalpha) / 255;
+
+					// create the integer to use in the setting of the pixel
+					int rgb = ARGBType.rgba(red, green, blue, 255);
+
+					// set the pixel to the calculated value
+					colorBufferedImage.setRGB(i, j, rgb);
+				}
+
 			}
 
+			// paint the pseudo-colored image
+			viewer.paint(colorBufferedImage);
 		}
-		// Raster raster = bufferedImage.getRaster();
-		// final BufferedImage colorBufferedImage = new BufferedImage(width,
-		// height, BufferedImage.TYPE_INT_ARGB);
-		// colorBufferedImage.setData(raster);
-
-		// painting the canvas with the buffered image
-		viewer.paint(colorBufferedImage);
 
 	}
 

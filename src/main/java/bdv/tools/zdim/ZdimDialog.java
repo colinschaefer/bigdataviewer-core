@@ -4,10 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.MouseInfo;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,7 +33,7 @@ import bdv.tools.brightness.SetupAssignments;
  */
 
 public class ZdimDialog extends JDialog {
-
+	private boolean maxProjKeepColor = false;
 	private int value = 20;
 
 	int max = 100;
@@ -46,7 +49,7 @@ public class ZdimDialog extends JDialog {
 		SpinnerModel modelmax = new SpinnerNumberModel(max, 0, 2000, 1);
 
 		// setup the dialog
-		setSize(500, 120);
+		setSize(500, 140);
 		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		setLayout(new BorderLayout(10, 10));
 
@@ -75,9 +78,19 @@ public class ZdimDialog extends JDialog {
 		rightPanel.add(maxField);
 		rightPanel.add(new JLabel("max Value"));
 
+		// creating and setting the checkbox
+		JCheckBox keepColor = new JCheckBox();
+		JPanel downPanel = new JPanel();
+		downPanel.setLayout(new BorderLayout(10, 10));
+		downPanel.add(keepColor, BorderLayout.LINE_START);
+		downPanel.add(new JLabel(
+				"keep the Color upon rendering (might decrease performance)"),
+				BorderLayout.CENTER);
+
 		// adding the slider and the panel to the dialog
 		add(microns, BorderLayout.CENTER);
 		add(rightPanel, BorderLayout.EAST);
+		add(downPanel, BorderLayout.SOUTH);
 
 		// slider change listener, that also changes the spinner to the chosen
 		// value
@@ -159,9 +172,22 @@ public class ZdimDialog extends JDialog {
 			}
 		});
 
+		keepColor.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				maxProjKeepColor = !maxProjKeepColor;
+			}
+
+		});
+
 	}
 
 	private static final long serialVersionUID = 6538962298579455010L;
+
+	public boolean getMaxProjKeepColor() {
+		return maxProjKeepColor;
+	}
 
 	public float getDimZ() {
 		return value;

@@ -59,8 +59,7 @@ public class VolumeRenderer {
 							final AffineTransform3D transform) {
 
 						// check, if maximum projection option is
-						// switched
-						// on
+						// switched on
 						if (viewer.getMaxproj() == true) {
 
 							float currentdimZ = 20;
@@ -80,13 +79,18 @@ public class VolumeRenderer {
 									.getCurrentValue();
 							ARGBType color = setupAssignments
 									.getConverterSetups().get(0).getColor();
+
+							// start rendering
 							render.renderSlice(state, width, height, viewer,
-									currentdimZ, minBright, maxBright, color);
+									currentdimZ, minBright, maxBright, color,
+									zdimDialog.getMaxProjKeepColor());
 						}
 					}
 				});
 			}
 		});
+
+		// add the local keymappings to the global maps
 		final InputActionBindings bindings = viewerFrame.getKeybindings();
 		bindings.addActionMap("volume", actionMap);
 		bindings.addInputMap("volume", inputMap);
