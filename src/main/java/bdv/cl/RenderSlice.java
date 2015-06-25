@@ -365,13 +365,39 @@ public class RenderSlice {
 
 		// Converting the Image to a buffered image
 		final BufferedImage bufferedImage = screenImage.image();
+		final BufferedImage colorBufferedImage = new BufferedImage(width,
+				height, BufferedImage.TYPE_INT_ARGB);
+
+		for (int i = 0; i < bufferedImage.getWidth(); i++) {
+			for (int j = 0; j < bufferedImage.getHeight(); j++) {
+				final int oldrgb = bufferedImage.getRGB(i, j);
+				int oldred = ARGBType.red(oldrgb);
+				int oldgreen = ARGBType.green(oldrgb);
+				int oldblue = ARGBType.blue(oldrgb);
+				// int oldalpha = ARGBType.alpha(oldrgb);
+				int red = ARGBType.red(color.get());
+				int green = ARGBType.green(color.get());
+				int blue = ARGBType.blue(color.get());
+				// int alpha = ARGBType.alpha(color.get());
+
+				red = (red * oldred) / 255;
+				green = (green * oldgreen) / 255;
+				blue = (blue * oldblue) / 255;
+				// alpha = (alpha * oldalpha) / 255;
+
+				int rgb = ARGBType.rgba(red, green, blue, 255);
+
+				colorBufferedImage.setRGB(i, j, rgb);
+			}
+
+		}
 		// Raster raster = bufferedImage.getRaster();
 		// final BufferedImage colorBufferedImage = new BufferedImage(width,
 		// height, BufferedImage.TYPE_INT_ARGB);
 		// colorBufferedImage.setData(raster);
 
 		// painting the canvas with the buffered image
-		viewer.paint(bufferedImage);
+		viewer.paint(colorBufferedImage);
 
 	}
 
