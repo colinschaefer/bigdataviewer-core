@@ -59,7 +59,7 @@ public class BigDataViewerActions {
 		map.put(GO_TO_BOOKMARK, "B");
 		map.put(GO_TO_BOOKMARK_ROTATION, "O");
 		map.put(SET_BOOKMARK, "shift B");
-		map.put(Z_DIM, "C");
+		map.put(Z_DIM, "F");
 
 		return inputMap;
 	}

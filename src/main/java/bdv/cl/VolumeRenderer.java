@@ -31,7 +31,7 @@ public class VolumeRenderer {
 		final RenderSlice render = new RenderSlice(imgLoader);
 		final String RENDER_CONTINUOUS = "continuous";
 		final InputMap inputMap = new InputMap();
-		inputMap.put(KeyStroke.getKeyStroke("E"), RENDER_CONTINUOUS);
+		inputMap.put(KeyStroke.getKeyStroke("V"), RENDER_CONTINUOUS);
 		final ActionMap actionMap = new ActionMap();
 		viewer.setMaxproj(false);
 
