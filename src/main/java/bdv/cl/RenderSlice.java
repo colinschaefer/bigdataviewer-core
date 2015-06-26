@@ -35,6 +35,7 @@ import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
 import com.jogamp.opencl.CLCommandQueue.Mode;
 import com.jogamp.opencl.CLContext;
+import com.jogamp.opencl.CLDevice;
 import com.jogamp.opencl.CLEvent;
 import com.jogamp.opencl.CLEvent.ProfilingCommand;
 import com.jogamp.opencl.CLEventList;
@@ -101,7 +102,9 @@ public class RenderSlice {
 		try {
 			// select the Device with the maximum flops, ideally this should
 			// select the GPU
-			context = CLContext.create(platform.getMaxFlopsDevice());
+			context = CLContext.create(platform
+					.getMaxFlopsDevice(CLDevice.Type.GPU));
+			System.out.println(platform.getMaxFlopsDevice());
 
 			// create the command queue
 			queue = context.getDevices()[0]
@@ -387,11 +390,14 @@ public class RenderSlice {
 
 					// get the rgb value of the current pixel
 					final int oldrgb = bufferedImage.getRGB(i, j);
+					int gray = (oldrgb & 0xFFFF);
+
+					gray = gray / 255;
 
 					// get the single values of the pixel
-					int oldred = ARGBType.red(oldrgb);
-					int oldgreen = ARGBType.green(oldrgb);
-					int oldblue = ARGBType.blue(oldrgb);
+					// int oldred = ARGBType.red(oldrgb);
+					// int oldgreen = ARGBType.green(oldrgb);
+					// int oldblue = ARGBType.blue(oldrgb);
 					// int oldalpha = ARGBType.alpha(oldrgb);
 
 					// get the values for the set color
@@ -401,13 +407,13 @@ public class RenderSlice {
 					// int alpha = ARGBType.alpha(color.get());
 
 					// calculate the new pixel values with the given color
-					red = (int) Math.floor((red * oldred) / 255);
-					green = (int) Math.floor((green * oldgreen) / 255);
-					blue = (int) Math.floor((blue * oldblue) / 255);
-					// alpha = (alpha * oldalpha) / 255;
+					// red = (int) Math.floor((red * gray) / 255);
+					// green = (int) Math.floor((green * gray) / 255);
+					// blue = (int) Math.floor((blue * gray) / 255);
+					// alpha = (int) Math.floor((alpha * oldalpha) / 255);
 
 					// create the integer to use in the setting of the pixel
-					int rgb = ARGBType.rgba(red, green, blue, 255);
+					int rgb = ARGBType.rgba(red, green, blue, gray);
 
 					// set the pixel to the calculated value
 					colorBufferedImage.setRGB(i, j, rgb);
