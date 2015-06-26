@@ -392,28 +392,29 @@ public class RenderSlice {
 					final int oldrgb = bufferedImage.getRGB(i, j);
 					int gray = (oldrgb & 0xFFFF);
 
-					gray = gray / 255;
+					// gray = gray / 256;
 
 					// get the single values of the pixel
-					// int oldred = ARGBType.red(oldrgb);
-					// int oldgreen = ARGBType.green(oldrgb);
-					// int oldblue = ARGBType.blue(oldrgb);
-					// int oldalpha = ARGBType.alpha(oldrgb);
+					int oldalpha = (oldrgb >> 24) & 0xFF;
+					int oldred = (oldrgb >> 16) & 0xFF;
+					int oldgreen = (oldrgb >> 8) & 0xFF;
+					int oldblue = (oldrgb) & 0xFF;
 
-					// get the values for the set color
-					int red = ARGBType.red(color.get());
-					int green = ARGBType.green(color.get());
-					int blue = ARGBType.blue(color.get());
-					// int alpha = ARGBType.alpha(color.get());
+					// get the values for the set color\
+					int intcolor = color.get();
+					int alpha = (intcolor >> 24) & 0xFF;
+					int red = (intcolor >> 16) & 0xFF;
+					int green = (intcolor >> 8) & 0xFF;
+					int blue = (intcolor) & 0xFF;
 
 					// calculate the new pixel values with the given color
-					// red = (int) Math.floor((red * gray) / 255);
-					// green = (int) Math.floor((green * gray) / 255);
-					// blue = (int) Math.floor((blue * gray) / 255);
-					// alpha = (int) Math.floor((alpha * oldalpha) / 255);
+					red = (int) Math.floor((red * oldred) / 255);
+					green = (int) Math.floor((green * oldgreen) / 255);
+					blue = (int) Math.floor((blue * oldblue) / 255);
+					alpha = (int) Math.floor((alpha * oldalpha) / 255);
 
 					// create the integer to use in the setting of the pixel
-					int rgb = ARGBType.rgba(red, green, blue, gray);
+					int rgb = ARGBType.rgba(red, green, blue, alpha);
 
 					// set the pixel to the calculated value
 					colorBufferedImage.setRGB(i, j, rgb);
