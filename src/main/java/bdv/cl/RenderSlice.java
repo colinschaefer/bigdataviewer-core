@@ -179,8 +179,8 @@ public class RenderSlice {
 
 			// variable declaration and initialization
 			final Source<?> source = viewerState.getSources().get(0)
-					.getSpimSource(); // TODO
-			final int timepointId = timepoint; // TODO
+					.getSpimSource();
+			final int timepointId = timepoint;
 			final int setupId = 0; // TODO
 			final int mipmapIndex = 0; // TODO
 
@@ -434,9 +434,22 @@ public class RenderSlice {
 		final int n = 3;
 		final long[] min = new long[n];
 		final long[] max = new long[n];
+		boolean test = false;
 		for (int d = 0; d < n; ++d) {
-			min[d] = blockPos[d] * blockSize[d];
-			max[d] = min[d] + paddedBlockSize[d] - 1;
+			if (test) {
+				if (d == 0) {
+					min[d] = blockPos[d] * blockSize[d];
+				} else if (d == 1) {
+					min[d] = blockPos[d] * blockSize[d] - 1;
+				} else {
+					min[d] = blockPos[d] * blockSize[d];
+				}
+
+				max[d] = min[d] + blockSize[d];
+			} else {
+				min[d] = blockPos[d] * blockSize[d];
+				max[d] = min[d] + paddedBlockSize[d] - 1;
+			}
 		}
 
 		final short[] data = useThisData == null ? new short[paddedBlockSize[0]

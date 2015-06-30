@@ -65,8 +65,8 @@ __kernel void slice(
 	uint numSteps = (uint) (nearfar.y - nearfar.x + 1);
 
 	float f = 0;
-//	float3 p = pb + nearfar.x * db;
-	float3 p = pb + nearfar.x * db + (float3)(0.5, 0.5, 0.5) / bdf;
+	float3 p = pb + nearfar.x * db;
+//	float3 p = pb + nearfar.x * db + (float3)( 0.5, 0.5, 0.5) / bdf;
 	for ( uint i = 0; i < numSteps; ++i )
 	{
 		float3 ib;

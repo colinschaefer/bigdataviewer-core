@@ -23,13 +23,13 @@ import net.imglib2.view.Views;
 import bdv.viewer.Interpolation;
 import bdv.viewer.Source;
 
-public abstract class AbstractSpimSource< T extends NumericType< T > > implements Source< T >
-{
+public abstract class AbstractSpimSource<T extends NumericType<T>> implements
+		Source<T> {
 	protected int currentTimePointIndex;
 
-	protected RandomAccessibleInterval< T >[] currentSources;
+	protected RandomAccessibleInterval<T>[] currentSources;
 
-	protected RealRandomAccessible< T >[][] currentInterpolatedSources;
+	protected RealRandomAccessible<T>[][] currentInterpolatedSources;
 
 	protected final AffineTransform3D[] currentSourceTransforms;
 
@@ -37,11 +37,11 @@ public abstract class AbstractSpimSource< T extends NumericType< T > > implement
 
 	protected final String name;
 
-	protected final List< TimePoint > timePointsOrdered;
+	protected final List<TimePoint> timePointsOrdered;
 
-	protected final Map< ViewId, ViewRegistration > viewRegistrations;
+	protected final Map<ViewId, ViewRegistration> viewRegistrations;
 
-	protected final Set< ViewId > missingViews;
+	protected final Set<ViewId> missingViews;
 
 	protected final VoxelDimensions voxelDimensions;
 
@@ -53,126 +53,126 @@ public abstract class AbstractSpimSource< T extends NumericType< T > > implement
 
 	protected final static int iNLinearMethod = 1;
 
-	protected final InterpolatorFactory< T, RandomAccessible< T > >[] interpolatorFactories;
+	protected final InterpolatorFactory<T, RandomAccessible<T>>[] interpolatorFactories;
 
-	@SuppressWarnings( "unchecked" )
-	public AbstractSpimSource( final AbstractSpimData< ? > spimData, final int setupId, final String name )
-	{
+	@SuppressWarnings("unchecked")
+	public AbstractSpimSource(final AbstractSpimData<?> spimData,
+			final int setupId, final String name) {
 		this.setupId = setupId;
 		this.name = name;
-		final AbstractSequenceDescription< ?, ?, ? > seq = spimData.getSequenceDescription();
+		final AbstractSequenceDescription<?, ?, ?> seq = spimData
+				.getSequenceDescription();
 		timePointsOrdered = seq.getTimePoints().getTimePointsOrdered();
-		viewRegistrations = spimData.getViewRegistrations().getViewRegistrations();
-		missingViews = seq.getMissingViews() == null
-				? new HashSet< ViewId >()
+		viewRegistrations = spimData.getViewRegistrations()
+				.getViewRegistrations();
+		missingViews = seq.getMissingViews() == null ? new HashSet<ViewId>()
 				: seq.getMissingViews().getMissingViews();
-		voxelDimensions = seq.getViewSetups().get( setupId ).getVoxelSize();
-		numMipmapLevels = ( ( ViewerImgLoader< ?, ? > ) seq.getImgLoader() ).numMipmapLevels( setupId );
-		currentSources = new RandomAccessibleInterval[ numMipmapLevels ];
-		currentInterpolatedSources = new RealRandomAccessible[ numMipmapLevels ][ numInterpolationMethods ];
-		currentSourceTransforms = new AffineTransform3D[ numMipmapLevels ];
-		for ( int level = 0; level < numMipmapLevels; level++ )
-			currentSourceTransforms[ level ] = new AffineTransform3D();
-		interpolatorFactories = new InterpolatorFactory[ numInterpolationMethods ];
-		interpolatorFactories[ iNearestNeighborMethod ] = new NearestNeighborInterpolatorFactory< T >();
-		interpolatorFactories[ iNLinearMethod ] = new ClampingNLinearInterpolatorFactory< T >();
+		voxelDimensions = seq.getViewSetups().get(setupId).getVoxelSize();
+		numMipmapLevels = ((ViewerImgLoader<?, ?>) seq.getImgLoader())
+				.numMipmapLevels(setupId);
+		currentSources = new RandomAccessibleInterval[numMipmapLevels];
+		currentInterpolatedSources = new RealRandomAccessible[numMipmapLevels][numInterpolationMethods];
+		currentSourceTransforms = new AffineTransform3D[numMipmapLevels];
+		for (int level = 0; level < numMipmapLevels; level++)
+			currentSourceTransforms[level] = new AffineTransform3D();
+		interpolatorFactories = new InterpolatorFactory[numInterpolationMethods];
+		interpolatorFactories[iNearestNeighborMethod] = new NearestNeighborInterpolatorFactory<T>();
+		interpolatorFactories[iNLinearMethod] = new ClampingNLinearInterpolatorFactory<T>();
 	}
 
-	protected void loadTimepoint( final int timepointIndex )
-	{
+	protected void loadTimepoint(final int timepointIndex) {
 		currentTimePointIndex = timepointIndex;
-		if ( isPresent( timepointIndex ) )
-		{
+		if (isPresent(timepointIndex)) {
 			final T zero = getType().createVariable();
 			zero.setZero();
-			final int timepointId = timePointsOrdered.get( timepointIndex ).getId();
-			final ViewId viewId = new ViewId( timepointId, setupId );
-			final AffineTransform3D reg = viewRegistrations.get( viewId ).getModel();
-			for ( int level = 0; level < currentSources.length; level++ )
-			{
-				final AffineTransform3D mipmapTransform = getMipmapTransforms()[ level ];
-				currentSourceTransforms[ level ].set( reg );
-				currentSourceTransforms[ level ].concatenate( mipmapTransform );
-				currentSources[ level ] = getImage( viewId, level );
-				for ( int method = 0; method < numInterpolationMethods; ++method )
-					currentInterpolatedSources[ level ][ method ] = Views.interpolate( Views.extendValue( currentSources[ level ], zero ), interpolatorFactories[ method ] );
+			final int timepointId = timePointsOrdered.get(timepointIndex)
+					.getId();
+			final ViewId viewId = new ViewId(timepointId, setupId);
+			final AffineTransform3D reg = viewRegistrations.get(viewId)
+					.getModel();
+			for (int level = 0; level < currentSources.length; level++) {
+				final AffineTransform3D mipmapTransform = getMipmapTransforms()[level];
+				currentSourceTransforms[level].set(reg);
+				currentSourceTransforms[level].concatenate(mipmapTransform);
+				currentSources[level] = getImage(viewId, level);
+				for (int method = 0; method < numInterpolationMethods; ++method)
+					currentInterpolatedSources[level][method] = Views
+							.interpolate(Views.extendValue(
+									currentSources[level], zero),
+									interpolatorFactories[method]);
 			}
-		}
-		else
-		{
-			for ( int level = 0; level < currentSources.length; level++ )
-			{
-				currentSourceTransforms[ level ].identity();
-				currentSources[ level ] = null;
-				for ( int method = 0; method < numInterpolationMethods; ++method )
-					currentInterpolatedSources[ level ][ method ] = null;
+		} else {
+			for (int level = 0; level < currentSources.length; level++) {
+				currentSourceTransforms[level].identity();
+				currentSources[level] = null;
+				for (int method = 0; method < numInterpolationMethods; ++method)
+					currentInterpolatedSources[level][method] = null;
 			}
 		}
 	}
 
 	protected abstract AffineTransform3D[] getMipmapTransforms();
 
-	protected abstract RandomAccessibleInterval< T > getImage( final ViewId viewId, final int level );
+	protected abstract RandomAccessibleInterval<T> getImage(
+			final ViewId viewId, final int level);
 
 	@Override
-	public boolean isPresent( final int t )
-	{
-		return t >= 0 && t < timePointsOrdered.size() && !missingViews.contains( new ViewId( timePointsOrdered.get( t ).getId(), setupId ) );
+	public boolean isPresent(final int t) {
+		return t >= 0
+				&& t < timePointsOrdered.size()
+				&& !missingViews.contains(new ViewId(timePointsOrdered.get(t)
+						.getId(), setupId));
 	}
 
 	@Override
-	public synchronized RandomAccessibleInterval< T > getSource( final int t, final int level )
-	{
-		if ( t != currentTimePointIndex )
-			loadTimepoint( t );
-		return currentSources[ level ];
+	public synchronized RandomAccessibleInterval<T> getSource(final int t,
+			final int level) {
+		if (t != currentTimePointIndex)
+			loadTimepoint(t);
+		return currentSources[level];
 	}
 
 	@Override
-	public synchronized RealRandomAccessible< T > getInterpolatedSource( final int t, final int level, final Interpolation method )
-	{
-		if ( t != currentTimePointIndex )
-			loadTimepoint( t );
-		return currentInterpolatedSources[ level ][ method == Interpolation.NLINEAR ? iNLinearMethod : iNearestNeighborMethod ];
+	public synchronized RealRandomAccessible<T> getInterpolatedSource(
+			final int t, final int level, final Interpolation method) {
+		if (t != currentTimePointIndex)
+			loadTimepoint(t);
+		return currentInterpolatedSources[level][method == Interpolation.NLINEAR ? iNLinearMethod
+				: iNearestNeighborMethod];
 	}
 
 	@Override
-	public synchronized void getSourceTransform( final int t, final int level, final AffineTransform3D transform )
-	{
-		if ( t != currentTimePointIndex )
-			loadTimepoint( t );
-		transform.set( currentSourceTransforms[ level ] );
+	public synchronized void getSourceTransform(final int t, final int level,
+			final AffineTransform3D transform) {
+		if (t != currentTimePointIndex)
+			loadTimepoint(t);
+		transform.set(currentSourceTransforms[level]);
 	}
 
 	@Override
 	@Deprecated
-	public AffineTransform3D getSourceTransform( final int t, final int level )
-	{
+	public AffineTransform3D getSourceTransform(final int t, final int level) {
 		final AffineTransform3D transform = new AffineTransform3D();
-		getSourceTransform( t, level, transform );
+		getSourceTransform(t, level, transform);
 		return transform;
 	}
 
 	@Override
-	public String getName()
-	{
+	public String getName() {
 		return name;
 	}
 
 	@Override
-	public VoxelDimensions getVoxelDimensions()
-	{
+	public VoxelDimensions getVoxelDimensions() {
 		return voxelDimensions;
 	}
 
 	@Override
-	public int getNumMipmapLevels()
-	{
+	public int getNumMipmapLevels() {
 		return numMipmapLevels;
 	}
 
-	public int getSetupId()
-	{
+	public int getSetupId() {
 		return setupId;
 	}
 }

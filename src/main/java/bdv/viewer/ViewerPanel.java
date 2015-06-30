@@ -434,6 +434,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 					transformChanged(transform);
 					if (currentAnimator.isComplete())
 						currentAnimator = null;
+
 				}
 			}
 		}
