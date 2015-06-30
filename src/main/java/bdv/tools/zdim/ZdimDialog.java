@@ -74,7 +74,7 @@ public class ZdimDialog extends JDialog {
 		rightPanel.add(minField);
 		rightPanel.add(new JLabel("min Value"));
 		rightPanel.add(inputField);
-		rightPanel.add(new JLabel("\u00B5" + "m"));
+		rightPanel.add(new JLabel("AU"));
 		rightPanel.add(maxField);
 		rightPanel.add(new JLabel("max Value"));
 
