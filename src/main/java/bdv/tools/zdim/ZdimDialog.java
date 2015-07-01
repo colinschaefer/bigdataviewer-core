@@ -43,6 +43,11 @@ public class ZdimDialog extends JDialog {
 	JSlider microns;
 
 	public ZdimDialog(final Frame owner,
+			final SetupAssignments setupAssignments, double umPerPixelZ) {
+		new ZdimDialog(owner, setupAssignments, umPerPixelZ, 1.0);
+	}
+
+	public ZdimDialog(final Frame owner,
 			final SetupAssignments setupAssignments, double umPerPixelZ,
 			double scale) {
 		super(owner, "Z - dimension of max-projection", false);
