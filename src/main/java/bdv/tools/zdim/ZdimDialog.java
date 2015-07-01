@@ -62,7 +62,7 @@ public class ZdimDialog extends JDialog {
 		setLayout(new BorderLayout(10, 10));
 
 		// setup the new slider and its appearance
-		microns = new JSlider(min, max, 20);
+		microns = new JSlider(min, max, 5);
 		microns.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 		microns.setMajorTickSpacing(10);
 		microns.setPaintLabels(true);
