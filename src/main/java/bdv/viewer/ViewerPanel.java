@@ -724,6 +724,10 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 		return state.copy();
 	}
 
+	public double[] getScreenScales() {
+		return imageRenderer.getScreenScales();
+	}
+
 	/**
 	 * Get the viewer canvas.
 	 *

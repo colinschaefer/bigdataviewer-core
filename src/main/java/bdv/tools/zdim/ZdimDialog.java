@@ -35,13 +35,16 @@ import bdv.tools.brightness.SetupAssignments;
 public class ZdimDialog extends JDialog {
 	private boolean maxProjKeepColor = false;
 	private int value = 20;
+	private float correction = 1.0f;
 
 	int max = 100;
 	int min = 0;
 
 	JSlider microns;
 
-	public ZdimDialog(final Frame owner, final SetupAssignments setupAssignments) {
+	public ZdimDialog(final Frame owner,
+			final SetupAssignments setupAssignments, double umPerPixelZ,
+			double scale) {
 		super(owner, "Z - dimension of max-projection", false);
 
 		SpinnerModel modelin = new SpinnerNumberModel(value, 0, 2000, 1);
@@ -74,7 +77,7 @@ public class ZdimDialog extends JDialog {
 		rightPanel.add(minField);
 		rightPanel.add(new JLabel("min Value"));
 		rightPanel.add(inputField);
-		rightPanel.add(new JLabel("AU"));
+		rightPanel.add(new JLabel("\u00B5" + "m"));
 		rightPanel.add(maxField);
 		rightPanel.add(new JLabel("max Value"));
 
@@ -91,6 +94,8 @@ public class ZdimDialog extends JDialog {
 		add(microns, BorderLayout.CENTER);
 		add(rightPanel, BorderLayout.EAST);
 		add(downPanel, BorderLayout.SOUTH);
+
+		correction = (float) (umPerPixelZ * scale);
 
 		// slider change listener, that also changes the spinner to the chosen
 		// value
@@ -190,7 +195,7 @@ public class ZdimDialog extends JDialog {
 	}
 
 	public float getDimZ() {
-		return value;
+		return value * correction;
 	}
 
 }

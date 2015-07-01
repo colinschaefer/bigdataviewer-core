@@ -20,6 +20,7 @@ import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import mpicbg.spim.data.sequence.Angle;
 import mpicbg.spim.data.sequence.Channel;
+import mpicbg.spim.data.sequence.VoxelDimensions;
 import net.imglib2.Volatile;
 import net.imglib2.display.RealARGBColorConverter;
 import net.imglib2.display.ScaledARGBConverter;
@@ -350,7 +351,14 @@ public class BigDataViewer {
 				setupAssignments.moveSetupToGroup(setup, group);
 		}
 
-		zdimDialog = new ZdimDialog(viewerFrame, setupAssignments);
+		VoxelDimensions dimensions = spimData.getSequenceDescription()
+				.getViewSetups().get(0).getVoxelSize();
+
+		double[] scales = viewer.getScreenScales();
+		double scale = 1 / scales[2];
+
+		zdimDialog = new ZdimDialog(viewerFrame, setupAssignments,
+				dimensions.dimension(2), scale);
 
 		brightnessDialog = new BrightnessDialog(viewerFrame, setupAssignments);
 

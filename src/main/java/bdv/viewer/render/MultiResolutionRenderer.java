@@ -729,6 +729,10 @@ public class MultiResolutionRenderer {
 		}
 	}
 
+	public double[] getScreenScales() {
+		return screenScales;
+	}
+
 	private static TransformAwareRenderTarget wrapTransformAwareRenderTarget(
 			final RenderTarget t) {
 		if (t instanceof TransformAwareRenderTarget)
