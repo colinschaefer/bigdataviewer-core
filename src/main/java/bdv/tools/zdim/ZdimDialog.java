@@ -34,7 +34,7 @@ import bdv.tools.brightness.SetupAssignments;
 
 public class ZdimDialog extends JDialog {
 	private boolean maxProjKeepColor = false;
-	private int value = 20;
+	private int value = 5;
 	private float correction = 1.0f;
 
 	int max = 100;
