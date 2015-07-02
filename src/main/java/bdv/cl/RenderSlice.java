@@ -332,11 +332,6 @@ public class RenderSlice {
 				data = new byte[width * height];
 			renderTarget.getBuffer().get(data);
 
-			for (int i = 0; i < data.length; i++) {
-				if (data[i] == -1) {
-					data[i] = 0;
-				}
-			}
 			// start the representation in the viewerpanel
 			show(data, width, height, viewer, color, keepColor);
 

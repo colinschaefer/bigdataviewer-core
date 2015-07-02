@@ -58,7 +58,7 @@ __kernel void slice(
 
 	if ( nearfar.x > nearfar.y )
 	{
-		write_imageui( target, (int2) ( x, y ), 255 );
+		write_imageui( target, (int2) ( x, y ), 0 );
 		return;
 	}
 

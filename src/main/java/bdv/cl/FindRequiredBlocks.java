@@ -58,7 +58,10 @@ public class FindRequiredBlocks {
 		for (int i = 0; i < screenCorners.length; ++i) {
 			sourceToScreen.applyInverse(sourceCorner, screenCorners[i]);
 			for (int d = 0; d < 3; ++d) {
-				final double p = sourceCorner.getDoublePosition(d);
+				double p = sourceCorner.getDoublePosition(d);
+				if (p < 0) {
+					p = 0;
+				}
 				if (p < bbMin[d])
 					bbMin[d] = p;
 				if (p > bbMax[d])

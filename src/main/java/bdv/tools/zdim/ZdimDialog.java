@@ -34,18 +34,13 @@ import bdv.tools.brightness.SetupAssignments;
 
 public class ZdimDialog extends JDialog {
 	private boolean maxProjKeepColor = false;
-	private int value = 5;
+	private int value = 20;
 	private float correction = 1.0f;
 
 	int max = 100;
 	int min = 0;
 
 	JSlider microns;
-
-	public ZdimDialog(final Frame owner,
-			final SetupAssignments setupAssignments, double umPerPixelZ) {
-		new ZdimDialog(owner, setupAssignments, umPerPixelZ, 1.0);
-	}
 
 	public ZdimDialog(final Frame owner,
 			final SetupAssignments setupAssignments, double umPerPixelZ,
@@ -62,7 +57,7 @@ public class ZdimDialog extends JDialog {
 		setLayout(new BorderLayout(10, 10));
 
 		// setup the new slider and its appearance
-		microns = new JSlider(min, max, 5);
+		microns = new JSlider(min, max, 20);
 		microns.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 		microns.setMajorTickSpacing(10);
 		microns.setPaintLabels(true);
@@ -100,7 +95,7 @@ public class ZdimDialog extends JDialog {
 		add(rightPanel, BorderLayout.EAST);
 		add(downPanel, BorderLayout.SOUTH);
 
-		correction = (float) (umPerPixelZ * scale);
+		correction = (float) (scale / umPerPixelZ);
 
 		// slider change listener, that also changes the spinner to the chosen
 		// value
