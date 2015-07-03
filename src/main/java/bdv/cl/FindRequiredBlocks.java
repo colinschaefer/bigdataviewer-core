@@ -41,15 +41,15 @@ public class FindRequiredBlocks {
 		 * 0.0, dd); screenCorners[6] = new RealPoint(w, h, dd);
 		 * screenCorners[7] = new RealPoint(0.0, h, dd);
 		 */
-		final double ddd = dd / 2;
-		screenCorners[0] = new RealPoint(0.0, 0.0, -ddd);
-		screenCorners[1] = new RealPoint(w, 0.0, -ddd);
-		screenCorners[2] = new RealPoint(w, h, -ddd);
-		screenCorners[3] = new RealPoint(0.0, h, -ddd);
-		screenCorners[4] = new RealPoint(0.0, 0.0, ddd);
-		screenCorners[5] = new RealPoint(w, 0.0, ddd);
-		screenCorners[6] = new RealPoint(w, h, ddd);
-		screenCorners[7] = new RealPoint(0.0, h, ddd);
+		final double halfdd = dd / 2;
+		screenCorners[0] = new RealPoint(0.0, 0.0, -halfdd);
+		screenCorners[1] = new RealPoint(w, 0.0, -halfdd);
+		screenCorners[2] = new RealPoint(w, h, -halfdd);
+		screenCorners[3] = new RealPoint(0.0, h, -halfdd);
+		screenCorners[4] = new RealPoint(0.0, 0.0, halfdd);
+		screenCorners[5] = new RealPoint(w, 0.0, halfdd);
+		screenCorners[6] = new RealPoint(w, h, halfdd);
+		screenCorners[7] = new RealPoint(0.0, h, halfdd);
 		final RealPoint sourceCorner = new RealPoint(3);
 		final double[] bbMin = new double[] { Double.POSITIVE_INFINITY,
 				Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY };
@@ -84,7 +84,7 @@ public class FindRequiredBlocks {
 		// planes bounding the volume, normals facing inwards...
 		final ConvexPolytope sourceRegion = Affine3DHelpers.inverseTransform(
 				new ConvexPolytope(new HyperPlane(0, 0, 1, 0), new HyperPlane(
-						0, 0, -1, -ddd), new HyperPlane(1, 0, 0, 0),
+						0, 0, -1, -halfdd), new HyperPlane(1, 0, 0, 0),
 						new HyperPlane(-1, 0, 0, -w),
 						new HyperPlane(0, 1, 0, 0),
 						new HyperPlane(0, -1, 0, -h)), sourceToScreen);

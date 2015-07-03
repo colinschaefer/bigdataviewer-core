@@ -93,6 +93,8 @@ public class RenderSlice {
 
 	private float oldT = 0;
 
+	private int[] gridSize = null;
+
 	// the constructor initializes the OpenCL Kernel and Context
 	public RenderSlice(
 			final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader) {
@@ -121,8 +123,7 @@ public class RenderSlice {
 					Mem.ALLOCATE_BUFFER);
 			sizes = context.createIntBuffer(8, Mem.READ_ONLY,
 					Mem.ALLOCATE_BUFFER);
-			final int[] gridSize = BlockTexture.findSuitableGridSize(
-					paddedBlockSize, 300);
+			gridSize = BlockTexture.findSuitableGridSize(paddedBlockSize, 300);
 			blockTexture = new BlockTexture(gridSize, paddedBlockSize, queue);
 		} catch (final Exception e) {
 			e.printStackTrace();
@@ -209,15 +210,21 @@ public class RenderSlice {
 			final short[] blockData = new short[paddedBlockSize[0]
 					* paddedBlockSize[1] * paddedBlockSize[2]];
 			int nnn = 0;
-			for (final int[] cellPos : requiredBlocks.cellPositions) {
-				final BlockKey key = new BlockKey(cellPos);
-				if (!retimed) {
+			if (!retimed) {
+				for (final int[] cellPos : requiredBlocks.cellPositions) {
+					final BlockKey key = new BlockKey(cellPos);
+
 					if (!blockTexture.contains(key)) {
 						blockTexture.put(key,
 								getBlockData(cellPos, img, blockData));
 						nnn++;
 					}
-				} else {
+				}
+			} else {
+				blockTexture.clearBuffer();
+				for (final int[] cellPos : requiredBlocks.cellPositions) {
+					final BlockKey key = new BlockKey(cellPos);
+
 					if (!blockTexture.contains(key)) {
 						blockTexture.put(key,
 								getBlockData(cellPos, img, blockData));
@@ -227,6 +234,7 @@ public class RenderSlice {
 								getBlockData(cellPos, img, blockData));
 						nnn++;
 					}
+
 				}
 			}
 			t = System.currentTimeMillis() - t;

@@ -166,6 +166,10 @@ public class BlockTexture {
 		writeBlock(block.getBlockPos(), data);
 	}
 
+	public void clearBuffer() {
+		blocksTexture.getBuffer().clear();
+	}
+
 	public CLImage3d<ShortBuffer> get() {
 		return blocksTexture;
 	}
