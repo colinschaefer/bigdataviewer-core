@@ -93,6 +93,12 @@ public class RenderSlice {
 
 	private float oldT = 0;
 
+	private boolean rebright = false;
+
+	private float oldMinBright = 0;
+
+	private float oldMaxBright = 0;
+
 	private int[] gridSize = null;
 
 	// the constructor initializes the OpenCL Kernel and Context
@@ -169,10 +175,13 @@ public class RenderSlice {
 		final int timepoint = viewerState.getCurrentTimepoint();
 		retimed = (oldT != timepoint);
 
+		// compare the new brightness to the old one
+		rebright = (oldMinBright != minBright || oldMaxBright != maxBright);
+
 		// if the current transformation, window size, timepoint or z
 		// dimensional rendering is different to the old one, start rendering
 		if (!Arrays.equals(oldTransformMatrix, newTransformMatrix) || resized
-				|| rezet || retimed) {
+				|| rezet || retimed || rebright) {
 
 			data = null;
 
@@ -359,6 +368,8 @@ public class RenderSlice {
 		oldheight = height;
 		oldZ = dimZ;
 		oldT = timepoint;
+		oldMinBright = minBright;
+		oldMaxBright = maxBright;
 	}
 
 	// the show method paints the maximum projection which was rendered on the
