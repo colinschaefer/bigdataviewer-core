@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -42,10 +43,14 @@ public class ZdimDialog extends JDialog {
 
 	JSlider microns;
 
+	protected final CopyOnWriteArrayList<ChangeListener> changeListeners;
+
 	public ZdimDialog(final Frame owner,
 			final SetupAssignments setupAssignments, double umPerPixelZ,
 			double scale) {
 		super(owner, "Z - dimension of max-projection", false);
+
+		changeListeners = new CopyOnWriteArrayList<ChangeListener>();
 
 		SpinnerModel modelin = new SpinnerNumberModel(value, 0, 2000, 1);
 		SpinnerModel modelmin = new SpinnerNumberModel(min, 0, 2000, 1);
@@ -145,6 +150,9 @@ public class ZdimDialog extends JDialog {
 				microns.setValue(value);
 
 				System.out.println(String.valueOf(value));
+				for (final ChangeListener listener : changeListeners) {
+					listener.stateChanged(new ChangeEvent(inputField));
+				}
 			}
 		});
 
@@ -198,4 +206,7 @@ public class ZdimDialog extends JDialog {
 		return value * correction;
 	}
 
+	public void addChangeListener(final ChangeListener listener) {
+		changeListeners.add(listener);
+	}
 }

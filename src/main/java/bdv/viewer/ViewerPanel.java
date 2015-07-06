@@ -8,6 +8,7 @@ import static bdv.viewer.VisibilityAndGrouping.Event.NUM_SOURCES_CHANGED;
 import static bdv.viewer.VisibilityAndGrouping.Event.SOURCE_ACTVITY_CHANGED;
 import static bdv.viewer.VisibilityAndGrouping.Event.VISIBILITY_CHANGED;
 
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -419,23 +420,21 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	@Override
 	public void paint() {
-		if (state.getMaxproj() == false) {
-			imageRenderer.paint(state);
+		imageRenderer.paint(state);
 
-			display.repaint();
+		display.repaint();
 
-			synchronized (this) {
-				if (currentAnimator != null) {
-					final TransformEventHandler<AffineTransform3D> handler = display
-							.getTransformEventHandler();
-					final AffineTransform3D transform = currentAnimator
-							.getCurrent(System.currentTimeMillis());
-					handler.setTransform(transform);
-					transformChanged(transform);
-					if (currentAnimator.isComplete())
-						currentAnimator = null;
+		synchronized (this) {
+			if (currentAnimator != null) {
+				final TransformEventHandler<AffineTransform3D> handler = display
+						.getTransformEventHandler();
+				final AffineTransform3D transform = currentAnimator
+						.getCurrent(System.currentTimeMillis());
+				handler.setTransform(transform);
+				transformChanged(transform);
+				if (currentAnimator.isComplete())
+					currentAnimator = null;
 
-				}
 			}
 		}
 
@@ -456,16 +455,29 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	// adding a method to directly paint the calculated picture
 	public void paint(BufferedImage bufferedImage) {
-		if (state.getMaxproj() == true) {
-			imageRenderer.paint(state, bufferedImage);
+		imageRenderer.paint(state);
 
-			display.repaint();
+		display.repaint();
 
+		synchronized (this) {
+			if (currentAnimator != null) {
+				final TransformEventHandler<AffineTransform3D> handler = display
+						.getTransformEventHandler();
+				final AffineTransform3D transform = currentAnimator
+						.getCurrent(System.currentTimeMillis());
+				handler.setTransform(transform);
+				transformChanged(transform);
+				if (currentAnimator.isComplete())
+					currentAnimator = null;
+
+			}
 		}
 	}
 
 	/**
 	 * Repaint as soon as possible.
+	 * 
+	 * @throws AWTException
 	 */
 	public void requestRepaint() // TODO !!!!!!!!!!!!!!!
 	{
@@ -526,6 +538,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 		if (!getMaxproj()) {
 			requestRepaint();
 		} else {
+			requestRepaint();
 			final TransformEventHandler<AffineTransform3D> handler = display
 					.getTransformEventHandler();
 			handler.setTransform(transform);
