@@ -510,7 +510,8 @@ public class BigDataViewer {
 					bdv.setupAssignments);
 		@SuppressWarnings("unused")
 		VolumeRenderer renderer = new VolumeRenderer(spimData, bdv.viewer,
-				bdv.zdimDialog, bdv.setupAssignments, bdv.viewerFrame);
+				bdv.zdimDialog, bdv.setupAssignments, bdv.viewerFrame,
+				bdv.brightnessDialog);
 		return bdv;
 	}
 

@@ -1,12 +1,16 @@
 package bdv.cl;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.Arrays;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.KeyStroke;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import mpicbg.spim.data.generic.AbstractSpimData;
 import net.imglib2.realtransform.AffineTransform3D;
@@ -15,6 +19,7 @@ import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.ui.TransformListener;
 import bdv.AbstractViewerImgLoader;
+import bdv.tools.brightness.BrightnessDialog;
 import bdv.tools.brightness.SetupAssignments;
 import bdv.tools.zdim.ZdimDialog;
 import bdv.viewer.InputActionBindings;
@@ -29,10 +34,13 @@ public class VolumeRenderer {
 	ViewerPanel renderViewer;
 	SetupAssignments renderSetup;
 	ZdimDialog renderZdim;
+	BrightnessDialog renderBrightness;
+	boolean retimed = false;
 
 	public VolumeRenderer(final AbstractSpimData<?> spimData,
 			final ViewerPanel viewer, final ZdimDialog zdimDialog,
-			final SetupAssignments setupAssignments, ViewerFrame viewerFrame) {
+			final SetupAssignments setupAssignments, ViewerFrame viewerFrame,
+			BrightnessDialog brightnessDialog) {
 		@SuppressWarnings("unchecked")
 		final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader = (AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType>) spimData
 				.getSequenceDescription().getImgLoader();
@@ -44,7 +52,8 @@ public class VolumeRenderer {
 		renderViewer = viewer;
 		renderSetup = setupAssignments;
 		renderZdim = zdimDialog;
-		viewer.setMaxproj(false);
+		renderBrightness = brightnessDialog;
+		renderViewer.setMaxproj(false);
 
 		actionMap.put(RENDER_CONTINUOUS, new AbstractAction() {
 			/**
@@ -55,44 +64,109 @@ public class VolumeRenderer {
 			// rendering of the maximum projection after pressing the hotkey
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				viewer.inverseMaxproj();
-				if (viewer.getMaxproj() == false) {
-					viewer.requestRepaint();
-					viewer.showMessage("maximum projection OFF");
+				renderViewer.inverseMaxproj();
+				if (renderViewer.getMaxproj() == false) {
+					renderViewer.requestRepaint();
+					renderViewer.showMessage("maximum projection OFF");
 				} else {
-					viewer.showMessage("maximum projection ON");
+					renderViewer.showMessage("maximum projection ON");
 				}
+
 				// rendering new after manual transformation
-				viewer.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
+				renderViewer
+						.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 
-					boolean changed = false;
+							boolean changed = false;
+							private double[] newTransformMatrix = new double[12];
+							private double[] oldTransformMatrix = new double[] {
+									0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-					private double[] newTransformMatrix = new double[12];
+							public void transformChanged(
+									final AffineTransform3D transform) {
 
-					private double[] oldTransformMatrix = new double[] { 0, 0,
-							0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+								// check, if maximum projection option is
+								// switched on
+								if (viewer.getMaxproj() == true) {
 
-					public void transformChanged(
-							final AffineTransform3D transform) {
+									// did the transformation change?
+									transform.toArray(newTransformMatrix);
+									changed = !Arrays.equals(
+											oldTransformMatrix,
+											newTransformMatrix);
 
-						System.out.println("bla");
+									// start rendering if the transformation has
+									// changed
+									if (changed) {
+										render();
+										System.out.println("render: transform");
+										oldTransformMatrix = Arrays.copyOf(
+												newTransformMatrix, 12);
+									}
 
-						// check, if maximum projection option is
-						// switched on
-						if (viewer.getMaxproj() == true) {
-
-							// did the transformation change?
-							transform.toArray(newTransformMatrix);
-							changed = !Arrays.equals(oldTransformMatrix,
-									newTransformMatrix);
-
-							// start rendering if the transformation has changed
-							if (changed) {
-								render();
-								oldTransformMatrix = Arrays.copyOf(
-										newTransformMatrix, 12);
+								}
 							}
+						});
+				renderZdim.addChangeListener(new ChangeListener() {
 
+					private float oldDimZ = 20;
+					private float newDimZ = 20;
+
+					@Override
+					public void stateChanged(ChangeEvent e) {
+						if (renderViewer.getMaxproj() == true) {
+
+							newDimZ = zdimDialog.getDimZ();
+
+							if (oldDimZ != newDimZ) {
+								render();
+								System.out.println("render: dimZ");
+								oldDimZ = newDimZ;
+							}
+						}
+					}
+				});
+
+				renderViewer.addComponentListener(new ComponentListener() {
+
+					@Override
+					public void componentShown(ComponentEvent e) {
+					}
+
+					@Override
+					public void componentResized(ComponentEvent e) {
+						if (renderViewer.getMaxproj() == true) {
+							render();
+							System.out.println("render: resize");
+						}
+					}
+
+					@Override
+					public void componentMoved(ComponentEvent e) {
+					}
+
+					@Override
+					public void componentHidden(ComponentEvent e) {
+					}
+				});
+
+				renderViewer.addTimeListener(new ChangeListener() {
+
+					@Override
+					public void stateChanged(ChangeEvent e) {
+						if (renderViewer.getMaxproj() == true) {
+							retimed = true;
+							render();
+							System.out.println("render: timepoint");
+						}
+					}
+				});
+				renderBrightness.addChangeListener(new ChangeListener() {
+
+					@Override
+					public void stateChanged(ChangeEvent e) {
+						if (renderViewer.getMaxproj() == true) {
+							render();
+							System.out.println("render: brightness");
 						}
 					}
 				});
@@ -106,8 +180,7 @@ public class VolumeRenderer {
 	}
 
 	private void render() {
-		final int width = renderViewer.getDisplay().getWidth();
-		final int height = renderViewer.getDisplay().getHeight();
+
 		currentdimZ = renderZdim.getDimZ();
 
 		minBright = renderSetup.getMinMaxGroups().get(0).getMinBoundedValue()
@@ -116,10 +189,9 @@ public class VolumeRenderer {
 				.getCurrentValue();
 		ARGBType color = renderSetup.getConverterSetups().get(0).getColor();
 
-		render.renderSlice(renderViewer.getState(), width, height,
-				renderViewer, currentdimZ, minBright, maxBright, color,
-				renderZdim.getMaxProjKeepColor());
-
+		render.renderSlice(renderViewer, currentdimZ, minBright, maxBright,
+				color, renderZdim.getMaxProjKeepColor(), retimed);
+		retimed = false;
 		System.out.println("render");
 	}
 }

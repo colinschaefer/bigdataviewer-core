@@ -149,7 +149,6 @@ public class ZdimDialog extends JDialog {
 
 				microns.setValue(value);
 
-				System.out.println(String.valueOf(value));
 				for (final ChangeListener listener : changeListeners) {
 					listener.stateChanged(new ChangeEvent(inputField));
 				}
@@ -186,7 +185,6 @@ public class ZdimDialog extends JDialog {
 		});
 
 		keepColor.addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				maxProjKeepColor = !maxProjKeepColor;

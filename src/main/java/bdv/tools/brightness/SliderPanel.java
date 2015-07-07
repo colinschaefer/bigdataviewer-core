@@ -74,6 +74,10 @@ public class SliderPanel extends JPanel implements BoundedValue.UpdateListener {
 		model.setUpdateListener(this);
 	}
 
+	public JSpinner getSpinner() {
+		return spinner;
+	}
+
 	@Override
 	public void update() {
 		final int value = model.getCurrentValue();

@@ -41,6 +41,7 @@ import javax.swing.event.ChangeListener;
 
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import net.imglib2.type.numeric.ARGBType;
+import bdv.util.BoundedValue;
 
 /**
  * Adjust brightness and colors for individual (or groups of)
@@ -49,6 +50,11 @@ import net.imglib2.type.numeric.ARGBType;
  * @author Tobias Pietzsch &lt;tobias.pietzsch@gmail.com&gt;
  */
 public class BrightnessDialog extends JDialog {
+
+	static SliderPanel minPanel = new SliderPanel("min", new BoundedValue(0, 0,
+			0), 1);
+	static SliderPanel maxPanel = new SliderPanel("max", new BoundedValue(0, 0,
+			0), 1);
 
 	public BrightnessDialog(final Frame owner,
 			final SetupAssignments setupAssignments) {
@@ -303,12 +309,12 @@ public class BrightnessDialog extends JDialog {
 			sliders = new JPanel();
 			sliders.setLayout(new BoxLayout(sliders, BoxLayout.PAGE_AXIS));
 
-			final SliderPanel minPanel = new SliderPanel("min",
-					group.getMinBoundedValue(), 1);
+			// final SliderPanel
+			minPanel = new SliderPanel("min", group.getMinBoundedValue(), 1);
 			minPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 			sliders.add(minPanel);
-			final SliderPanel maxPanel = new SliderPanel("max",
-					group.getMaxBoundedValue(), 1);
+			// final SliderPanel
+			maxPanel = new SliderPanel("max", group.getMaxBoundedValue(), 1);
 			maxPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 			sliders.add(maxPanel);
 			if (rememberSizes && !minMaxPanels.minMaxPanels.isEmpty()) {
@@ -472,6 +478,11 @@ public class BrightnessDialog extends JDialog {
 
 		private static final long serialVersionUID = -5209143847804383789L;
 
+	}
+
+	public void addChangeListener(ChangeListener listener) {
+		minPanel.getSpinner().addChangeListener(listener);
+		maxPanel.getSpinner().addChangeListener(listener);
 	}
 
 	private static final long serialVersionUID = 7963632306732311403L;

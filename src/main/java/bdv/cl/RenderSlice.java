@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.Arrays;
 
 import mpicbg.spim.data.sequence.ViewId;
 import net.imglib2.Cursor;
@@ -28,7 +27,6 @@ import bdv.cl.FindRequiredBlocks.RequiredBlocks;
 import bdv.img.cache.CachedCellImg;
 import bdv.viewer.Source;
 import bdv.viewer.ViewerPanel;
-import bdv.viewer.state.ViewerState;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opencl.CLBuffer;
@@ -71,29 +69,6 @@ public class RenderSlice {
 	private final int[] paddedBlockSize = new int[] { 33, 33, 9 };
 
 	private byte[] data;
-
-	private boolean turned = false;
-
-	protected AffineTransform3D newAffineTransform = new AffineTransform3D();
-
-	private double[] newTransformMatrix = new double[12];
-
-	private double[] oldTransformMatrix = new double[] { 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0 };
-
-	private boolean resized = false;
-
-	private int oldwidth = 0;
-
-	private int oldheight = 0;
-
-	private boolean rezet = false;
-
-	private float oldZ = 0;
-
-	private boolean retimed = false;
-
-	private float oldT = 0;
 
 	private boolean rebright = false;
 
@@ -158,42 +133,30 @@ public class RenderSlice {
 	}
 
 	// this method actually renders the maximum projection slice
-	public void renderSlice(final ViewerState viewerState, final int width,
-			final int height, final ViewerPanel viewer, float dimZ,
+	public void renderSlice(final ViewerPanel viewer, float dimZ,
 			float minBright, float maxBright, final ARGBType color,
-			boolean keepColor) {
-		//
-		// // compare the old window size to the current one
-		// resized = ((oldwidth * oldheight) != (width * height));
-		//
-		// // compare the old projected z dimension to the current one
-		// rezet = (oldZ != dimZ);
-		//
-		// // compare the last timepoint to the current one
-		// final int timepoint = viewerState.getCurrentTimepoint();
-		// retimed = (oldT != timepoint);
-		//
+			boolean keepColor, boolean retimed) {
 		// // compare the new brightness to the old one
 		// rebright = (oldMinBright != minBright || oldMaxBright != maxBright);
 		//
-		// // if the current transformation, window size, timepoint or z
-		// // dimensional rendering is different to the old one, start rendering
-		// if (turned || resized || rezet || retimed || rebright) {
+
+		final int width = viewer.getDisplay().getWidth();
+		final int height = viewer.getDisplay().getHeight();
 
 		data = null;
 
 		System.out.println();
 
 		// variable declaration and initialization
-		final Source<?> source = viewerState.getSources().get(0)
+		final Source<?> source = viewer.getState().getSources().get(0)
 				.getSpimSource();
-		final int timepointId = 0;
+		final int timepointId = viewer.getState().getCurrentTimepoint();
 		final int setupId = 0; // TODO
 		final int mipmapIndex = 0; // TODO
 
 		// getting the current 3D transformation
 		final AffineTransform3D sourceToScreen = new AffineTransform3D();
-		viewerState.getViewerTransform(sourceToScreen);
+		viewer.getState().getViewerTransform(sourceToScreen);
 		final AffineTransform3D sourceTransform = new AffineTransform3D();
 		source.getSourceTransform(0, mipmapIndex, sourceTransform);
 		sourceToScreen.concatenate(sourceTransform);
@@ -350,11 +313,6 @@ public class RenderSlice {
 
 		// copy the current transformation, width, height, timepoint and z
 		// dimension settings for comparison in the next loop
-		oldTransformMatrix = Arrays.copyOf(newTransformMatrix, 12);
-		oldwidth = width;
-		oldheight = height;
-		oldZ = dimZ;
-		// oldT = timepoint;
 		oldMinBright = minBright;
 		oldMaxBright = maxBright;
 	}

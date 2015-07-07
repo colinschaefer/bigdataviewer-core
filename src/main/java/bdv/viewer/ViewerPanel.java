@@ -420,21 +420,24 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	@Override
 	public void paint() {
-		imageRenderer.paint(state);
+		if (getMaxproj() == false) {
 
-		display.repaint();
+			imageRenderer.paint(state);
 
-		synchronized (this) {
-			if (currentAnimator != null) {
-				final TransformEventHandler<AffineTransform3D> handler = display
-						.getTransformEventHandler();
-				final AffineTransform3D transform = currentAnimator
-						.getCurrent(System.currentTimeMillis());
-				handler.setTransform(transform);
-				transformChanged(transform);
-				if (currentAnimator.isComplete())
-					currentAnimator = null;
+			display.repaint();
 
+			synchronized (this) {
+				if (currentAnimator != null) {
+					final TransformEventHandler<AffineTransform3D> handler = display
+							.getTransformEventHandler();
+					final AffineTransform3D transform = currentAnimator
+							.getCurrent(System.currentTimeMillis());
+					handler.setTransform(transform);
+					transformChanged(transform);
+					if (currentAnimator.isComplete())
+						currentAnimator = null;
+
+				}
 			}
 		}
 
@@ -455,7 +458,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	// adding a method to directly paint the calculated picture
 	public void paint(BufferedImage bufferedImage) {
-		imageRenderer.paint(state);
+		imageRenderer.paint(state, bufferedImage);
 
 		display.repaint();
 
@@ -947,5 +950,9 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 	public void stop() {
 		painterThread.interrupt();
 		renderingExecutorService.shutdown();
+	}
+
+	public void addTimeListener(ChangeListener listener) {
+		sliderTime.addChangeListener(listener);
 	}
 }
