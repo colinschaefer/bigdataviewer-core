@@ -26,15 +26,21 @@ import bdv.viewer.InputActionBindings;
 import bdv.viewer.ViewerPanel;
 
 public class VolumeRenderer {
+	// rendering instance
 	RenderSlice render;
+
+	// variables with initialization
 	float currentdimZ = 20;
 	float minBright = 0;
 	float maxBright = 0;
+
+	// attributes, which need to be available everywhere
 	ViewerPanel renderViewer;
 	SetupAssignments renderSetup;
 	ZdimDialog renderZdim;
 	BrightnessDialog renderBrightness;
 	boolean retimed = false;
+	final ActionMap actionMap = new ActionMap();
 
 	public VolumeRenderer(final AbstractSpimData<?> spimData,
 			final ViewerPanel viewer, final ZdimDialog zdimDialog,
@@ -48,7 +54,6 @@ public class VolumeRenderer {
 		final String RENDER_CONTINUOUS = "continuous";
 		final InputMap inputMap = new InputMap();
 		inputMap.put(KeyStroke.getKeyStroke("V"), RENDER_CONTINUOUS);
-		final ActionMap actionMap = new ActionMap();
 		renderViewer = viewer;
 		renderSetup = setupAssignments;
 		renderZdim = zdimDialog;
@@ -199,7 +204,7 @@ public class VolumeRenderer {
 		bindings.addInputMap("volume", inputMap);
 	}
 
-	protected void render() {
+	private void render() {
 
 		currentdimZ = renderZdim.getDimZ();
 
@@ -213,4 +218,10 @@ public class VolumeRenderer {
 				color, renderZdim.getMaxProjKeepColor(), retimed);
 		retimed = false;
 	}
+
+	protected void initialRender() {
+		actionMap.get("continuous").actionPerformed(
+				new ActionEvent(actionMap, 0, "continuous"));
+	}
+
 }
