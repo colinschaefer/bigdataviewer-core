@@ -199,7 +199,7 @@ public class VolumeRenderer {
 		bindings.addInputMap("volume", inputMap);
 	}
 
-	private void render() {
+	protected void render() {
 
 		currentdimZ = renderZdim.getDimZ();
 
