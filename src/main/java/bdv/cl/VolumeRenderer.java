@@ -23,7 +23,6 @@ import bdv.tools.brightness.BrightnessDialog;
 import bdv.tools.brightness.SetupAssignments;
 import bdv.tools.zdim.ZdimDialog;
 import bdv.viewer.InputActionBindings;
-import bdv.viewer.ViewerFrame;
 import bdv.viewer.ViewerPanel;
 
 public class VolumeRenderer {
@@ -39,7 +38,8 @@ public class VolumeRenderer {
 
 	public VolumeRenderer(final AbstractSpimData<?> spimData,
 			final ViewerPanel viewer, final ZdimDialog zdimDialog,
-			final SetupAssignments setupAssignments, ViewerFrame viewerFrame,
+			final SetupAssignments setupAssignments,
+			final InputActionBindings bindings,
 			BrightnessDialog brightnessDialog) {
 		@SuppressWarnings("unchecked")
 		final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader = (AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType>) spimData
@@ -195,7 +195,6 @@ public class VolumeRenderer {
 		});
 
 		// add the local keymappings to the global maps
-		final InputActionBindings bindings = viewerFrame.getKeybindings();
 		bindings.addActionMap("volume", actionMap);
 		bindings.addInputMap("volume", inputMap);
 	}

@@ -59,6 +59,7 @@ import bdv.tools.transformation.ManualTransformationEditor;
 import bdv.tools.transformation.TransformedSource;
 import bdv.tools.zdim.ZdimDialog;
 import bdv.util.KeyProperties;
+import bdv.viewer.InputActionBindings;
 import bdv.viewer.NavigationActions;
 import bdv.viewer.SourceAndConverter;
 import bdv.viewer.ViewerFrame;
@@ -508,9 +509,10 @@ public class BigDataViewer {
 		if (!bdv.tryLoadSettings(xmlFilename))
 			InitializeViewerState.initBrightness(0.001, 0.999, bdv.viewer,
 					bdv.setupAssignments);
+		final InputActionBindings bindings = bdv.viewerFrame.getKeybindings();
 		@SuppressWarnings("unused")
 		VolumeRenderer renderer = new VolumeRenderer(spimData, bdv.viewer,
-				bdv.zdimDialog, bdv.setupAssignments, bdv.viewerFrame,
+				bdv.zdimDialog, bdv.setupAssignments, bindings,
 				bdv.brightnessDialog);
 		return bdv;
 	}
