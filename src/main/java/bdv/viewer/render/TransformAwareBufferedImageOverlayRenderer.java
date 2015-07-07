@@ -41,7 +41,7 @@ public class TransformAwareBufferedImageOverlayRenderer extends
 
 	@Override
 	public void drawOverlays(final Graphics g) {
-		boolean notifyTransformListeners = false;
+		// boolean notifyTransformListeners = false;
 		synchronized (this) {
 			if (pending) {
 				final BufferedImage tmp = bufferedImage;
@@ -49,7 +49,7 @@ public class TransformAwareBufferedImageOverlayRenderer extends
 				paintedTransform.set(pendingTransform);
 				pendingImage = tmp;
 				pending = false;
-				notifyTransformListeners = true;
+				// notifyTransformListeners = true;
 			}
 		}
 		if (bufferedImage != null) {
@@ -71,9 +71,10 @@ public class TransformAwareBufferedImageOverlayRenderer extends
 			((Graphics2D) g).setRenderingHint(RenderingHints.KEY_RENDERING,
 					RenderingHints.VALUE_RENDER_SPEED);
 			g.drawImage(bufferedImage, 0, 0, getWidth(), getHeight(), null);
-			if (notifyTransformListeners)
-				for (final TransformListener<AffineTransform3D> listener : paintedTransformListeners)
+			//if (notifyTransformListeners)
+				for (final TransformListener<AffineTransform3D> listener : paintedTransformListeners) {
 					listener.transformChanged(paintedTransform);
+				}
 			// System.out.println( String.format( "g.drawImage() :%4d ms",
 			// watch.nanoTime() / 1000000 ) );
 		}

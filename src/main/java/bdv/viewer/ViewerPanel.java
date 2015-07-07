@@ -460,7 +460,10 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 	public void paint(BufferedImage bufferedImage) {
 		imageRenderer.paint(state, bufferedImage);
 
-		display.repaint();
+		// display.repaint();
+
+		renderTarget.setBufferedImageAndTransform(bufferedImage,
+				viewerTransform);
 
 		synchronized (this) {
 			if (currentAnimator != null) {

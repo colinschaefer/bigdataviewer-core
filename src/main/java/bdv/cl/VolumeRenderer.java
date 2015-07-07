@@ -72,41 +72,46 @@ public class VolumeRenderer {
 					renderViewer.showMessage("maximum projection ON");
 				}
 
-				TransformListener<AffineTransform3D> trafo = new TransformListener<AffineTransform3D>() {
-
-					boolean changed = false;
-					private double[] newTransformMatrix = new double[12];
-					private double[] oldTransformMatrix = new double[] { 0, 0,
-							0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-					public void transformChanged(
-							final AffineTransform3D transform) {
-
-						// check, if maximum projection option is
-						// switched on
-						if (viewer.getMaxproj() == true) {
-
-							// did the transformation change?
-							transform.toArray(newTransformMatrix);
-							changed = !Arrays.equals(oldTransformMatrix,
-									newTransformMatrix);
-
-							// start rendering if the transformation has
-							// changed
-							if (changed) {
-								render();
-								System.out.println("render: transform");
-								oldTransformMatrix = Arrays.copyOf(
-										newTransformMatrix, 12);
-							}
-
-						}
-					}
-				};
-
 				// rendering new after manual transformation
-				renderViewer.addRenderTransformListener(trafo);
+				renderViewer
+						.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
 
+							boolean changed = false;
+							private AffineTransform3D newTransform = new AffineTransform3D();
+							private double[] newTransformMatrix = new double[12];
+							private double[] oldTransformMatrix = new double[] {
+									0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+							public void transformChanged(
+									final AffineTransform3D transform) {
+
+								// System.out.println("notified of transform");
+
+								// check, if maximum projection option is
+								// switched on
+								if (viewer.getMaxproj() == true) {
+
+									// did the transformation change?
+									renderViewer.getState().getViewerTransform(
+											newTransform);
+
+									newTransform.toArray(newTransformMatrix);
+									changed = !Arrays.equals(
+											oldTransformMatrix,
+											newTransformMatrix);
+
+									// start rendering if the transformation has
+									// changed
+									if (changed) {
+										render();
+										System.out.println("render: transform");
+										oldTransformMatrix = Arrays.copyOf(
+												newTransformMatrix, 12);
+									}
+
+								}
+							}
+						});
 				renderZdim.addChangeListener(new ChangeListener() {
 
 					private float oldDimZ = 20;
