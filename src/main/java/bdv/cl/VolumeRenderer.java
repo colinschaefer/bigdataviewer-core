@@ -205,8 +205,9 @@ public class VolumeRenderer {
 					renderViewer.showMessage("maximum projection OFF");
 
 					// remove all Listeners
-					renderViewer
-							.removeRenderTransformListener(transformListener);
+					// renderViewer
+					// .removeRenderTransformListener(transformListener);
+					renderViewer.removeTransformListener(transformListener);
 					renderZdim.removeChangeListener(zdimListener);
 					renderViewer.removeComponentListener(resizeListener);
 					renderViewer.removeTimeListener(timeListener);
@@ -218,7 +219,8 @@ public class VolumeRenderer {
 					render();
 
 					// add all Listeners
-					renderViewer.addRenderTransformListener(transformListener);
+					// renderViewer.addRenderTransformListener(transformListener);
+					renderViewer.addTransformListener(transformListener);
 					renderZdim.addChangeListener(zdimListener);
 					renderViewer.addComponentListener(resizeListener);
 					renderViewer.addTimeListener(timeListener);
