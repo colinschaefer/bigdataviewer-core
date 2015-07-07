@@ -796,6 +796,11 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 		renderTarget.addTransformListener(listener);
 	}
 
+	public synchronized void removeRenderTransformListener(
+			final TransformListener<AffineTransform3D> listener) {
+		renderTarget.removeTransformListener(listener);
+	}
+
 	/**
 	 * /** Add a {@link TransformListener} to notify about viewer transformation
 	 * changes. Listeners will be notified when a new image has been painted
@@ -957,5 +962,9 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	public void addTimeListener(ChangeListener listener) {
 		sliderTime.addChangeListener(listener);
+	}
+
+	public void removeTimeListener(ChangeListener listener) {
+		sliderTime.removeChangeListener(listener);
 	}
 }

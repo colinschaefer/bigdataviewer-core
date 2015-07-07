@@ -61,119 +61,136 @@ public class VolumeRenderer {
 			 */
 			private static final long serialVersionUID = 1L;
 
+			TransformListener<AffineTransform3D> transformListener = new TransformListener<AffineTransform3D>() {
+
+				boolean changed = false;
+				private AffineTransform3D newTransform = new AffineTransform3D();
+				private double[] newTransformMatrix = new double[12];
+				private double[] oldTransformMatrix = new double[] { 0, 0, 0,
+						0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+				public void transformChanged(final AffineTransform3D transform) {
+
+					// check, if maximum projection option is
+					// switched on
+					if (viewer.getMaxproj() == true) {
+
+						// did the transformation change?
+						renderViewer.getState()
+								.getViewerTransform(newTransform);
+
+						newTransform.toArray(newTransformMatrix);
+						changed = !Arrays.equals(oldTransformMatrix,
+								newTransformMatrix);
+
+						// start rendering if the transformation has
+						// changed
+						if (changed) {
+							render();
+							System.out.println("render: transform");
+							oldTransformMatrix = Arrays.copyOf(
+									newTransformMatrix, 12);
+						}
+
+					}
+				}
+			};
+
+			ChangeListener zdimListener = new ChangeListener() {
+
+				private float oldDimZ = 20;
+				private float newDimZ = 20;
+
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (renderViewer.getMaxproj() == true) {
+
+						newDimZ = zdimDialog.getDimZ();
+
+						if (oldDimZ != newDimZ) {
+							render();
+							System.out.println("render: dimZ");
+							oldDimZ = newDimZ;
+						}
+					}
+				}
+			};
+
+			ComponentListener resizeListener = new ComponentListener() {
+
+				@Override
+				public void componentShown(ComponentEvent e) {
+				}
+
+				@Override
+				public void componentResized(ComponentEvent e) {
+					if (renderViewer.getMaxproj() == true) {
+						render();
+						System.out.println("render: resize");
+					}
+				}
+
+				@Override
+				public void componentMoved(ComponentEvent e) {
+				}
+
+				@Override
+				public void componentHidden(ComponentEvent e) {
+				}
+			};
+
+			ChangeListener timeListener = new ChangeListener() {
+
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (renderViewer.getMaxproj() == true) {
+						retimed = true;
+						render();
+						System.out.println("render: timepoint");
+					}
+				}
+			};
+
+			ChangeListener brightnessListener = new ChangeListener() {
+
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (renderViewer.getMaxproj() == true) {
+						render();
+						System.out.println("render: brightness");
+					}
+				}
+			};
+
 			// rendering of the maximum projection after pressing the hotkey
 			@Override
 			public void actionPerformed(final ActionEvent e) {
+
 				renderViewer.inverseMaxproj();
 				if (renderViewer.getMaxproj() == false) {
 					renderViewer.requestRepaint();
 					renderViewer.showMessage("maximum projection OFF");
+
+					// remove all Listeners
+					renderViewer
+							.removeRenderTransformListener(transformListener);
+					renderZdim.removeChangeListener(zdimListener);
+					renderViewer.removeComponentListener(resizeListener);
+					renderViewer.removeTimeListener(timeListener);
+					renderBrightness.removeChangeListener(brightnessListener);
 				} else {
 					renderViewer.showMessage("maximum projection ON");
+
+					// initial rendering
+					render();
+
+					// add all Listeners
+					renderViewer.addRenderTransformListener(transformListener);
+					renderZdim.addChangeListener(zdimListener);
+					renderViewer.addComponentListener(resizeListener);
+					renderViewer.addTimeListener(timeListener);
+					renderBrightness.addChangeListener(brightnessListener);
 				}
-
-				// rendering new after manual transformation
-				renderViewer
-						.addRenderTransformListener(new TransformListener<AffineTransform3D>() {
-
-							boolean changed = false;
-							private AffineTransform3D newTransform = new AffineTransform3D();
-							private double[] newTransformMatrix = new double[12];
-							private double[] oldTransformMatrix = new double[] {
-									0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-							public void transformChanged(
-									final AffineTransform3D transform) {
-
-								// check, if maximum projection option is
-								// switched on
-								if (viewer.getMaxproj() == true) {
-
-									// did the transformation change?
-									renderViewer.getState().getViewerTransform(
-											newTransform);
-
-									newTransform.toArray(newTransformMatrix);
-									changed = !Arrays.equals(
-											oldTransformMatrix,
-											newTransformMatrix);
-
-									// start rendering if the transformation has
-									// changed
-									if (changed) {
-										render();
-										System.out.println("render: transform");
-										oldTransformMatrix = Arrays.copyOf(
-												newTransformMatrix, 12);
-									}
-
-								}
-							}
-						});
-				renderZdim.addChangeListener(new ChangeListener() {
-
-					private float oldDimZ = 20;
-					private float newDimZ = 20;
-
-					@Override
-					public void stateChanged(ChangeEvent e) {
-						if (renderViewer.getMaxproj() == true) {
-
-							newDimZ = zdimDialog.getDimZ();
-
-							if (oldDimZ != newDimZ) {
-								render();
-								System.out.println("render: dimZ");
-								oldDimZ = newDimZ;
-							}
-						}
-					}
-				});
-
-				renderViewer.addComponentListener(new ComponentListener() {
-
-					@Override
-					public void componentShown(ComponentEvent e) {
-					}
-
-					@Override
-					public void componentResized(ComponentEvent e) {
-						if (renderViewer.getMaxproj() == true) {
-							render();
-							System.out.println("render: resize");
-						}
-					}
-
-					@Override
-					public void componentMoved(ComponentEvent e) {
-					}
-
-					@Override
-					public void componentHidden(ComponentEvent e) {
-					}
-				});
-
-				renderViewer.addTimeListener(new ChangeListener() {
-
-					@Override
-					public void stateChanged(ChangeEvent e) {
-						if (renderViewer.getMaxproj() == true) {
-							retimed = true;
-							render();
-							System.out.println("render: timepoint");
-						}
-					}
-				});
-				renderBrightness.addChangeListener(new ChangeListener() {
-
-					@Override
-					public void stateChanged(ChangeEvent e) {
-						if (renderViewer.getMaxproj() == true) {
-							render();
-							System.out.println("render: brightness");
-						}
-					}
-				});
 			}
 		});
 

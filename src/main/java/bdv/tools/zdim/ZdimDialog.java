@@ -207,4 +207,8 @@ public class ZdimDialog extends JDialog {
 	public void addChangeListener(final ChangeListener listener) {
 		changeListeners.add(listener);
 	}
+
+	public void removeChangeListener(final ChangeListener listener) {
+		changeListeners.remove(listener);
+	}
 }
