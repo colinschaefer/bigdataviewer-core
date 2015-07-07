@@ -3,7 +3,6 @@ package bdv.cl;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.Arrays;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -70,9 +69,11 @@ public class VolumeRenderer {
 
 				boolean changed = false;
 				private AffineTransform3D newTransform = new AffineTransform3D();
-				private double[] newTransformMatrix = new double[12];
-				private double[] oldTransformMatrix = new double[] { 0, 0, 0,
-						0, 0, 0, 0, 0, 0, 0, 0, 0 };
+				private AffineTransform3D oldTransform = new AffineTransform3D();
+
+				// private double[] newTransformMatrix = new double[12];
+				// private double[] oldTransformMatrix = new double[] { 0, 0, 0,
+				// 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 				public void transformChanged(final AffineTransform3D transform) {
 
@@ -84,17 +85,44 @@ public class VolumeRenderer {
 						renderViewer.getState()
 								.getViewerTransform(newTransform);
 
-						newTransform.toArray(newTransformMatrix);
-						changed = !Arrays.equals(oldTransformMatrix,
-								newTransformMatrix);
+						// newTransform.toArray(newTransformMatrix);
+						// changed = !Arrays.equals(oldTransformMatrix,
+						// newTransformMatrix);
+
+						changed = newTransform.get(0, 0) != oldTransform.get(0,
+								0)
+								|| newTransform.get(0, 1) != oldTransform.get(
+										0, 1)
+								|| newTransform.get(0, 2) != oldTransform.get(
+										0, 2)
+								|| newTransform.get(0, 3) != oldTransform.get(
+										0, 3)
+								|| newTransform.get(1, 0) != oldTransform.get(
+										1, 0)
+								|| newTransform.get(1, 1) != oldTransform.get(
+										1, 1)
+								|| newTransform.get(1, 2) != oldTransform.get(
+										1, 2)
+								|| newTransform.get(1, 3) != oldTransform.get(
+										1, 3)
+								|| newTransform.get(2, 0) != oldTransform.get(
+										2, 0)
+								|| newTransform.get(2, 1) != oldTransform.get(
+										2, 1)
+								|| newTransform.get(2, 2) != oldTransform.get(
+										2, 2)
+								|| newTransform.get(2, 3) != oldTransform.get(
+										2, 3);
 
 						// start rendering if the transformation has
 						// changed
 						if (changed) {
 							render();
 							System.out.println("render: transform");
-							oldTransformMatrix = Arrays.copyOf(
-									newTransformMatrix, 12);
+							// oldTransformMatrix = Arrays.copyOf(
+							// newTransformMatrix, 12);
+							oldTransform = newTransform;
+							newTransform = new AffineTransform3D();
 						}
 
 					}
