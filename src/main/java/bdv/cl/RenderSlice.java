@@ -70,12 +70,6 @@ public class RenderSlice {
 
 	private byte[] data;
 
-	private boolean rebright = false;
-
-	private float oldMinBright = 0;
-
-	private float oldMaxBright = 0;
-
 	private int[] gridSize = null;
 
 	// the constructor initializes the OpenCL Kernel and Context
@@ -310,11 +304,6 @@ public class RenderSlice {
 		// releasing Memory
 		renderTarget.release();
 		blockLookup.release();
-
-		// copy the current transformation, width, height, timepoint and z
-		// dimension settings for comparison in the next loop
-		oldMinBright = minBright;
-		oldMaxBright = maxBright;
 	}
 
 	// the show method paints the maximum projection which was rendered on the
