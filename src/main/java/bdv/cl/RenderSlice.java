@@ -130,9 +130,6 @@ public class RenderSlice {
 	public void renderSlice(final ViewerPanel viewer, float dimZ,
 			float minBright, float maxBright, final ARGBType color,
 			boolean keepColor, boolean retimed) {
-		// // compare the new brightness to the old one
-		// rebright = (oldMinBright != minBright || oldMaxBright != maxBright);
-		//
 
 		final int width = viewer.getDisplay().getWidth();
 		final int height = viewer.getDisplay().getHeight();

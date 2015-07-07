@@ -85,8 +85,6 @@ public class VolumeRenderer {
 							public void transformChanged(
 									final AffineTransform3D transform) {
 
-								// System.out.println("notified of transform");
-
 								// check, if maximum projection option is
 								// switched on
 								if (viewer.getMaxproj() == true) {
