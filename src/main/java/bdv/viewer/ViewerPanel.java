@@ -188,7 +188,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	protected double[] renderSourceTransform = new double[12];
 
-	protected boolean alignTransform = false;
+	protected boolean pendingAlignTransform = false;
 
 	/**
 	 * Optional parameters for {@link ViewerPanel}.
@@ -441,6 +441,25 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 				}
 			}
+		} else if (pendingAlignTransform) {
+			pendingAlignTransform = false;
+			imageRenderer.paint(state);
+
+			display.repaint();
+
+			synchronized (this) {
+				// if (currentAnimator != null) {
+				final TransformEventHandler<AffineTransform3D> handler = display
+						.getTransformEventHandler();
+				final AffineTransform3D transform = currentAnimator
+						.getCurrent(System.currentTimeMillis());
+				handler.setTransform(transform);
+				transformChanged(transform);
+				if (currentAnimator.isComplete())
+					currentAnimator = null;
+
+				// }
+			}
 		}
 
 	}
@@ -460,26 +479,48 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	// adding a method to directly paint the calculated picture
 	public void paint(BufferedImage bufferedImage) {
-		imageRenderer.paint(state, bufferedImage);
+		if (!pendingAlignTransform) {
+			System.out.println("pending align transform: "
+					+ String.valueOf(pendingAlignTransform));
+			imageRenderer.paint(state, bufferedImage);
 
-		display.repaint();
+			display.repaint();
 
-		renderTarget.setBufferedImageAndTransform(bufferedImage,
-				viewerTransform);
-
-		synchronized (this) {
-			if (currentAnimator != null) {
-				final TransformEventHandler<AffineTransform3D> handler = display
-						.getTransformEventHandler();
-				final AffineTransform3D transform = currentAnimator
-						.getCurrent(System.currentTimeMillis());
-				handler.setTransform(transform);
-				if (!alignTransform)
-					transformChanged(transform);
-				if (currentAnimator.isComplete())
-					currentAnimator = null;
-
-			}
+			// synchronized (this) {
+			// if (currentAnimator != null) {
+			// final TransformEventHandler<AffineTransform3D> handler = display
+			// .getTransformEventHandler();
+			// final AffineTransform3D transform = currentAnimator
+			// .getCurrent(System.currentTimeMillis());
+			// // handler.setTransform(transform);
+			// // transformChanged(transform);
+			// if (currentAnimator.isComplete())
+			// currentAnimator = null;
+			//
+			// }
+			// }
+			// } else {
+			// System.out.println("pending align transform: "
+			// + String.valueOf(pendingAlignTransform));
+			// synchronized (this) {
+			// for (final TransformListener<AffineTransform3D> l :
+			// transformListeners)
+			// l.transformChanged(viewerTransform);
+			// pendingAlignTransform = false;
+			// }
+			// synchronized (this) {
+			// if (currentAnimator != null) {
+			// final TransformEventHandler<AffineTransform3D> handler = display
+			// .getTransformEventHandler();
+			// final AffineTransform3D transform = currentAnimator
+			// .getCurrent(System.currentTimeMillis());
+			// handler.setTransform(transform);
+			// transformChanged(transform);
+			// if (currentAnimator.isComplete())
+			// currentAnimator = null;
+			// pendingAlignTransform = false;
+			// }
+			// }
 		}
 	}
 
@@ -656,6 +697,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 				qTarget, 300);
 		currentAnimator.setTime(System.currentTimeMillis());
 
+		pendingAlignTransform = true;
 		transformChanged(transform);
 
 	}
@@ -961,5 +1003,9 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	public void removeTimeListener(ChangeListener listener) {
 		sliderTime.removeChangeListener(listener);
+	}
+
+	public boolean getPendingAlignTransform() {
+		return pendingAlignTransform;
 	}
 }

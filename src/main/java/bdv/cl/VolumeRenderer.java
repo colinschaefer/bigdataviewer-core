@@ -67,7 +67,8 @@ public class VolumeRenderer {
 
 			TransformListener<AffineTransform3D> transformListener = new TransformListener<AffineTransform3D>() {
 
-				boolean changed = false;
+				private boolean changed = false;
+				private boolean pendingAlignTransform = false;
 				private AffineTransform3D newTransform = new AffineTransform3D();
 				private AffineTransform3D oldTransform = new AffineTransform3D();
 
@@ -114,17 +115,23 @@ public class VolumeRenderer {
 								|| newTransform.get(2, 3) != oldTransform.get(
 										2, 3);
 
+						pendingAlignTransform = renderViewer
+								.getPendingAlignTransform();
 						// start rendering if the transformation has
 						// changed
-						if (changed) {
+						if (changed && !pendingAlignTransform) {
 							render();
 							System.out.println("render: transform");
 							// oldTransformMatrix = Arrays.copyOf(
 							// newTransformMatrix, 12);
 							oldTransform = newTransform;
 							newTransform = new AffineTransform3D();
-						}
+						} else if (changed) {
+							// render();
+							renderViewer.paint();
 
+							pendingAlignTransform = false;
+						}
 					}
 				}
 			};
