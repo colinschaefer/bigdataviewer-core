@@ -229,6 +229,9 @@ public class VolumeRenderer {
 
 	private void render() {
 
+		final int setupId = renderSetup.getConverterSetups().get(0)
+				.getSetupId();
+
 		currentdimZ = renderZdim.getDimZ();
 
 		minBright = renderSetup.getMinMaxGroups().get(0).getMinBoundedValue()
@@ -238,7 +241,7 @@ public class VolumeRenderer {
 		ARGBType color = renderSetup.getConverterSetups().get(0).getColor();
 
 		render.renderSlice(renderViewer, currentdimZ, minBright, maxBright,
-				color, renderZdim.getMaxProjKeepColor(), retimed);
+				color, renderZdim.getMaxProjKeepColor(), retimed, setupId);
 		retimed = false;
 	}
 

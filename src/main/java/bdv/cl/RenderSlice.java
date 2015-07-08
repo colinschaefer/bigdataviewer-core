@@ -129,7 +129,7 @@ public class RenderSlice {
 	// this method actually renders the maximum projection slice
 	public void renderSlice(final ViewerPanel viewer, float dimZ,
 			float minBright, float maxBright, final ARGBType color,
-			boolean keepColor, boolean retimed) {
+			boolean keepColor, boolean retimed, final int setupId) {
 
 		final int width = viewer.getDisplay().getWidth();
 		final int height = viewer.getDisplay().getHeight();
@@ -142,7 +142,6 @@ public class RenderSlice {
 		final Source<?> source = viewer.getState().getSources().get(0)
 				.getSpimSource();
 		final int timepointId = viewer.getState().getCurrentTimepoint();
-		final int setupId = 0; // TODO
 		final int mipmapIndex = 0; // TODO
 
 		// getting the current 3D transformation
