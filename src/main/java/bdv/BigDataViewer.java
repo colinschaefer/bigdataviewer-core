@@ -467,6 +467,10 @@ public class BigDataViewer {
 		menu.add(miHelp);
 
 		viewerFrame.setJMenuBar(menubar);
+		final InputActionBindings bindings = viewerFrame.getKeybindings();
+		@SuppressWarnings("unused")
+		VolumeRenderer renderer = new VolumeRenderer(spimData, viewer,
+				zdimDialog, setupAssignments, bindings, brightnessDialog);
 	}
 
 	public static BigDataViewer open(final AbstractSpimData<?> spimData,
@@ -509,11 +513,6 @@ public class BigDataViewer {
 		if (!bdv.tryLoadSettings(xmlFilename))
 			InitializeViewerState.initBrightness(0.001, 0.999, bdv.viewer,
 					bdv.setupAssignments);
-		final InputActionBindings bindings = bdv.viewerFrame.getKeybindings();
-		@SuppressWarnings("unused")
-		VolumeRenderer renderer = new VolumeRenderer(spimData, bdv.viewer,
-				bdv.zdimDialog, bdv.setupAssignments, bindings,
-				bdv.brightnessDialog);
 		return bdv;
 	}
 

@@ -196,6 +196,7 @@ public class VolumeRenderer {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					if (renderViewer.getMaxproj() == true) {
+						resetBuffer = true;
 						render();
 						System.out.println("render: setupId");
 					}
