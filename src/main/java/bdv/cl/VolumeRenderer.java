@@ -72,10 +72,6 @@ public class VolumeRenderer {
 				private AffineTransform3D newTransform = new AffineTransform3D();
 				private AffineTransform3D oldTransform = new AffineTransform3D();
 
-				// private double[] newTransformMatrix = new double[12];
-				// private double[] oldTransformMatrix = new double[] { 0, 0, 0,
-				// 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
 				public void transformChanged(final AffineTransform3D transform) {
 
 					// check, if maximum projection option is
@@ -85,10 +81,6 @@ public class VolumeRenderer {
 						// did the transformation change?
 						renderViewer.getState()
 								.getViewerTransform(newTransform);
-
-						// newTransform.toArray(newTransformMatrix);
-						// changed = !Arrays.equals(oldTransformMatrix,
-						// newTransformMatrix);
 
 						changed = newTransform.get(0, 0) != oldTransform.get(0,
 								0)
@@ -122,14 +114,10 @@ public class VolumeRenderer {
 						if (changed && !pendingAlignTransform) {
 							render();
 							System.out.println("render: transform");
-							// oldTransformMatrix = Arrays.copyOf(
-							// newTransformMatrix, 12);
 							oldTransform = newTransform;
 							newTransform = new AffineTransform3D();
 						} else if (changed) {
-							// render();
 							renderViewer.paint();
-
 							pendingAlignTransform = false;
 						}
 					}
@@ -212,8 +200,6 @@ public class VolumeRenderer {
 					renderViewer.showMessage("maximum projection OFF");
 
 					// remove all Listeners
-					// renderViewer
-					// .removeRenderTransformListener(transformListener);
 					renderViewer.removeTransformListener(transformListener);
 					renderZdim.removeChangeListener(zdimListener);
 					renderViewer.removeComponentListener(resizeListener);

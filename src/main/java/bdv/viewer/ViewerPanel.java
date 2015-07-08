@@ -438,7 +438,6 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 					transformChanged(transform);
 					if (currentAnimator.isComplete())
 						currentAnimator = null;
-
 				}
 			}
 		} else if (pendingAlignTransform) {
@@ -448,17 +447,14 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 			display.repaint();
 
 			synchronized (this) {
-				// if (currentAnimator != null) {
 				final TransformEventHandler<AffineTransform3D> handler = display
 						.getTransformEventHandler();
 				final AffineTransform3D transform = currentAnimator
-						.getCurrent(System.currentTimeMillis());
+						.getCurrent(System.currentTimeMillis() + 1000);
 				handler.setTransform(transform);
 				transformChanged(transform);
 				if (currentAnimator.isComplete())
 					currentAnimator = null;
-
-				// }
 			}
 		}
 
@@ -485,42 +481,6 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 			imageRenderer.paint(state, bufferedImage);
 
 			display.repaint();
-
-			// synchronized (this) {
-			// if (currentAnimator != null) {
-			// final TransformEventHandler<AffineTransform3D> handler = display
-			// .getTransformEventHandler();
-			// final AffineTransform3D transform = currentAnimator
-			// .getCurrent(System.currentTimeMillis());
-			// // handler.setTransform(transform);
-			// // transformChanged(transform);
-			// if (currentAnimator.isComplete())
-			// currentAnimator = null;
-			//
-			// }
-			// }
-			// } else {
-			// System.out.println("pending align transform: "
-			// + String.valueOf(pendingAlignTransform));
-			// synchronized (this) {
-			// for (final TransformListener<AffineTransform3D> l :
-			// transformListeners)
-			// l.transformChanged(viewerTransform);
-			// pendingAlignTransform = false;
-			// }
-			// synchronized (this) {
-			// if (currentAnimator != null) {
-			// final TransformEventHandler<AffineTransform3D> handler = display
-			// .getTransformEventHandler();
-			// final AffineTransform3D transform = currentAnimator
-			// .getCurrent(System.currentTimeMillis());
-			// handler.setTransform(transform);
-			// transformChanged(transform);
-			// if (currentAnimator.isComplete())
-			// currentAnimator = null;
-			// pendingAlignTransform = false;
-			// }
-			// }
 		}
 	}
 
