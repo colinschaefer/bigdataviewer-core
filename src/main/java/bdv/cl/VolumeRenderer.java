@@ -39,7 +39,11 @@ public class VolumeRenderer {
 	SetupAssignments renderSetup;
 	ZdimDialog renderZdim;
 	BrightnessDialog renderBrightness;
+
 	boolean resetBuffer = false;
+	boolean resetRendering = false;
+	boolean createListenersOnFirstRendering = true;
+
 	final ActionMap actionMap = new ActionMap();
 
 	public VolumeRenderer(final AbstractSpimData<?> spimData,
@@ -70,6 +74,7 @@ public class VolumeRenderer {
 
 				private boolean changed = false;
 				private boolean pendingAlignTransform = false;
+
 				private AffineTransform3D newTransform = new AffineTransform3D();
 				private AffineTransform3D oldTransform = new AffineTransform3D();
 
@@ -117,6 +122,10 @@ public class VolumeRenderer {
 							System.out.println("render: transform");
 							oldTransform = newTransform;
 							newTransform = new AffineTransform3D();
+
+							// else if the transformation has changed and there
+							// is a pending align transform repaint and in the
+							// next step it will be rerendered
 						} else if (changed) {
 							renderViewer.paint();
 							pendingAlignTransform = false;
@@ -132,6 +141,7 @@ public class VolumeRenderer {
 
 				@Override
 				public void stateChanged(ChangeEvent e) {
+					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
 
 						newDimZ = zdimDialog.getDimZ();
@@ -141,6 +151,12 @@ public class VolumeRenderer {
 							System.out.println("render: dimZ");
 							oldDimZ = newDimZ;
 						}
+
+						// else if something changed during not rendering the
+						// maximum projection reset the rendering on the next
+						// onset
+					} else {
+						resetRendering = true;
 					}
 				}
 			};
@@ -153,9 +169,16 @@ public class VolumeRenderer {
 
 				@Override
 				public void componentResized(ComponentEvent e) {
+					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
 						render();
 						System.out.println("render: resize");
+
+						// else if something changed during not rendering the
+						// maximum projection reset the rendering on the next
+						// onset
+					} else {
+						resetRendering = true;
 					}
 				}
 
@@ -172,10 +195,17 @@ public class VolumeRenderer {
 
 				@Override
 				public void stateChanged(ChangeEvent e) {
+					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
 						resetBuffer = true;
 						render();
 						System.out.println("render: timepoint");
+
+						// else if something changed during not rendering the
+						// maximum projection reset the rendering on the next
+						// onset
+					} else {
+						resetRendering = true;
 					}
 				}
 			};
@@ -184,9 +214,16 @@ public class VolumeRenderer {
 
 				@Override
 				public void stateChanged(ChangeEvent e) {
+					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
 						render();
 						System.out.println("render: brightness");
+
+						// else if something changed during not rendering the
+						// maximum projection reset the rendering on the next
+						// onset
+					} else {
+						resetRendering = true;
 					}
 				}
 			};
@@ -195,10 +232,17 @@ public class VolumeRenderer {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
 						resetBuffer = true;
 						render();
 						System.out.println("render: setupId");
+
+						// else if something changed during not rendering the
+						// maximum projection reset the rendering on the next
+						// onset
+					} else {
+						resetRendering = true;
 					}
 				}
 			};
@@ -212,29 +256,36 @@ public class VolumeRenderer {
 					renderViewer.requestRepaint();
 					renderViewer.showMessage("maximum projection OFF");
 
-					// remove all Listeners
-					renderViewer.removeTransformListener(transformListener);
-					renderZdim.removeChangeListener(zdimListener);
-					renderZdim.removeActionListener(setupIdListener);
-					renderViewer.removeComponentListener(resizeListener);
-					renderViewer.removeTimeListener(timeListener);
-					renderBrightness.removeChangeListener(brightnessListener);
 				} else {
 					renderViewer.showMessage("maximum projection ON");
 
-					// initial rendering
+					// if something except the transformation changed during not
+					// rendering reset the GPU context
+					if (resetRendering) {
+						render = new RenderSlice(imgLoader);
+						resetRendering = false;
+					}
+
+					// render every time
 					render();
 
-					// add all Listeners
-					// renderViewer.addRenderTransformListener(transformListener);
-					renderViewer.addTransformListener(transformListener);
-					renderZdim.addChangeListener(zdimListener);
-					renderZdim.addActionListener(setupIdListener);
-					renderViewer.addComponentListener(resizeListener);
-					renderViewer.addTimeListener(timeListener);
-					renderBrightness.addChangeListener(brightnessListener);
+					// only create Listeners during the first rendering
+					if (createListenersOnFirstRendering) {
+						// add all Listeners
+						// renderViewer.addRenderTransformListener(transformListener);
+						renderViewer.addTransformListener(transformListener);
+						renderZdim.addChangeListener(zdimListener);
+						renderZdim.addActionListener(setupIdListener);
+						renderViewer.addComponentListener(resizeListener);
+						renderViewer.addTimeListener(timeListener);
+						renderBrightness.addChangeListener(brightnessListener);
+
+						// no more listeners will be created
+						createListenersOnFirstRendering = false;
+					}
 				}
 			}
+
 		});
 
 		// add the local keymappings to the global maps
