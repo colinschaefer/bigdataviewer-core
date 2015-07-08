@@ -460,7 +460,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 	public void paint(BufferedImage bufferedImage) {
 		imageRenderer.paint(state, bufferedImage);
 
-		// display.repaint();
+		display.repaint();
 
 		renderTarget.setBufferedImageAndTransform(bufferedImage,
 				viewerTransform);
@@ -472,7 +472,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 				final AffineTransform3D transform = currentAnimator
 						.getCurrent(System.currentTimeMillis());
 				handler.setTransform(transform);
-				// transformChanged(transform);
+				transformChanged(transform);
 				if (currentAnimator.isComplete())
 					currentAnimator = null;
 
