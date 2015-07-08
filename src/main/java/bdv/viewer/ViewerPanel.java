@@ -188,6 +188,8 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 
 	protected double[] renderSourceTransform = new double[12];
 
+	protected boolean alignTransform = false;
+
 	/**
 	 * Optional parameters for {@link ViewerPanel}.
 	 */
@@ -472,7 +474,8 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 				final AffineTransform3D transform = currentAnimator
 						.getCurrent(System.currentTimeMillis());
 				handler.setTransform(transform);
-				transformChanged(transform);
+				if (!alignTransform)
+					transformChanged(transform);
 				if (currentAnimator.isComplete())
 					currentAnimator = null;
 
@@ -541,15 +544,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 		state.setViewerTransform(transform);
 		for (final TransformListener<AffineTransform3D> l : transformListeners)
 			l.transformChanged(viewerTransform);
-		if (!getMaxproj()) {
-			requestRepaint();
-		} else {
-			requestRepaint();
-			final TransformEventHandler<AffineTransform3D> handler = display
-					.getTransformEventHandler();
-			handler.setTransform(transform);
-		}
-
+		requestRepaint();
 	}
 
 	@Override
