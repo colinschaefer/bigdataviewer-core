@@ -229,8 +229,7 @@ public class VolumeRenderer {
 
 	private void render() {
 
-		final int setupId = renderSetup.getConverterSetups().get(0)
-				.getSetupId();
+		final int setupId = renderZdim.getCurrentSetupId();
 
 		currentdimZ = renderZdim.getDimZ();
 

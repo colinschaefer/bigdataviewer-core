@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,6 +25,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import mpicbg.spim.data.generic.sequence.BasicViewSetup;
+import bdv.tools.brightness.ConverterSetup;
 import bdv.tools.brightness.SetupAssignments;
 
 /**
@@ -38,12 +40,15 @@ public class ZdimDialog extends JDialog {
 	private int value = 20;
 	private float correction = 1.0f;
 
+	private int currentSetupId = 0;
+
 	int max = 100;
 	int min = 0;
 
 	JSlider microns;
 
 	protected final CopyOnWriteArrayList<ChangeListener> changeListeners;
+	protected final CopyOnWriteArrayList<ActionListener> actionListeners;
 
 	public ZdimDialog(final Frame owner,
 			final SetupAssignments setupAssignments, double umPerPixelZ,
@@ -51,15 +56,42 @@ public class ZdimDialog extends JDialog {
 		super(owner, "Z - dimension of max-projection", false);
 
 		changeListeners = new CopyOnWriteArrayList<ChangeListener>();
+		actionListeners = new CopyOnWriteArrayList<ActionListener>();
 
 		SpinnerModel modelin = new SpinnerNumberModel(value, 0, 2000, 1);
 		SpinnerModel modelmin = new SpinnerNumberModel(min, 0, 2000, 1);
 		SpinnerModel modelmax = new SpinnerNumberModel(max, 0, 2000, 1);
 
 		// setup the dialog
-		setSize(500, 140);
+		setSize(600, 140);
 		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		setLayout(new BorderLayout(10, 10));
+
+		// setup the left panel for the drop down box with setupIds
+		JPanel leftPanel = new JPanel();
+		leftPanel.setLayout(new GridLayout(3, 1));
+
+		// setup the drop down menu
+		final int[] intDropDownList = new int[setupAssignments
+				.getConverterSetups().size()];
+		final String[] stringDropDownList = new String[setupAssignments
+				.getConverterSetups().size()];
+		int i = 0;
+		for (final ConverterSetup setup : setupAssignments.getConverterSetups()) {
+			intDropDownList[i] = setup.getSetupId();
+			stringDropDownList[i] = String.valueOf(intDropDownList[i]);
+			i++;
+		}
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		final JComboBox setupIdList = new JComboBox(stringDropDownList);
+		setupIdList.setSelectedIndex(0);
+		currentSetupId = intDropDownList[setupIdList.getSelectedIndex()];
+		setupIdList.setEditable(false);
+
+		// add components to the left panel
+		leftPanel.add(new JLabel("set the current channel:"));
+		leftPanel.add(setupIdList);
 
 		// setup the new slider and its appearance
 		microns = new JSlider(min, max, 20);
@@ -96,6 +128,7 @@ public class ZdimDialog extends JDialog {
 				BorderLayout.CENTER);
 
 		// adding the slider and the panel to the dialog
+		add(leftPanel, BorderLayout.WEST);
 		add(microns, BorderLayout.CENTER);
 		add(rightPanel, BorderLayout.EAST);
 		add(downPanel, BorderLayout.SOUTH);
@@ -192,6 +225,18 @@ public class ZdimDialog extends JDialog {
 
 		});
 
+		setupIdList.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				currentSetupId = intDropDownList[setupIdList.getSelectedIndex()];
+				for (final ActionListener listener : actionListeners) {
+					listener.actionPerformed(new ActionEvent(setupIdList, 0,
+							"changed"));
+				}
+			}
+		});
+
 	}
 
 	private static final long serialVersionUID = 6538962298579455010L;
@@ -210,5 +255,17 @@ public class ZdimDialog extends JDialog {
 
 	public void removeChangeListener(final ChangeListener listener) {
 		changeListeners.remove(listener);
+	}
+
+	public void addActionListener(final ActionListener listener) {
+		actionListeners.add(listener);
+	}
+
+	public void removeActionListener(final ActionListener listener) {
+		actionListeners.remove(listener);
+	}
+
+	public int getCurrentSetupId() {
+		return currentSetupId;
 	}
 }
