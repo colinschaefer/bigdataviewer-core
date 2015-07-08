@@ -129,7 +129,7 @@ public class RenderSlice {
 	// this method actually renders the maximum projection slice
 	public void renderSlice(final ViewerPanel viewer, float dimZ,
 			float minBright, float maxBright, final ARGBType color,
-			boolean keepColor, boolean retimed, final int setupId) {
+			boolean keepColor, boolean resetBuffer, final int setupId) {
 
 		final int width = viewer.getDisplay().getWidth();
 		final int height = viewer.getDisplay().getHeight();
@@ -168,7 +168,7 @@ public class RenderSlice {
 		final short[] blockData = new short[paddedBlockSize[0]
 				* paddedBlockSize[1] * paddedBlockSize[2]];
 		int nnn = 0;
-		if (!retimed) {
+		if (!resetBuffer) {
 			for (final int[] cellPos : requiredBlocks.cellPositions) {
 				final BlockKey key = new BlockKey(cellPos);
 

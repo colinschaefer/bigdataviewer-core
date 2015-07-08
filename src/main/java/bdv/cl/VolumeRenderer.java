@@ -1,6 +1,7 @@
 package bdv.cl;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 
@@ -38,7 +39,7 @@ public class VolumeRenderer {
 	SetupAssignments renderSetup;
 	ZdimDialog renderZdim;
 	BrightnessDialog renderBrightness;
-	boolean retimed = false;
+	boolean resetBuffer = false;
 	final ActionMap actionMap = new ActionMap();
 
 	public VolumeRenderer(final AbstractSpimData<?> spimData,
@@ -172,7 +173,7 @@ public class VolumeRenderer {
 				@Override
 				public void stateChanged(ChangeEvent e) {
 					if (renderViewer.getMaxproj() == true) {
-						retimed = true;
+						resetBuffer = true;
 						render();
 						System.out.println("render: timepoint");
 					}
@@ -190,6 +191,17 @@ public class VolumeRenderer {
 				}
 			};
 
+			ActionListener setupIdListener = new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (renderViewer.getMaxproj() == true) {
+						render();
+						System.out.println("render: setupId");
+					}
+				}
+			};
+
 			// rendering of the maximum projection after pressing the hotkey
 			@Override
 			public void actionPerformed(final ActionEvent e) {
@@ -202,6 +214,7 @@ public class VolumeRenderer {
 					// remove all Listeners
 					renderViewer.removeTransformListener(transformListener);
 					renderZdim.removeChangeListener(zdimListener);
+					renderZdim.removeActionListener(setupIdListener);
 					renderViewer.removeComponentListener(resizeListener);
 					renderViewer.removeTimeListener(timeListener);
 					renderBrightness.removeChangeListener(brightnessListener);
@@ -215,6 +228,7 @@ public class VolumeRenderer {
 					// renderViewer.addRenderTransformListener(transformListener);
 					renderViewer.addTransformListener(transformListener);
 					renderZdim.addChangeListener(zdimListener);
+					renderZdim.addActionListener(setupIdListener);
 					renderViewer.addComponentListener(resizeListener);
 					renderViewer.addTimeListener(timeListener);
 					renderBrightness.addChangeListener(brightnessListener);
@@ -240,8 +254,8 @@ public class VolumeRenderer {
 		ARGBType color = renderSetup.getConverterSetups().get(0).getColor();
 
 		render.renderSlice(renderViewer, currentdimZ, minBright, maxBright,
-				color, renderZdim.getMaxProjKeepColor(), retimed, setupId);
-		retimed = false;
+				color, renderZdim.getMaxProjKeepColor(), resetBuffer, setupId);
+		resetBuffer = false;
 	}
 
 	protected void initialRender() {
