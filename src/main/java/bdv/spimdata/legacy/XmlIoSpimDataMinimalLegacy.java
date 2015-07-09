@@ -29,9 +29,6 @@ import net.imglib2.realtransform.AffineTransform3D;
 import org.jdom2.Element;
 
 import bdv.img.catmaid.XmlIoCatmaidImageLoader;
-import bdv.img.dvid.XmlIoDvidGrayscale8ImageLoader;
-import bdv.img.dvid.XmlIoDvidLabels64ImageLoader;
-import bdv.img.dvid.XmlIoDvidMultiscale2dImageLoader;
 import bdv.img.hdf5.Hdf5ImageLoader;
 import bdv.img.hdf5.Partition;
 import bdv.img.openconnectome.XmlIoOpenConnectomeImageLoader;
@@ -159,18 +156,6 @@ public class XmlIoSpimDataMinimalLegacy
 		else if ( classn.equals( "bdv.img.remote.RemoteImageLoader" ) )
 		{
 			return new XmlIoRemoteImageLoader().fromXml( elem, basePath, sequenceDescription );
-		}
-		else if ( classn.equals( "bdv.img.dvid.DvidMultiscale2dImageLoader" ) )
-		{
-			return new XmlIoDvidMultiscale2dImageLoader().fromXml( elem, basePath, sequenceDescription );
-		}
-		else if ( classn.equals( "bdv.img.dvid.DvidGrayscale8ImageLoader" ) )
-		{
-			return new XmlIoDvidGrayscale8ImageLoader().fromXml( elem, basePath, sequenceDescription );
-		}
-		else if ( classn.equals( "bdv.img.dvid.DvidLabels64ImageLoader" ) )
-		{
-			return new XmlIoDvidLabels64ImageLoader().fromXml( elem, basePath, sequenceDescription );
 		}
 		else
 			throw new RuntimeException( "unknown ImageLoader class" );
