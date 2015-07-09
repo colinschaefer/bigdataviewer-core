@@ -338,17 +338,8 @@ public class RenderSlice {
 					final int oldrgb = bufferedImage.getRGB(i, j);
 					int gray = (oldrgb & 0xFF);
 
-					// gray = gray / 256;
-
-					// get the single values of the pixel
-					// int oldalpha = (oldrgb >> 24) & 0xFF;
-					// int oldred = (oldrgb >> 16) & 0xFF;
-					// int oldgreen = (oldrgb >> 8) & 0xFF;
-					// int oldblue = (oldrgb) & 0xFF;
-
 					// get the values for the set color\
 					int intcolor = color.get();
-					// int alpha = (intcolor >> 24) & 0xFF;
 					int red = (intcolor >> 16) & 0xFF;
 					int green = (intcolor >> 8) & 0xFF;
 					int blue = (intcolor) & 0xFF;
@@ -357,7 +348,6 @@ public class RenderSlice {
 					red = (int) Math.floor((red * gray * gray) / 65535);
 					green = (int) Math.floor((green * gray * gray) / 65535);
 					blue = (int) Math.floor((blue * gray * gray) / 65535);
-					// alpha = (int) Math.floor((alpha * gray) / 255);
 
 					// create the integer to use in the setting of the pixel
 					int rgb = ARGBType.rgba(red, green, blue, 255);
@@ -380,22 +370,10 @@ public class RenderSlice {
 		final int n = 3;
 		final long[] min = new long[n];
 		final long[] max = new long[n];
-		boolean test = false;
-		for (int d = 0; d < n; ++d) {
-			if (test) {
-				if (d == 0) {
-					min[d] = blockPos[d] * blockSize[d];
-				} else if (d == 1) {
-					min[d] = blockPos[d] * blockSize[d] - 1;
-				} else {
-					min[d] = blockPos[d] * blockSize[d];
-				}
 
-				max[d] = min[d] + blockSize[d];
-			} else {
-				min[d] = blockPos[d] * blockSize[d];
-				max[d] = min[d] + paddedBlockSize[d] - 1;
-			}
+		for (int d = 0; d < n; ++d) {
+			min[d] = blockPos[d] * blockSize[d];
+			max[d] = min[d] + paddedBlockSize[d] - 1;
 		}
 
 		final short[] data = useThisData == null ? new short[paddedBlockSize[0]
