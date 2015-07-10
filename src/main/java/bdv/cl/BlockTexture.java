@@ -26,10 +26,11 @@ public class BlockTexture {
 		private final int hashcode;
 
 		public BlockKey(final int[] cellGridPos, final int timepoint,
-				final int setupId) {
+				final int setupId, final int mipmapIndex) {
 			this.cellPos = cellGridPos.clone();
 
-			final long value = ((long) timepoint << 42) ^ setupId << 21
+			final long value = (long) mipmapIndex << 60
+					^ ((long) timepoint << 42) ^ setupId << 21
 					^ (long) cellPos[2];
 			hashcode = (int) (value ^ (value >>> 32));
 		}

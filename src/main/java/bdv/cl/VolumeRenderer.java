@@ -40,6 +40,8 @@ public class VolumeRenderer {
 	ZdimDialog renderZdim;
 	BrightnessDialog renderBrightness;
 
+	private AffineTransform3D newTransform = new AffineTransform3D();
+
 	boolean createListenersOnFirstRendering = true;
 
 	final ActionMap actionMap = new ActionMap();
@@ -73,7 +75,6 @@ public class VolumeRenderer {
 				private boolean changed = false;
 				private boolean pendingAlignTransform = false;
 
-				private AffineTransform3D newTransform = new AffineTransform3D();
 				private AffineTransform3D oldTransform = new AffineTransform3D();
 
 				public void transformChanged(final AffineTransform3D transform) {
@@ -264,8 +265,14 @@ public class VolumeRenderer {
 				.getCurrentValue();
 		ARGBType color = renderSetup.getConverterSetups().get(0).getColor();
 
+		// final int optimalMipMapLevel = renderViewer.getState()
+		// .getBestMipMapLevel(newTransform, setupId);
+
+		final int optimalMipMapLevel = 0;
+
 		render.renderSlice(renderViewer, currentdimZ, minBright, maxBright,
-				color, renderZdim.getMaxProjKeepColor(), setupId);
+				color, renderZdim.getMaxProjKeepColor(), setupId,
+				optimalMipMapLevel);
 	}
 
 	protected void initialRender() {

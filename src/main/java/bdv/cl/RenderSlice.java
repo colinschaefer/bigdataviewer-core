@@ -129,7 +129,7 @@ public class RenderSlice {
 	// this method actually renders the maximum projection slice
 	public void renderSlice(final ViewerPanel viewer, final float dimZ,
 			final float minBright, final float maxBright, final ARGBType color,
-			final boolean keepColor, final int setupId) {
+			final boolean keepColor, final int setupId, final int mipmapIndex) {
 
 		final int width = viewer.getDisplay().getWidth();
 		final int height = viewer.getDisplay().getHeight();
@@ -142,7 +142,6 @@ public class RenderSlice {
 		final Source<?> source = viewer.getState().getSources().get(0)
 				.getSpimSource();
 		final int timepointId = viewer.getState().getCurrentTimepoint();
-		final int mipmapIndex = 0; // TODO
 
 		// getting the current 3D transformation
 		final AffineTransform3D sourceToScreen = new AffineTransform3D();
@@ -169,7 +168,8 @@ public class RenderSlice {
 				* paddedBlockSize[1] * paddedBlockSize[2]];
 		int nnn = 0;
 		for (final int[] cellPos : requiredBlocks.cellPositions) {
-			final BlockKey key = new BlockKey(cellPos, timepointId, setupId);
+			final BlockKey key = new BlockKey(cellPos, timepointId, setupId,
+					mipmapIndex);
 
 			if (!blockTexture.contains(key)) {
 				blockTexture.put(key, getBlockData(cellPos, img, blockData));
@@ -196,7 +196,8 @@ public class RenderSlice {
 				true);
 		final ShortBuffer shorts = bytes.asShortBuffer();
 		for (final int[] cellPos : requiredBlocks.cellPositions) {
-			final BlockKey key = new BlockKey(cellPos, timepointId, setupId);
+			final BlockKey key = new BlockKey(cellPos, timepointId, setupId,
+					mipmapIndex);
 			final Block block = blockTexture.get(key);
 			final int[] blockPos;
 			if (block != null)
