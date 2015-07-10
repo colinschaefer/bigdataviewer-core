@@ -25,13 +25,22 @@ public class BlockTexture {
 
 		private final int hashcode;
 
-		public BlockKey(final int[] cellGridPos) {
+		public BlockKey(final int[] cellGridPos, final int timepoint,
+				final int setupId) {
 			this.cellPos = cellGridPos.clone();
 
-			final long value = ((long) cellPos[2] << 42) ^ cellPos[2] << 21
+			final long value = ((long) timepoint << 42) ^ setupId << 21
 					^ (long) cellPos[2];
 			hashcode = (int) (value ^ (value >>> 32));
 		}
+
+		// public BlockKey(final int[] cellGridPos) {
+		// this.cellPos = cellGridPos.clone();
+		//
+		// final long value = ((long) cellPos[2] << 42) ^ cellPos[2] << 21
+		// ^ (long) cellPos[2];
+		// hashcode = (int) (value ^ (value >>> 32));
+		// }
 
 		@Override
 		public boolean equals(final Object obj) {
@@ -155,13 +164,6 @@ public class BlockTexture {
 
 	public void put(final BlockKey key, final short[] data) {
 		final Block block = new Block();
-		blocksCache.put(key, block);
-		writeBlock(block.getBlockPos(), data);
-	}
-
-	public void overwrite(final BlockKey key, final short[] data) {
-		final Block block = new Block();
-		blocksCache.clear();
 		blocksCache.put(key, block);
 		writeBlock(block.getBlockPos(), data);
 	}

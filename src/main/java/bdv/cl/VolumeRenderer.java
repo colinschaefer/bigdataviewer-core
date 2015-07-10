@@ -40,8 +40,6 @@ public class VolumeRenderer {
 	ZdimDialog renderZdim;
 	BrightnessDialog renderBrightness;
 
-	boolean resetBuffer = false;
-	boolean resetRendering = false;
 	boolean createListenersOnFirstRendering = true;
 
 	final ActionMap actionMap = new ActionMap();
@@ -151,12 +149,6 @@ public class VolumeRenderer {
 							System.out.println("render: dimZ");
 							oldDimZ = newDimZ;
 						}
-
-						// else if something changed during not rendering the
-						// maximum projection reset the rendering on the next
-						// onset
-					} else {
-						resetRendering = true;
 					}
 				}
 			};
@@ -173,12 +165,6 @@ public class VolumeRenderer {
 					if (renderViewer.getMaxproj() == true) {
 						render();
 						System.out.println("render: resize");
-
-						// else if something changed during not rendering the
-						// maximum projection reset the rendering on the next
-						// onset
-					} else {
-						resetRendering = true;
 					}
 				}
 
@@ -197,15 +183,8 @@ public class VolumeRenderer {
 				public void stateChanged(ChangeEvent e) {
 					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
-						resetBuffer = true;
 						render();
 						System.out.println("render: timepoint");
-
-						// else if something changed during not rendering the
-						// maximum projection reset the rendering on the next
-						// onset
-					} else {
-						resetRendering = true;
 					}
 				}
 			};
@@ -218,12 +197,6 @@ public class VolumeRenderer {
 					if (renderViewer.getMaxproj() == true) {
 						render();
 						System.out.println("render: brightness");
-
-						// else if something changed during not rendering the
-						// maximum projection reset the rendering on the next
-						// onset
-					} else {
-						resetRendering = true;
 					}
 				}
 			};
@@ -234,15 +207,8 @@ public class VolumeRenderer {
 				public void actionPerformed(ActionEvent e) {
 					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
-						resetBuffer = true;
 						render();
 						System.out.println("render: setupId");
-
-						// else if something changed during not rendering the
-						// maximum projection reset the rendering on the next
-						// onset
-					} else {
-						resetRendering = true;
 					}
 				}
 			};
@@ -258,13 +224,6 @@ public class VolumeRenderer {
 
 				} else {
 					renderViewer.showMessage("maximum projection ON");
-
-					// if something except the transformation changed during not
-					// rendering reset the GPU context
-					if (resetRendering) {
-						render = new RenderSlice(imgLoader);
-						resetRendering = false;
-					}
 
 					// render every time
 					render();
@@ -306,8 +265,7 @@ public class VolumeRenderer {
 		ARGBType color = renderSetup.getConverterSetups().get(0).getColor();
 
 		render.renderSlice(renderViewer, currentdimZ, minBright, maxBright,
-				color, renderZdim.getMaxProjKeepColor(), resetBuffer, setupId);
-		resetBuffer = false;
+				color, renderZdim.getMaxProjKeepColor(), setupId);
 	}
 
 	protected void initialRender() {

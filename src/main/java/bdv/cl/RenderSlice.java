@@ -129,8 +129,7 @@ public class RenderSlice {
 	// this method actually renders the maximum projection slice
 	public void renderSlice(final ViewerPanel viewer, final float dimZ,
 			final float minBright, final float maxBright, final ARGBType color,
-			final boolean keepColor, final boolean resetBuffer,
-			final int setupId) {
+			final boolean keepColor, final int setupId) {
 
 		final int width = viewer.getDisplay().getWidth();
 		final int height = viewer.getDisplay().getHeight();
@@ -169,32 +168,12 @@ public class RenderSlice {
 		final short[] blockData = new short[paddedBlockSize[0]
 				* paddedBlockSize[1] * paddedBlockSize[2]];
 		int nnn = 0;
-		if (!resetBuffer) {
-			for (final int[] cellPos : requiredBlocks.cellPositions) {
-				final BlockKey key = new BlockKey(cellPos);
+		for (final int[] cellPos : requiredBlocks.cellPositions) {
+			final BlockKey key = new BlockKey(cellPos, timepointId, setupId);
 
-				if (!blockTexture.contains(key)) {
-					blockTexture
-							.put(key, getBlockData(cellPos, img, blockData));
-					nnn++;
-				}
-			}
-		} else {
-
-			blockTexture.clearBuffer();
-			for (final int[] cellPos : requiredBlocks.cellPositions) {
-				final BlockKey key = new BlockKey(cellPos);
-
-				if (!blockTexture.contains(key)) {
-					blockTexture
-							.put(key, getBlockData(cellPos, img, blockData));
-					nnn++;
-				} else {
-					blockTexture.overwrite(key,
-							getBlockData(cellPos, img, blockData));
-					nnn++;
-				}
-
+			if (!blockTexture.contains(key)) {
+				blockTexture.put(key, getBlockData(cellPos, img, blockData));
+				nnn++;
 			}
 		}
 		t = System.currentTimeMillis() - t;
@@ -217,7 +196,7 @@ public class RenderSlice {
 				true);
 		final ShortBuffer shorts = bytes.asShortBuffer();
 		for (final int[] cellPos : requiredBlocks.cellPositions) {
-			final BlockKey key = new BlockKey(cellPos);
+			final BlockKey key = new BlockKey(cellPos, timepointId, setupId);
 			final Block block = blockTexture.get(key);
 			final int[] blockPos;
 			if (block != null)
@@ -373,7 +352,7 @@ public class RenderSlice {
 
 		for (int d = 0; d < n; ++d) {
 			min[d] = blockPos[d] * blockSize[d];
-			max[d] = min[d] + paddedBlockSize[d] - 1;
+			max[d] = min[d] + blockSize[d];
 		}
 
 		final short[] data = useThisData == null ? new short[paddedBlockSize[0]
