@@ -442,9 +442,6 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 			}
 		} else if (pendingAlignTransform) {
 			pendingAlignTransform = false;
-			imageRenderer.paint(state);
-
-			display.repaint();
 
 			synchronized (this) {
 				final TransformEventHandler<AffineTransform3D> handler = display
