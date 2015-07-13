@@ -265,10 +265,8 @@ public class VolumeRenderer {
 				.getCurrentValue();
 		ARGBType color = renderSetup.getConverterSetups().get(0).getColor();
 
-		// final int optimalMipMapLevel = renderViewer.getState()
-		// .getBestMipMapLevel(newTransform, setupId);
-
-		final int optimalMipMapLevel = 0;
+		final int optimalMipMapLevel = renderViewer.getState()
+				.getBestMipMapLevel(newTransform, setupId);
 
 		render.renderSlice(renderViewer, currentdimZ, minBright, maxBright,
 				color, renderZdim.getMaxProjKeepColor(), setupId,

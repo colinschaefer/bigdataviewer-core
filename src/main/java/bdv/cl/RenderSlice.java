@@ -162,7 +162,7 @@ public class RenderSlice {
 		System.out.println("timepoint " + String.valueOf(timepointId));
 		final RandomAccessible<UnsignedShortType> img = Views
 				.extendZero(imgLoader.getImage(
-						new ViewId(timepointId, setupId), 0)); // TODO
+						new ViewId(timepointId, setupId), mipmapIndex)); // TODO
 
 		final short[] blockData = new short[paddedBlockSize[0]
 				* paddedBlockSize[1] * paddedBlockSize[2]];
@@ -350,6 +350,11 @@ public class RenderSlice {
 		final int n = 3;
 		final long[] min = new long[n];
 		final long[] max = new long[n];
+
+		// for (int d = 0; d < n; ++d) {
+		// min[d] = blockPos[d] * blockSize[d];
+		// max[d] = min[d] + blockSize[d];
+		// }
 
 		for (int d = 0; d < n; ++d) {
 			min[d] = blockPos[d] * blockSize[d];

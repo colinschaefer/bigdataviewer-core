@@ -35,14 +35,6 @@ public class BlockTexture {
 			hashcode = (int) (value ^ (value >>> 32));
 		}
 
-		// public BlockKey(final int[] cellGridPos) {
-		// this.cellPos = cellGridPos.clone();
-		//
-		// final long value = ((long) cellPos[2] << 42) ^ cellPos[2] << 21
-		// ^ (long) cellPos[2];
-		// hashcode = (int) (value ^ (value >>> 32));
-		// }
-
 		@Override
 		public boolean equals(final Object obj) {
 			if (obj instanceof BlockKey) {

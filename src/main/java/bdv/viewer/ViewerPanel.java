@@ -473,8 +473,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 	// adding a method to directly paint the calculated picture
 	public void paint(BufferedImage bufferedImage) {
 		if (!pendingAlignTransform) {
-			System.out.println("pending align transform: "
-					+ String.valueOf(pendingAlignTransform));
+
 			imageRenderer.paint(state, bufferedImage);
 
 			display.repaint();

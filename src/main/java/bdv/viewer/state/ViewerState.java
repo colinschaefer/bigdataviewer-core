@@ -434,6 +434,19 @@ public class ViewerState {
 				currentTimepoint);
 	}
 
+	public synchronized double getVoxelScreenSize(
+			final AffineTransform3D screenScaleTransform,
+			final int sourceIndex, final int timepoint, final int mipmapIndex) {
+		final AffineTransform3D screenTransform = new AffineTransform3D();
+		getViewerTransform(screenTransform);
+		screenTransform.preConcatenate(screenScaleTransform);
+
+		final Source<?> source = sources.get(sourceIndex).getSpimSource();
+
+		return MipmapTransforms.getVoxelScreenSize(screenTransform, source,
+				timepoint, mipmapIndex);
+	}
+
 	public int getNumTimePoints() {
 		return numTimePoints;
 	}
