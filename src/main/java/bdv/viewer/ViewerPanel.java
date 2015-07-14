@@ -442,16 +442,17 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 			}
 		} else if (pendingAlignTransform) {
 			pendingAlignTransform = false;
-
-			synchronized (this) {
-				final TransformEventHandler<AffineTransform3D> handler = display
-						.getTransformEventHandler();
-				final AffineTransform3D transform = currentAnimator
-						.getCurrent(System.currentTimeMillis() + 1000);
-				handler.setTransform(transform);
-				transformChanged(transform);
-				if (currentAnimator.isComplete())
-					currentAnimator = null;
+			if (currentAnimator != null) {
+				synchronized (this) {
+					final TransformEventHandler<AffineTransform3D> handler = display
+							.getTransformEventHandler();
+					final AffineTransform3D transform = currentAnimator
+							.getCurrent(System.currentTimeMillis() + 1000);
+					handler.setTransform(transform);
+					transformChanged(transform);
+					if (currentAnimator.isComplete())
+						currentAnimator = null;
+				}
 			}
 		}
 
@@ -715,16 +716,20 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 	 * Show the next time-point.
 	 */
 	public synchronized void nextTimePoint() {
-		if (sliderTime != null)
+		if (sliderTime != null) {
+			state.setCurrentTimepoint(sliderTime.getValue() + 1);
 			sliderTime.setValue(sliderTime.getValue() + 1);
+		}
 	}
 
 	/**
 	 * Show the previous time-point.
 	 */
 	public synchronized void previousTimePoint() {
-		if (sliderTime != null)
+		if (sliderTime != null) {
+			state.setCurrentTimepoint(sliderTime.getValue() - 1);
 			sliderTime.setValue(sliderTime.getValue() - 1);
+		}
 	}
 
 	/**

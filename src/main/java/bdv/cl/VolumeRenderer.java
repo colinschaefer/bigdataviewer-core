@@ -114,6 +114,7 @@ public class VolumeRenderer {
 
 						pendingAlignTransform = renderViewer
 								.getPendingAlignTransform();
+
 						// start rendering if the transformation has
 						// changed
 						if (changed && !pendingAlignTransform) {
@@ -185,7 +186,8 @@ public class VolumeRenderer {
 					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
 						render();
-						System.out.println("render: timepoint");
+						System.out.println("render: timepoint "
+								+ viewer.getState().getCurrentTimepoint());
 					}
 				}
 			};
