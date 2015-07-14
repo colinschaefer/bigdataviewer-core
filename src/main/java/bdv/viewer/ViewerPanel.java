@@ -719,6 +719,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 		if (sliderTime != null) {
 			state.setCurrentTimepoint(sliderTime.getValue() + 1);
 			sliderTime.setValue(sliderTime.getValue() + 1);
+			requestRepaint();
 		}
 	}
 
@@ -729,6 +730,7 @@ public class ViewerPanel extends JPanel implements OverlayRenderer,
 		if (sliderTime != null) {
 			state.setCurrentTimepoint(sliderTime.getValue() - 1);
 			sliderTime.setValue(sliderTime.getValue() - 1);
+			requestRepaint();
 		}
 	}
 
