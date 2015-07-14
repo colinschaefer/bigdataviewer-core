@@ -2,6 +2,7 @@ package bdv.tools.brightness;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,6 +28,8 @@ public class SliderPanel extends JPanel implements BoundedValue.UpdateListener {
 
 	private final BoundedValue model;
 
+	protected final CopyOnWriteArrayList<ChangeListener> changeListeners;
+
 	/**
 	 * Create a {@link SliderPanel} to modify a given {@link BoundedValue value}
 	 * .
@@ -41,6 +44,8 @@ public class SliderPanel extends JPanel implements BoundedValue.UpdateListener {
 		super();
 		setLayout(new BorderLayout(10, 10));
 
+		changeListeners = new CopyOnWriteArrayList<ChangeListener>();
+
 		slider = new JSlider(SwingConstants.HORIZONTAL, model.getRangeMin(),
 				model.getRangeMax(), model.getCurrentValue());
 		spinner = new JSpinner();
@@ -52,6 +57,9 @@ public class SliderPanel extends JPanel implements BoundedValue.UpdateListener {
 			public void stateChanged(final ChangeEvent e) {
 				final int value = slider.getValue();
 				model.setCurrentValue(value);
+				for (final ChangeListener listener : changeListeners) {
+					listener.stateChanged(new ChangeEvent(spinner));
+				}
 			}
 		});
 
@@ -60,6 +68,9 @@ public class SliderPanel extends JPanel implements BoundedValue.UpdateListener {
 			public void stateChanged(final ChangeEvent e) {
 				final int value = ((Integer) spinner.getValue()).intValue();
 				model.setCurrentValue(value);
+				for (final ChangeListener listener : changeListeners) {
+					listener.stateChanged(new ChangeEvent(spinner));
+				}
 			}
 		});
 
@@ -74,8 +85,12 @@ public class SliderPanel extends JPanel implements BoundedValue.UpdateListener {
 		model.setUpdateListener(this);
 	}
 
-	public JSpinner getSpinner() {
-		return spinner;
+	public void addChangeListener(ChangeListener listener) {
+		changeListeners.add(listener);
+	}
+
+	public void removeChangeListener(ChangeListener listener) {
+		changeListeners.remove(listener);
 	}
 
 	@Override

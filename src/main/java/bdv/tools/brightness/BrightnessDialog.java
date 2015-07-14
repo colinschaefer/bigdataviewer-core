@@ -481,13 +481,13 @@ public class BrightnessDialog extends JDialog {
 	}
 
 	public void addChangeListener(ChangeListener listener) {
-		minPanel.getSpinner().addChangeListener(listener);
-		maxPanel.getSpinner().addChangeListener(listener);
+		minPanel.addChangeListener(listener);
+		maxPanel.addChangeListener(listener);
 	}
 
 	public void removeChangeListener(ChangeListener listener) {
-		minPanel.getSpinner().removeChangeListener(listener);
-		maxPanel.getSpinner().removeChangeListener(listener);
+		minPanel.removeChangeListener(listener);
+		maxPanel.removeChangeListener(listener);
 	}
 
 	private static final long serialVersionUID = 7963632306732311403L;
