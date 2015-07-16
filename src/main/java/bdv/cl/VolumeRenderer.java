@@ -261,11 +261,12 @@ public class VolumeRenderer {
 
 		currentdimZ = renderZdim.getDimZ();
 
-		minBright = renderSetup.getMinMaxGroups().get(0).getMinBoundedValue()
-				.getCurrentValue();
-		maxBright = renderSetup.getMinMaxGroups().get(0).getMaxBoundedValue()
-				.getCurrentValue();
-		ARGBType color = renderSetup.getConverterSetups().get(0).getColor();
+		minBright = renderSetup.getMinMaxGroups().get(setupId)
+				.getMinBoundedValue().getCurrentValue();
+		maxBright = renderSetup.getMinMaxGroups().get(setupId)
+				.getMaxBoundedValue().getCurrentValue();
+		ARGBType color = renderSetup.getConverterSetups().get(setupId)
+				.getColor();
 
 		final int optimalMipMapLevel = renderViewer.getState()
 				.getBestMipMapLevel(newTransform, setupId);
