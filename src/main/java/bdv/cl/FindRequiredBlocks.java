@@ -85,9 +85,9 @@ public class FindRequiredBlocks {
 
 		// planes bounding the volume, normals facing inwards...
 		final ConvexPolytope sourceRegion = Affine3DHelpers.inverseTransform(
-				new ConvexPolytope(new HyperPlane(0, 0, 1, halfdd),
-						new HyperPlane(0, 0, -1, -halfdd), new HyperPlane(1, 0,
-								0, 0), new HyperPlane(-1, 0, 0, -w),
+				new ConvexPolytope(new HyperPlane(0, 0, 1, 0), new HyperPlane(
+						0, 0, -1, -dd), new HyperPlane(1, 0, 0, 0),
+						new HyperPlane(-1, 0, 0, -w),
 						new HyperPlane(0, 1, 0, 0),
 						new HyperPlane(0, -1, 0, -h)), sourceToScreen);
 		final HyperPlane[] sourcePlanes = sourceRegion.getHyperplanes()
@@ -98,8 +98,10 @@ public class FindRequiredBlocks {
 		final double[] cellBBMin = new double[3];
 		final double[] cellBBMax = new double[3];
 		for (int d = 0; d < 3; ++d) {
-			cellBBMin[d] = -0.5;
-			cellBBMax[d] = cellDimensions[d] - 0.5;
+			cellBBMin[d] = -0;
+			cellBBMax[d] = cellDimensions[d] - 0;
+			// cellBBMin[d] = - 0.5;
+			// cellBBMax[d] = cellDimensions[d] - 0.5;
 		}
 		final double[] offset = new double[3];
 		for (int i = 0; i < sourcePlanes.length; ++i) {
