@@ -16,6 +16,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -39,9 +40,8 @@ import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import mpicbg.spim.data.generic.sequence.BasicViewSetup;
 import net.imglib2.type.numeric.ARGBType;
-import bdv.util.BoundedValue;
+import bdv.tools.brightness.SetupAssignments.UpdateListener;
 
 /**
  * Adjust brightness and colors for individual (or groups of)
@@ -49,18 +49,21 @@ import bdv.util.BoundedValue;
  *
  * @author Tobias Pietzsch &lt;tobias.pietzsch@gmail.com&gt;
  */
+;
+
 public class BrightnessDialog extends JDialog {
 
-	static SliderPanel minPanel = new SliderPanel("min", new BoundedValue(0, 0,
-			0), 1);
-	static SliderPanel maxPanel = new SliderPanel("max", new BoundedValue(0, 0,
-			0), 1);
+	final MinMaxPanels minMaxPanels;
+
+	protected final CopyOnWriteArrayList<SetupAssignments.UpdateListener> brightnessChangeListeners;
 
 	public BrightnessDialog(final Frame owner,
 			final SetupAssignments setupAssignments) {
 		super(owner, "brightness and color", false);
-		final MinMaxPanels minMaxPanels = new MinMaxPanels(setupAssignments,
-				this, true);
+
+		brightnessChangeListeners = new CopyOnWriteArrayList<SetupAssignments.UpdateListener>();
+
+		minMaxPanels = new MinMaxPanels(setupAssignments, this, true);
 		final Container content = getContentPane();
 
 		final ColorsPanel colorsPanel = new ColorsPanel(setupAssignments);
@@ -88,6 +91,9 @@ public class BrightnessDialog extends JDialog {
 					public void update() {
 						colorsPanel.recreateContent();
 						minMaxPanels.recreateContent();
+						for (final UpdateListener listener : brightnessChangeListeners) {
+							listener.update();
+						}
 					}
 				});
 
@@ -214,6 +220,7 @@ public class BrightnessDialog extends JDialog {
 		public MinMaxPanels(final SetupAssignments assignments,
 				final JDialog dialog, final boolean rememberSizes) {
 			super();
+
 			this.setupAssignments = assignments;
 			this.rememberSizes = rememberSizes;
 			minMaxPanels = new ArrayList<MinMaxPanel>();
@@ -281,7 +288,7 @@ public class BrightnessDialog extends JDialog {
 
 		private final ArrayList<JCheckBox> boxes;
 
-		private final JPanel sliders;
+		public final JPanel sliders;
 
 		private final Runnable showAdvanced;
 
@@ -291,10 +298,15 @@ public class BrightnessDialog extends JDialog {
 
 		private final boolean rememberSizes;
 
+		public SliderPanel minPanel;
+
+		public SliderPanel maxPanel;
+
 		public MinMaxPanel(final MinMaxGroup group,
 				final SetupAssignments assignments,
 				final MinMaxPanels minMaxPanels, final boolean rememberSizes) {
 			super();
+
 			setupAssignments = assignments;
 			minMaxGroup = group;
 			this.rememberSizes = rememberSizes;
@@ -480,14 +492,23 @@ public class BrightnessDialog extends JDialog {
 
 	}
 
-	public void addChangeListener(ChangeListener listener) {
-		minPanel.addChangeListener(listener);
-		maxPanel.addChangeListener(listener);
+	public void addBoxUpdateListener(SetupAssignments.UpdateListener listener) {
+
+		brightnessChangeListeners.add(listener);
 	}
 
-	public void removeChangeListener(ChangeListener listener) {
-		minPanel.removeChangeListener(listener);
-		maxPanel.removeChangeListener(listener);
+	public void removeBoxUpdateListener(SetupAssignments.UpdateListener listener) {
+
+		brightnessChangeListeners.remove(listener);
+	}
+
+	public void addChangeListener(ChangeListener listener) {
+		for (int i = 0; i < minMaxPanels.minMaxPanels.size(); i++) {
+			minMaxPanels.minMaxPanels.get(i).minPanel
+					.addChangeListener(listener);
+			minMaxPanels.minMaxPanels.get(i).maxPanel
+					.addChangeListener(listener);
+		}
 	}
 
 	private static final long serialVersionUID = 7963632306732311403L;

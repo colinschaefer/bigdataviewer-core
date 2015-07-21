@@ -204,6 +204,18 @@ public class VolumeRenderer {
 				}
 			};
 
+			SetupAssignments.UpdateListener brightnessBoxListener = new SetupAssignments.UpdateListener() {
+
+				@Override
+				public void update() {
+					if (renderViewer.getMaxproj() == true) {
+						renderBrightness.addChangeListener(brightnessListener);
+						System.out.println("render: brightness");
+					}
+
+				}
+			};
+
 			ActionListener setupIdListener = new ActionListener() {
 
 				@Override
@@ -224,6 +236,7 @@ public class VolumeRenderer {
 				if (renderViewer.getMaxproj() == false) {
 					renderViewer.requestRepaint();
 					renderViewer.showMessage("maximum projection OFF");
+					renderViewer.requestRepaint();
 
 				} else {
 					renderViewer.showMessage("maximum projection ON");
@@ -240,6 +253,8 @@ public class VolumeRenderer {
 						renderZdim.addActionListener(setupIdListener);
 						renderViewer.addComponentListener(resizeListener);
 						renderViewer.addTimeListener(timeListener);
+						renderBrightness
+								.addBoxUpdateListener(brightnessBoxListener);
 						renderBrightness.addChangeListener(brightnessListener);
 
 						// no more listeners will be created

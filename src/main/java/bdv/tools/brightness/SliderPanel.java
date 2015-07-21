@@ -106,6 +106,10 @@ public class SliderPanel extends JPanel implements BoundedValue.UpdateListener {
 			spinnerModel.setMinimum(min);
 			spinnerModel.setMaximum(max);
 		}
+		for (final ChangeListener listener : changeListeners) {
+			listener.stateChanged(new ChangeEvent(slider));
+		}
+
 		slider.setValue(value);
 		spinner.setValue(value);
 	}
