@@ -14,20 +14,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
 
-import mpicbg.spim.data.SpimDataException;
-import mpicbg.spim.data.generic.AbstractSpimData;
-import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
-import mpicbg.spim.data.generic.sequence.BasicViewSetup;
-import mpicbg.spim.data.sequence.Angle;
-import mpicbg.spim.data.sequence.Channel;
-import mpicbg.spim.data.sequence.VoxelDimensions;
-import net.imglib2.Volatile;
-import net.imglib2.display.RealARGBColorConverter;
-import net.imglib2.display.ScaledARGBConverter;
-import net.imglib2.type.numeric.ARGBType;
-import net.imglib2.type.numeric.RealType;
-import net.imglib2.type.volatiles.VolatileARGBType;
-
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -64,6 +50,19 @@ import bdv.viewer.NavigationActions;
 import bdv.viewer.SourceAndConverter;
 import bdv.viewer.ViewerFrame;
 import bdv.viewer.ViewerPanel;
+import mpicbg.spim.data.SpimDataException;
+import mpicbg.spim.data.generic.AbstractSpimData;
+import mpicbg.spim.data.generic.sequence.AbstractSequenceDescription;
+import mpicbg.spim.data.generic.sequence.BasicViewSetup;
+import mpicbg.spim.data.sequence.Angle;
+import mpicbg.spim.data.sequence.Channel;
+import mpicbg.spim.data.sequence.VoxelDimensions;
+import net.imglib2.Volatile;
+import net.imglib2.display.RealARGBColorConverter;
+import net.imglib2.display.ScaledARGBConverter;
+import net.imglib2.type.numeric.ARGBType;
+import net.imglib2.type.numeric.RealType;
+import net.imglib2.type.volatiles.VolatileARGBType;
 
 public class BigDataViewer {
 	protected final ViewerFrame viewerFrame;
@@ -352,11 +351,11 @@ public class BigDataViewer {
 				setupAssignments.moveSetupToGroup(setup, group);
 		}
 
-		VoxelDimensions dimensions = spimData.getSequenceDescription()
+		final VoxelDimensions dimensions = spimData.getSequenceDescription()
 				.getViewSetups().get(0).getVoxelSize();
 
-		double[] scales = viewer.getScreenScales();
-		double scale = 1 / scales[2];
+		final double[] scales = viewer.getScreenScales();
+		final double scale = 1 / scales[2];
 
 		zdimDialog = new ZdimDialog(viewerFrame, setupAssignments,
 				dimensions.dimension(2), scale);
@@ -469,6 +468,7 @@ public class BigDataViewer {
 		viewerFrame.setJMenuBar(menubar);
 		final InputActionBindings bindings = viewerFrame.getKeybindings();
 		@SuppressWarnings("unused")
+		final
 		VolumeRenderer renderer = new VolumeRenderer(spimData, viewer,
 				zdimDialog, setupAssignments, bindings, brightnessDialog);
 	}
@@ -743,7 +743,8 @@ public class BigDataViewer {
 		// "D:/Users/Colin/MATLAB/KLBdownsampler/TM000000/test.xml";
 		// final String fn = "D:/Users/Colin/h5/mamut.xml";
 		// final String fn = "D:/Users/Colin/deleteme/deleteme.xml";
-		final String fn = "D:/Users/Colin/Fiji.app/merged.xml";
+		// final String fn = "D:/Users/Colin/Fiji.app/merged.xml";
+		final String fn = "D:/MicroscopyData/Test/h5/mamut.xml";
 		try {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			open(fn, new File(fn).getName(), new ProgressWriterConsole());
