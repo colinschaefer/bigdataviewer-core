@@ -8,8 +8,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import org.w3c.dom.views.AbstractView;
-
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
@@ -50,7 +48,9 @@ import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
 
 public class RenderSlice {
-	private final AbstractView<UnsignedShortType, VolatileUnsignedShortType> imgLoader;
+	//private final AbstractView<UnsignedShortType, VolatileUnsignedShortType> imgLoader;
+	private final AbstractViewerSetupImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader;
+	
 
 	//private final CLPlatform platform = CLPlatform.getDefault();
 	private final CLPlatform[] platforms = CLPlatform.listCLPlatforms();
@@ -81,7 +81,9 @@ public class RenderSlice {
 
 	// the constructor initializes the OpenCL Kernel and Context
 	public RenderSlice(
-			final AbstractViewerSetupImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader) {
+			//final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader
+			final AbstractViewerSetupImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader
+			) {
 		this.imgLoader = imgLoader;
 
 		// determine maxflopsplatform and device
@@ -190,9 +192,11 @@ public class RenderSlice {
 		// initialization of the image with the loaded blocks
 		t = System.currentTimeMillis();
 		System.out.println("timepoint " + String.valueOf(timepointId));
+//		final RandomAccessible<UnsignedShortType> img = Views
+//				.extendZero(imgLoader.getImage(
+//						new ViewId(timepointId, setupId), mipmapIndex));
 		final RandomAccessible<UnsignedShortType> img = Views
-				.extendZero(imgLoader.getImage(
-						new ViewId(timepointId, setupId), mipmapIndex)); // TODO
+				.extendZero(imgLoader.getImage(timepointId, mipmapIndex));// TODO
 
 		final short[] blockData = new short[paddedBlockSize[0]
 				* paddedBlockSize[1] * paddedBlockSize[2]];
@@ -407,7 +411,8 @@ public class RenderSlice {
 			final AffineTransform3D sourceToScreen, final int w, final int h,
 			final int dd, final ViewId view) {
 		final CachedCellImg<?, ?> cellImg = (bdv.img.cache.CachedCellImg<?, ?>) imgLoader
-				.getImage(view, 0);
+//				.getImage(view, 0);
+				.getImage(view.getTimePointId(), 0);
 		final long[] imgDimensions = new long[3];
 
 		cellImg.dimensions(imgDimensions);

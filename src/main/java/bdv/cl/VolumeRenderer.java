@@ -12,6 +12,7 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import bdv.AbstractViewerSetupImgLoader;
 import bdv.tools.brightness.BrightnessDialog;
 import bdv.tools.brightness.SetupAssignments;
 import bdv.tools.zdim.ZdimDialog;
@@ -51,8 +52,10 @@ public class VolumeRenderer {
 			final InputActionBindings bindings,
 			final BrightnessDialog brightnessDialog) {
 		@SuppressWarnings("unchecked")
-		final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader = (AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType>) spimData
-				.getSequenceDescription().getImgLoader();
+//		final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader = (AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType>) spimData
+//				.getSequenceDescription().getImgLoader();
+		final AbstractViewerSetupImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader = (AbstractViewerSetupImgLoader<UnsignedShortType, VolatileUnsignedShortType>) spimData
+		.getSequenceDescription().getImgLoader();
 		render = new RenderSlice(imgLoader);
 		final String RENDER_CONTINUOUS = "continuous";
 		final InputMap inputMap = new InputMap();
