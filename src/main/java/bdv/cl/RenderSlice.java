@@ -8,6 +8,8 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
+import org.w3c.dom.views.AbstractView;
+
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
@@ -27,7 +29,7 @@ import com.jogamp.opencl.CLMemory.Mem;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.CLProgram;
 
-import bdv.AbstractViewerImgLoader;
+import bdv.AbstractViewerSetupImgLoader;
 import bdv.cl.BlockTexture.Block;
 import bdv.cl.BlockTexture.BlockKey;
 import bdv.cl.FindRequiredBlocks.RequiredBlocks;
@@ -48,7 +50,7 @@ import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
 
 public class RenderSlice {
-	private final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader;
+	private final AbstractView<UnsignedShortType, VolatileUnsignedShortType> imgLoader;
 
 	//private final CLPlatform platform = CLPlatform.getDefault();
 	private final CLPlatform[] platforms = CLPlatform.listCLPlatforms();
@@ -79,7 +81,7 @@ public class RenderSlice {
 
 	// the constructor initializes the OpenCL Kernel and Context
 	public RenderSlice(
-			final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader) {
+			final AbstractViewerSetupImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader) {
 		this.imgLoader = imgLoader;
 
 		// determine maxflopsplatform and device

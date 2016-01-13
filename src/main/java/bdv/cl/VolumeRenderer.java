@@ -12,18 +12,17 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import bdv.tools.brightness.BrightnessDialog;
+import bdv.tools.brightness.SetupAssignments;
+import bdv.tools.zdim.ZdimDialog;
+import bdv.viewer.InputActionBindings;
+import bdv.viewer.ViewerPanel;
 import mpicbg.spim.data.generic.AbstractSpimData;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.ui.TransformListener;
-import bdv.AbstractViewerImgLoader;
-import bdv.tools.brightness.BrightnessDialog;
-import bdv.tools.brightness.SetupAssignments;
-import bdv.tools.zdim.ZdimDialog;
-import bdv.viewer.InputActionBindings;
-import bdv.viewer.ViewerPanel;
 
 public class VolumeRenderer {
 	// rendering instance
@@ -50,7 +49,7 @@ public class VolumeRenderer {
 			final ViewerPanel viewer, final ZdimDialog zdimDialog,
 			final SetupAssignments setupAssignments,
 			final InputActionBindings bindings,
-			BrightnessDialog brightnessDialog) {
+			final BrightnessDialog brightnessDialog) {
 		@SuppressWarnings("unchecked")
 		final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader = (AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType>) spimData
 				.getSequenceDescription().getImgLoader();
@@ -77,6 +76,7 @@ public class VolumeRenderer {
 
 				private AffineTransform3D oldTransform = new AffineTransform3D();
 
+				@Override
 				public void transformChanged(final AffineTransform3D transform) {
 
 					// check, if maximum projection option is
@@ -140,7 +140,7 @@ public class VolumeRenderer {
 				private float newDimZ = 20;
 
 				@Override
-				public void stateChanged(ChangeEvent e) {
+				public void stateChanged(final ChangeEvent e) {
 					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
 
@@ -158,11 +158,11 @@ public class VolumeRenderer {
 			ComponentListener resizeListener = new ComponentListener() {
 
 				@Override
-				public void componentShown(ComponentEvent e) {
+				public void componentShown(final ComponentEvent e) {
 				}
 
 				@Override
-				public void componentResized(ComponentEvent e) {
+				public void componentResized(final ComponentEvent e) {
 					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
 						render();
@@ -171,18 +171,18 @@ public class VolumeRenderer {
 				}
 
 				@Override
-				public void componentMoved(ComponentEvent e) {
+				public void componentMoved(final ComponentEvent e) {
 				}
 
 				@Override
-				public void componentHidden(ComponentEvent e) {
+				public void componentHidden(final ComponentEvent e) {
 				}
 			};
 
 			ChangeListener timeListener = new ChangeListener() {
 
 				@Override
-				public void stateChanged(ChangeEvent e) {
+				public void stateChanged(final ChangeEvent e) {
 					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
 						render();
@@ -195,7 +195,7 @@ public class VolumeRenderer {
 			ChangeListener brightnessListener = new ChangeListener() {
 
 				@Override
-				public void stateChanged(ChangeEvent e) {
+				public void stateChanged(final ChangeEvent e) {
 					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
 						render();
@@ -219,7 +219,7 @@ public class VolumeRenderer {
 			ActionListener setupIdListener = new ActionListener() {
 
 				@Override
-				public void actionPerformed(ActionEvent e) {
+				public void actionPerformed(final ActionEvent e) {
 					// if maximum projection is switched on: render
 					if (renderViewer.getMaxproj() == true) {
 						render();
@@ -280,7 +280,7 @@ public class VolumeRenderer {
 				.getMinBoundedValue().getCurrentValue();
 		maxBright = renderSetup.getMinMaxGroups().get(setupId)
 				.getMaxBoundedValue().getCurrentValue();
-		ARGBType color = renderSetup.getConverterSetups().get(setupId)
+		final ARGBType color = renderSetup.getConverterSetups().get(setupId)
 				.getColor();
 
 		final int optimalMipMapLevel = renderViewer.getState()
