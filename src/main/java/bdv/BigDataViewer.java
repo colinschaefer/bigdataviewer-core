@@ -552,7 +552,7 @@ public class BigDataViewer {
 		// this is just to get updates of window size:
 		viewer.getDisplay().addOverlayRenderer(movieDialog);
 
-<<<<<<< HEAD
+<<<<<<< final HEAD
 		activeSourcesDialog = new VisibilityAndGroupingDialog(viewerFrame,
 				viewer.getVisibilityAndGrouping());
 =======
@@ -942,7 +942,7 @@ public class BigDataViewer {
 			final AbstractSequenceDescription<?, ?, ?> seq = spimData
 					.getSequenceDescription();
 			numTimepoints = seq.getTimePoints().size();
-<<<<<<< HEAD
+<<<<<<< final HEAD
 			cache = ((ViewerImgLoader<?, ?>) seq.getImgLoader()).getCache();
 =======
 			cache = ( ( ViewerImgLoader ) seq.getImgLoader() ).getCache();
