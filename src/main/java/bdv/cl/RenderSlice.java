@@ -244,6 +244,8 @@ public class RenderSlice {
 		queue.putUnmapMemory(blockLookup, bytes);
 		queue.finish();
 
+		//final CLImage3d<IntBuffer> renderTarget = context.createImage3d(width, height, depth , new CLImageFormat(ChannelOrder.R, ChannelType.UNSIGNED_INT8), Mem.READ_WRITE);
+		
 		final CLImage2d<ByteBuffer> renderTarget = context
 				.createImage2d(Buffers.newDirectByteBuffer(width * height),
 						width, height, new CLImageFormat(ChannelOrder.R,

@@ -744,7 +744,8 @@ public class BigDataViewer {
 		// final String fn = "D:/Users/Colin/h5/mamut.xml";
 		// final String fn = "D:/Users/Colin/deleteme/deleteme.xml";
 		// final String fn = "D:/Users/Colin/Fiji.app/merged.xml";
-		final String fn = "D:/MicroscopyData/Test/h5/mamut.xml";
+		// final String fn = "D:/MicroscopyData/Test/h5/mamut.xml";
+		final String fn = "C:/Users/Colin Schaefer/Desktop/Fiji.app/export.xml";
 		try {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			open(fn, new File(fn).getName(), new ProgressWriterConsole());
