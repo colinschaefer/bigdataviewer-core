@@ -8,26 +8,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import mpicbg.spim.data.sequence.ViewId;
-import net.imglib2.Cursor;
-import net.imglib2.RandomAccessible;
-import net.imglib2.display.screenimage.awt.UnsignedByteAWTScreenImage;
-import net.imglib2.img.array.ArrayImgs;
-import net.imglib2.realtransform.AffineTransform3D;
-import net.imglib2.type.numeric.ARGBType;
-import net.imglib2.type.numeric.integer.UnsignedShortType;
-import net.imglib2.type.volatiles.VolatileUnsignedShortType;
-import net.imglib2.util.IntervalIndexer;
-import net.imglib2.util.Intervals;
-import net.imglib2.view.Views;
-import bdv.AbstractViewerImgLoader;
-import bdv.cl.BlockTexture.Block;
-import bdv.cl.BlockTexture.BlockKey;
-import bdv.cl.FindRequiredBlocks.RequiredBlocks;
-import bdv.img.cache.CachedCellImg;
-import bdv.viewer.Source;
-import bdv.viewer.ViewerPanel;
-
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opencl.CLBuffer;
 import com.jogamp.opencl.CLCommandQueue;
@@ -47,10 +27,35 @@ import com.jogamp.opencl.CLMemory.Mem;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.CLProgram;
 
+import bdv.AbstractViewerImgLoader;
+import bdv.cl.BlockTexture.Block;
+import bdv.cl.BlockTexture.BlockKey;
+import bdv.cl.FindRequiredBlocks.RequiredBlocks;
+import bdv.img.cache.CachedCellImg;
+import bdv.viewer.Source;
+import bdv.viewer.ViewerPanel;
+import mpicbg.spim.data.sequence.ViewId;
+import net.imglib2.Cursor;
+import net.imglib2.RandomAccessible;
+import net.imglib2.display.screenimage.awt.UnsignedByteAWTScreenImage;
+import net.imglib2.img.array.ArrayImgs;
+import net.imglib2.realtransform.AffineTransform3D;
+import net.imglib2.type.numeric.ARGBType;
+import net.imglib2.type.numeric.integer.UnsignedShortType;
+import net.imglib2.type.volatiles.VolatileUnsignedShortType;
+import net.imglib2.util.IntervalIndexer;
+import net.imglib2.util.Intervals;
+import net.imglib2.view.Views;
+
 public class RenderSlice {
 	private final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader;
 
-	private CLPlatform platform = CLPlatform.getDefault();
+	//private final CLPlatform platform = CLPlatform.getDefault();
+	private final CLPlatform[] platforms = CLPlatform.listCLPlatforms();
+	private CLPlatform maxflopsplatform = null;
+	private CLDevice maxflopsdevice = null;
+	
+	//private final CLPlatform platform = CLPlatform.listCLPlatforms()[1];
 
 	private CLContext context;
 
@@ -77,17 +82,40 @@ public class RenderSlice {
 			final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader) {
 		this.imgLoader = imgLoader;
 
+		// determine maxflopsplatform and device
+		final int maxflops = -1;
+		int round = 1;
+		
+		for (final CLPlatform clPlatform : platforms) {
+			if (clPlatform.getMaxFlopsDevice().getMaxClockFrequency() > maxflops) {
+				maxflopsdevice = clPlatform.getMaxFlopsDevice();
+				maxflopsplatform = clPlatform;
+			}
+			System.out.println("--------------round " + round + " --------------");
+			System.out.println(maxflopsplatform.getVendor());
+			System.out.println(maxflopsplatform.getName());
+			System.out.println(maxflopsplatform);
+			
+			round = round + 1;
+		}
+		System.out.println("--------------final selection--------------");
+		
+		System.out.println(maxflopsdevice);
+		System.out.println(maxflopsplatform.getVendor());
+		System.out.println(maxflopsplatform.getName());
+		System.out.println(maxflopsplatform);
+		
 		// try to set the OpenCL Kernel and Context
 		try {
-			// select the Device with the maximum flops, ideally this should
-			// select the GPU
-			context = CLContext.create(platform
-					.getMaxFlopsDevice(CLDevice.Type.GPU));
-			System.out.println(platform.getMaxFlopsDevice());
-
+			
+			context = CLContext.create(maxflopsdevice);
+			System.out.println(context);
+			
 			// create the command queue
 			queue = context.getDevices()[0]
 					.createCommandQueue(Mode.PROFILING_MODE);
+			
+			System.out.println(queue);
 
 			// create the program and build the kernel
 			final CLProgram program = context.createProgram(this.getClass()
@@ -216,7 +244,9 @@ public class RenderSlice {
 		queue.putUnmapMemory(blockLookup, bytes);
 		queue.finish();
 
-		final CLImage2d<ByteBuffer> renderTarget = (CLImage2d<ByteBuffer>) context
+		//final CLImage3d<IntBuffer> renderTarget = context.createImage3d(width, height, depth , new CLImageFormat(ChannelOrder.R, ChannelType.UNSIGNED_INT8), Mem.READ_WRITE);
+		
+		final CLImage2d<ByteBuffer> renderTarget = context
 				.createImage2d(Buffers.newDirectByteBuffer(width * height),
 						width, height, new CLImageFormat(ChannelOrder.R,
 								ChannelType.UNSIGNED_INT8), Mem.READ_WRITE);
@@ -287,7 +317,7 @@ public class RenderSlice {
 	// the show method paints the maximum projection which was rendered on the
 	// GPU to the Interactive Canvas
 	private void show(final byte[] data, final int width, final int height,
-			ViewerPanel viewer, ARGBType color, boolean keepColor) {
+			final ViewerPanel viewer, final ARGBType color, final boolean keepColor) {
 
 		// Converting the byte buffer back in image data
 		final UnsignedByteAWTScreenImage screenImage = new UnsignedByteAWTScreenImage(
@@ -316,10 +346,10 @@ public class RenderSlice {
 
 					// get the rgb value of the current pixel
 					final int oldrgb = bufferedImage.getRGB(i, j);
-					int gray = (oldrgb & 0xFF);
+					final int gray = (oldrgb & 0xFF);
 
 					// get the values for the set color\
-					int intcolor = color.get();
+					final int intcolor = color.get();
 					int red = (intcolor >> 16) & 0xFF;
 					int green = (intcolor >> 8) & 0xFF;
 					int blue = (intcolor) & 0xFF;
@@ -330,7 +360,7 @@ public class RenderSlice {
 					blue = (int) Math.floor((blue * gray * gray) / 65535);
 
 					// create the integer to use in the setting of the pixel
-					int rgb = ARGBType.rgba(red, green, blue, 255);
+					final int rgb = ARGBType.rgba(red, green, blue, 255);
 
 					// set the pixel to the calculated value
 					colorBufferedImage.setRGB(i, j, rgb);

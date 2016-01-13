@@ -50,6 +50,7 @@
 		<dependency>
 			<groupId>sc.fiji</groupId>
 			<artifactId>spim_data</artifactId>
+			<version>2.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>cisd</groupId>
@@ -71,18 +72,18 @@
  		<dependency>
 			<groupId>org.jogamp.jocl</groupId>
 			<artifactId>jocl-main</artifactId>
-			<version>2.3.1</version>
-		</dependency>
+			<version>2.3.2</version>
+ 		</dependency>
 <dependency>
      <groupId>org.jogamp.jogl</groupId>
      <artifactId>jogl-all-main</artifactId>
-     <version>2.0.2</version>
-   </dependency>		
+     <version>2.3.2</version>
+</dependency>		
 		<dependency>
   		  <artifactId>..</artifactId>
     		<groupId>..</groupId>
    			<scope>system</scope>
-  		  	<systemPath>D:/Users/Colin/Fiji.app/jars/klb-0.2.7.jar</systemPath>
+  		  	<systemPath>C:\Users\Colin Schaefer\Desktop\Fiji.app\jars\klb-0.3.0-SNAPSHOT.jar</systemPath>
   		  	<version>0.2.7</version>
 		</dependency>	
 <dependency>
