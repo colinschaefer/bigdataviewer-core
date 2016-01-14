@@ -27,37 +27,33 @@ import com.jogamp.opencl.CLMemory.Mem;
 import com.jogamp.opencl.CLPlatform;
 import com.jogamp.opencl.CLProgram;
 
-import bdv.AbstractViewerSetupImgLoader;
+import bdv.ViewerImgLoader;
 import bdv.cl.BlockTexture.Block;
 import bdv.cl.BlockTexture.BlockKey;
 import bdv.cl.FindRequiredBlocks.RequiredBlocks;
 import bdv.img.cache.CachedCellImg;
 import bdv.viewer.Source;
 import bdv.viewer.ViewerPanel;
+import mpicbg.spim.data.generic.sequence.ImgLoaderHint;
 import mpicbg.spim.data.sequence.ViewId;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessible;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.display.screenimage.awt.UnsignedByteAWTScreenImage;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.ARGBType;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
-import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.util.IntervalIndexer;
 import net.imglib2.util.Intervals;
 import net.imglib2.view.Views;
 
 public class RenderSlice {
-	//private final AbstractView<UnsignedShortType, VolatileUnsignedShortType> imgLoader;
-	private final AbstractViewerSetupImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader;
+	private final ViewerImgLoader imgLoader;
 	
-
-	//private final CLPlatform platform = CLPlatform.getDefault();
 	private final CLPlatform[] platforms = CLPlatform.listCLPlatforms();
 	private CLPlatform maxflopsplatform = null;
 	private CLDevice maxflopsdevice = null;
-	
-	//private final CLPlatform platform = CLPlatform.listCLPlatforms()[1];
 
 	private CLContext context;
 
@@ -81,8 +77,7 @@ public class RenderSlice {
 
 	// the constructor initializes the OpenCL Kernel and Context
 	public RenderSlice(
-			//final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader
-			final AbstractViewerSetupImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader
+			final ViewerImgLoader imgLoader
 			) {
 		this.imgLoader = imgLoader;
 
@@ -192,11 +187,10 @@ public class RenderSlice {
 		// initialization of the image with the loaded blocks
 		t = System.currentTimeMillis();
 		System.out.println("timepoint " + String.valueOf(timepointId));
-//		final RandomAccessible<UnsignedShortType> img = Views
-//				.extendZero(imgLoader.getImage(
-//						new ViewId(timepointId, setupId), mipmapIndex));
-		final RandomAccessible<UnsignedShortType> img = Views
-				.extendZero(imgLoader.getImage(timepointId, mipmapIndex));// TODO
+		final ImgLoaderHint hint = null;
+		@SuppressWarnings("unchecked")
+		final RandomAccessible<UnsignedShortType> img = Views.extendZero((RandomAccessibleInterval<UnsignedShortType>) imgLoader.getSetupImgLoader(setupId).getImage(timepointId, mipmapIndex, hint));				
+				
 
 		final short[] blockData = new short[paddedBlockSize[0]
 				* paddedBlockSize[1] * paddedBlockSize[2]];
@@ -410,9 +404,8 @@ public class RenderSlice {
 	private RequiredBlocks getRequiredBlocks(
 			final AffineTransform3D sourceToScreen, final int w, final int h,
 			final int dd, final ViewId view) {
-		final CachedCellImg<?, ?> cellImg = (bdv.img.cache.CachedCellImg<?, ?>) imgLoader
-//				.getImage(view, 0);
-				.getImage(view.getTimePointId(), 0);
+		final ImgLoaderHint hint = null;
+		final CachedCellImg<?, ?> cellImg = (bdv.img.cache.CachedCellImg<?, ?>) imgLoader.getSetupImgLoader(view.getViewSetupId()).getImage(view.getTimePointId(), hint);
 		final long[] imgDimensions = new long[3];
 
 		cellImg.dimensions(imgDimensions);

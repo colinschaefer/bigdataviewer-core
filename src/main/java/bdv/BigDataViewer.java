@@ -459,7 +459,6 @@ public class BigDataViewer {
 			else
 				throw new IllegalArgumentException( "ImgLoader of type " + type.getClass() + " not supported." );
 		}
-// >>>>>>> refs/heads/pr/1
 	}
 
 	/**

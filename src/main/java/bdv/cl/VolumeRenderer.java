@@ -12,7 +12,7 @@ import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import bdv.AbstractViewerSetupImgLoader;
+import bdv.ViewerImgLoader;
 import bdv.tools.brightness.BrightnessDialog;
 import bdv.tools.brightness.SetupAssignments;
 import bdv.tools.zdim.ZdimDialog;
@@ -21,8 +21,6 @@ import bdv.viewer.ViewerPanel;
 import mpicbg.spim.data.generic.AbstractSpimData;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.ARGBType;
-import net.imglib2.type.numeric.integer.UnsignedShortType;
-import net.imglib2.type.volatiles.VolatileUnsignedShortType;
 import net.imglib2.ui.TransformListener;
 
 public class VolumeRenderer {
@@ -51,11 +49,7 @@ public class VolumeRenderer {
 			final SetupAssignments setupAssignments,
 			final InputActionBindings bindings,
 			final BrightnessDialog brightnessDialog) {
-		@SuppressWarnings("unchecked")
-//		final AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader = (AbstractViewerImgLoader<UnsignedShortType, VolatileUnsignedShortType>) spimData
-//				.getSequenceDescription().getImgLoader();
-		final AbstractViewerSetupImgLoader<UnsignedShortType, VolatileUnsignedShortType> imgLoader = (AbstractViewerSetupImgLoader<UnsignedShortType, VolatileUnsignedShortType>) spimData
-		.getSequenceDescription().getImgLoader();
+		final ViewerImgLoader imgLoader = (ViewerImgLoader) spimData.getSequenceDescription().getImgLoader();
 		render = new RenderSlice(imgLoader);
 		final String RENDER_CONTINUOUS = "continuous";
 		final InputMap inputMap = new InputMap();
